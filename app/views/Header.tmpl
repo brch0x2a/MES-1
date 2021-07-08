@@ -1,0 +1,130 @@
+{{ define "Header" }}
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MES</title>
+
+    <link  rel="preload" href="/public/css/timetablejs.css" as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/timetablejs.css"></noscript>
+
+    <link  rel="preload" href="/public/css/demo.css" as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/demo.css"></noscript>
+
+    <link  rel="preload" href="/public/css/bootstrap-directional-buttons.min.css" as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/bootstrap-directional-buttons.min.css"></noscript>
+
+
+    <link  rel="preload" href="/public/css/bootstrap.min.css" as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/bootstrap.min.css"></noscript>
+    
+    <link rel="preload" href="/public/css/sidenav.css"  as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/sidenav.css"></noscript>
+
+    <!----link rel="stylesheet" href="/public/css/signature_pad.css"-->
+    <link rel="preload" type="text/css" href="/public/css/eventMonitor.css"  as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/eventMonitor.css"></noscript>
+
+    <link rel="preload" href="/public/css/spin.css"  as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/spin.css"></noscript>
+
+    <link rel="preload" href="/public/css/font-awesome.css"  as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/font-awesome.css"></noscript>
+
+    <link rel="preload" href="/public/css/table_scroll.css"  as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/table_scroll.css"></noscript>
+
+    <link rel="preload" href="/public/css/multiStep.css"  as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/multiStep.css"></noscript>
+
+
+    <link rel="preload" href="/public/css/owlcarousel/owl.carousel.min.css"  as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/owlcarousel/owl.carousel.min.css"></noscript>
+
+
+    <link rel="preload" href="/public/css/owlcarousel/owl.theme.default.min.css"  as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/owlcarousel/owl.theme.default.min.css"></noscript>
+
+
+    <link rel="preload" href="/public/css/select2.min.css"  as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/public/css/select2.min.css"></noscript>
+
+
+    <!-- <link rel="stylesheet" type="text/css" href="/public/css/datatables.min.css"/> -->
+
+
+    <script>
+      /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+      !function(a){"use strict";var b=function(b,c,d){function j(a){if(e.body)return a();setTimeout(function(){j(a)})}function l(){f.addEventListener&&f.removeEventListener("load",l),f.media=d||"all"}var g,e=a.document,f=e.createElement("link");if(c)g=c;else{var h=(e.body||e.getElementsByTagName("head")[0]).childNodes;g=h[h.length-1]}var i=e.styleSheets;f.rel="stylesheet",f.href=b,f.media="only x",j(function(){g.parentNode.insertBefore(f,c?g:g.nextSibling)});var k=function(a){for(var b=f.href,c=i.length;c--;)if(i[c].href===b)return a();setTimeout(function(){k(a)})};return f.addEventListener&&f.addEventListener("load",l),f.onloadcssdefined=k,k(l),f};"undefined"!=typeof exports?exports.loadCSS=b:a.loadCSS=b}("undefined"!=typeof global?global:this);
+      /*! loadCSS rel=preload polyfill. [c]2017 Filament Group, Inc. MIT License */
+      !function(a){if(a.loadCSS){var b=loadCSS.relpreload={};if(b.support=function(){try{return a.document.createElement("link").relList.supports("preload")}catch(a){return!1}},b.poly=function(){for(var b=a.document.getElementsByTagName("link"),c=0;c<b.length;c++){var d=b[c];"preload"===d.rel&&"style"===d.getAttribute("as")&&(a.loadCSS(d.href,d,d.getAttribute("media")),d.rel=null)}},!b.support()){b.poly();var c=a.setInterval(b.poly,300);a.addEventListener&&a.addEventListener("load",function(){b.poly(),a.clearInterval(c)}),a.attachEvent&&a.attachEvent("onload",function(){a.clearInterval(c)})}}}(this);
+    </script>
+
+    <script defer src="/public/scripts/jquery-3.3.1.min.js"></script>
+    <script defer src="/public/scripts/popper.min.js"></script>
+    <script defer src="/public/scripts/bootstrap.min.js"></script>
+    
+    <script defer src="/public/scripts/select2.min.js"></script>
+</head>
+
+<!----script src="/public/scripts/signature_pad.min.js"></script-->
+<style type="text/css">
+    .bar-chart {
+        background-color: #cccccc;
+
+    }
+
+	
+ 
+    .fab {
+    width: 70px;
+    height: 70px;
+    background-color: black;
+    border-radius: 50%;
+    box-shadow: 0 6px 10px 0 #666;
+    transition: all 0.1s ease-in-out;
+    
+    font-size: 50px;
+    color: gold;
+    text-align: center;
+    line-height: 70px;
+    cursor: pointer;
+    position: fixed;
+    right: 50px;
+    bottom: 50px;
+    z-index: 99;
+    }
+    
+    .fab:hover {
+    box-shadow: 0 6px 14px 0 #666;
+    transform: scale(1.05);
+    }
+    .stopwatch {
+    display: inline-block;
+    background-color: white;
+    border: 1px solid #eee;
+    padding: 5px;
+    margin: 5px;
+  }
+  .stopwatch span {
+    font-weight: bold;
+    display: block;
+  }
+  .stopwatch a {
+    padding-right: 5px;
+    text-decoration: none;
+  }
+    
+
+</style>
+
+</head>
+
+<body
+    style="width: 100%; background: linear-gradient(to left,hsla(211, 99%, 34%, 1),hsla(238, 80%, 37%, 1));">
+
+
+{{ end }}

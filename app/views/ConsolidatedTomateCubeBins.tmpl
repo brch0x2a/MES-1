@@ -1,0 +1,261 @@
+{{define "ConsolidatedTomateCubeBins"}}
+{{template "Header"}}
+
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+<br />
+<center>
+  <h2 style="color: gold;">Registro de Control de Bines de Tomate en Cubo</h2>
+</center>
+<div class="card">
+  <div class="card-body">
+    <form class="form-row align-items-center" action="#">
+        <div class="col">
+          <label for="area">Area</label>
+          <select name="area" id="area" class="form-control"></select>
+        </div>
+        <div class="col">
+          <label for="line">Linea</label>
+          <select name="line" id="line" class="form-control"></select>
+        </div>
+      
+        <div class="col">
+          <label> Fecha inicio </label>
+          <input
+            type="date"
+            id="idate"
+            name="dinit"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col">
+          <label> Fecha final </label>
+          <input
+            type="date"
+            id="fdate"
+            name="dfinal"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col">
+          <input
+            type="button"
+            class="btn btn-primary btn-block"
+            value="Filtrar"
+            onclick="filter()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br /><br /><br />
+<a id="dlink" style="display: none;"></a>
+
+<input
+  id="exportButton"
+  class="btn btn-block btn-success"
+  type="button"
+  onclick="tableToExcel('data_table', 'name', 'reporteBatch.xls')"
+  value="Exportar a Excel"
+  hidden="true"
+/>
+<br />
+
+<div style="d-flex align-items-center flex-column justify-content-center" >
+  <div >
+    <table
+      class="table table-dark table-striped table-responsive"
+      style="font-size: small;"
+      id="data_table"
+    >
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Line</th>
+          <th>Fecha</th>
+          <th>Perfil</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
+      
+          <th>#Lote</th>
+          <th>Peso</th>
+          <th>Hora de apertura</th>
+          <th>Hora de consumo</th>
+          <th>Tiempo exposicion</th>
+          <th>Sticker</th>
+          <th>Observacion</th>
+        </tr>
+      </thead>
+      <tbody id="data_p"></tbody>
+    </table>
+  </div>
+</div>
+<br />
+<center>
+  <p id="noResult" style="color: white; font-size: 36px;" hidden>
+    No hay resultados!
+  </p>
+  <img
+    id="desert"
+    src="/public/images/desertIconWhite.png"
+    alt="noResultados"
+    hidden
+  />
+</center>
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  $(document).ready(function () {
+
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+    $("#area").change(() => {
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+
+    hiddeE("exportButton", true);
+
+  });
+
+  function filter() {
+
+    let line =  $("#line").val();
+    let init =  $("#idate").val();
+    let end =  $("#fdate").val();
+
+
+    $.getJSON("/getTomateCubeBinsBy?line="+line+ "&init="+init + "&end="+end,
+     function(data) {
+        $("#data_p").empty();
+        $.each(data, function(index, row) {
+
+            $("#data_p").append("<tr>");
+
+            $("#data_p").append(
+                "<td>" +row.Id+ "</td>"+
+                "<td>" +row.Line+ "</td>"+
+
+                "<td>" +row.Date+ "</td>"+
+                "<td>" +
+                  "<img style='border-radius: 50%;' src='/"+row.Profile+"' width='75' height='75'>"+
+                "</td>"+
+
+                "<td>" +row.Fname+ "</td>"+
+                "<td>" +row.Lname+ "</td>"+
+
+                "<td>" +row.Lote+ "</td>"+
+                "<td>" +row.Weight+ "</td>"+
+                "<td>" +row.Aperture+ "</td>"+
+                "<td>" +row.Consumption+ "</td>"+
+
+                "<td>" +row.Exposure+ "</td>"+
+                "<td>" +row.Sticker+ "</td>"+
+
+                "<td>" +row.Observation+ "</td>"
+            );
+
+
+            $("#data_p").append("</tr>");
+          
+        });
+      });
+
+
+
+    hiddeE("exportButton", false);
+  }
+  
+
+  var tableToExcel = (function () {
+    var uri = "data:application/vnd.ms-excel;base64,",
+      template =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+      base64 = function (s) {
+        return window.btoa(unescape(encodeURIComponent(s)));
+      },
+      format = function (s, c) {
+        return s.replace(/{(\w+)}/g, function (m, p) {
+          return c[p];
+        });
+      };
+    return function (table, name, filename) {
+      if (!table.nodeType) table = document.getElementById(table);
+      var ctx = { worksheet: name || "Worksheet", table: table.innerHTML };
+
+      document.getElementById("dlink").href =
+        uri + base64(format(template, ctx));
+      document.getElementById("dlink").download = filename;
+      document.getElementById("dlink").click();
+    };
+  })();
+
+
+
+  function exportTableToExcel(tableID, filename = ''){
+    var downloadLink;
+    var dataType = 'application/vnd.ms-excel';
+    var tableSelect = document.getElementById(tableID);
+    var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+    
+    // Specify file name
+    filename = filename?filename+'.xls':'excel_data.xls';
+    
+    // Create download link element
+    downloadLink = document.createElement("a");
+    
+    document.body.appendChild(downloadLink);
+    
+    if(navigator.msSaveOrOpenBlob){
+        var blob = new Blob(['\ufeff', tableHTML], {
+            type: dataType
+        });
+        navigator.msSaveOrOpenBlob( blob, filename);
+    }else{
+        // Create a link to the file
+        downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+    
+        // Setting the file name
+        downloadLink.download = filename;
+        
+        //triggering the function
+        downloadLink.click();
+    }
+}
+
+
+  
+</script>
+
+{{template "Footer"}}
+{{ end }}

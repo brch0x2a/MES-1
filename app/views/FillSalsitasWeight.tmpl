@@ -1,0 +1,491 @@
+{{define "FillSalsitasWeight"}}
+{{template "Header"}}
+<style>
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+  
+  .switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  input:checked + .slider {
+    background-color: #2196F3;
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+  }
+  
+  input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+  
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 34px;
+  }
+  
+  .slider.round:before {
+    border-radius: 50%;
+  }
+
+
+</style>
+
+{{if .User.HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{end}}
+
+
+  {{ template "Nav_report"}}
+
+  <input id="idHeader" type="number" value={{ .SubHeader.Header}} hidden>
+  <input id="pvalue" type="number" value={{ .SubHeader.Pvalue}} hidden>
+  <input id="pline" type="text" value={{ .SubHeader.Line}} hidden>
+
+  <div class="card">
+     <table class="table table-responsive table-bordered">
+       <tbody id="HeaderBody" style="font-size: medium">
+       </tbody>
+     </table>
+   </div>
+ 
+ <br><br>
+
+ <div class="card">
+  <table class="table table-responsive table-bordered">
+    <tbody style="font-size: medium">
+    <tr>
+      <td><strong>Linea:</strong>  {{.SubHeader.Line}} </td>
+      <td><strong>Coordinador:</strong>  {{.SubHeader.Coordinator}} </td>
+      <td><strong>Operador:</strong>  {{.SubHeader.Operator}} </td>
+      <td><strong>Producto:</strong>  {{.SubHeader.Presentation}}  {{.SubHeader.Pvalue}}  {{.SubHeader.Punit}}</td>
+      <td><strong>Fecha:</strong>  {{.SubHeader.Date}}</td>
+      <td><strong>Turno:</strong>  {{.SubHeader.Turn}}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<br><br>
+<div id="muestreo" class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col">
+        <strong>{{.SubHeader.Line}}</strong>  | Peso de unidad 
+      </div>
+      <div class="col">
+        <button class="btn-primary btn-block" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+      </div>
+    </div>
+
+  </div>
+  <div class="card-body">
+
+    <div  class="d-flex align-items-center flex-column justify-content-center">
+      <img style="object-fit: scale-down;" width='400' height='400' id="" src="/public/images/pesos.png" alt="user">
+    </div>
+
+    <form id="weight_form"  name="weight_form" action="insertSalsitasWeight_control" method="post" > 
+      <input name="unit" type="text" value={{ .SubHeader.Punit}} hidden>
+      <input name="sub" type="number" value={{ .SubHeader.Id}} hidden>
+      <input id="prate" type="number" value={{ .SubHeader.Perror}} hidden>
+
+        <div class="container">
+          <div class="row">
+            <div class="col-8">
+              <h3 id="modeTitle">Muestreo manual</h3>
+            </div>
+            <div class="col-4">
+              <label class="switch">
+                <input  id='modeSwitch' type="checkbox" onclick="return false">
+                <span class="slider round"></span>
+            </div>
+          </div>
+
+
+      </label>
+        <div class="form-group row">
+            <label id="lbv1" for="v1" class="col col-form-label">1</label>
+            <div class="col-8">
+              <input name="v1" id="v1" type="number" class="form-control"  onfocusout="evalInput(0)" placeholder="0.00" step="0.01" required>
+              <div id="v1Danger"  class="alert alert-danger" role="alert"  hidden></div>
+              <div id="v1Success" class="alert alert-success" role="alert" hidden></div>
+            </div>
+            <div class="col">
+              <button type="button" id="capture0" class="btn btn-secondary" onclick="handleCapture(0)">Captura</button>
+              <button type="button" id="done1" class="btn btn-info" onclick="handleDone(0)" value="Listo" hidden></button>
+
+            </div>
+          </div>
+          
+          <div class="form-group row">
+          <label id="lbv2" for="v2" class="col col-form-label">2</label>
+          <div  class="col-8">
+            <input name="v2" id="v2" type="number" class="form-control"  onfocusout="evalInput(1)" placeholder="0.00" step="0.01" required>
+            <div id="v2Danger"  class="alert alert-danger" role="alert" hidden></div>
+            <div id="v2Success" class="alert alert-success" role="alert" hidden></div>
+          </div>
+          <div class="col">
+            <button type="button" id="capture1" class="btn btn-secondary" onclick="handleCapture(1)">Captura</button>
+            <button type="button" id="done2" class="btn btn-info" onclick="handleDone(1)"  value="Listo" hidden></button>
+
+          </div>
+        </div>
+
+        <div class="form-group row">
+            <label id="lbv3" for="v3" class="col col-form-label">3</label>
+            <div  class="col-8">
+              <input name="v3" id="v3" type="number" class="form-control"  onfocusout="evalInput(2)" placeholder="0.00" step="0.01" required>
+              <div id="v3Danger"  class="alert alert-danger" role="alert" hidden></div>
+              <div id="v3Success" class="alert alert-success" role="alert" hidden></div>
+            </div>
+            <div class="col">
+              <button type="button" id="capture2" class="btn btn-secondary" onclick="handleCapture(2)">Captura</button>
+              <button type="button" id="done3" class="btn btn-info" onclick="handleDone(2)" value="Listo" hidden></button>
+
+            </div>
+          </div>
+
+      <div class="form-group row">
+          <label id="lbv4"  for="v4" class="col col-form-label">4</label>
+          <div  class="col-8">
+            <input name="v4"  id="v4" type="number" class="form-control"  onfocusout="evalInput(3)" placeholder="0.00" step="0.01" required>
+            <div id="v4Danger"  class="alert alert-danger" role="alert" hidden></div>
+            <div id="v4Success" class="alert alert-success" role="alert" hidden></div>
+          </div>
+          <div class="col">
+            <button type="button" id="capture3" class="btn btn-secondary" onclick="handleCapture(3)">Captura</button>
+            <button type="button" id="done4" class="btn btn-info" onclick="handleDone(3)" value="Listo" hidden></button>
+          </div>
+        </div>
+
+        <div class="form-group row">
+            <label id="lbv5"  for="v5" class="col col-form-label">5</label>
+            <div class="col-8">
+              <input name="v5" id="v5" type="number" class="form-control"   onfocusout="evalInput(4)" placeholder="0.00" step="0.01" required>
+              <div id="v5Danger"  class="alert alert-danger" role="alert" hidden></div>
+              <div id="v5Success" class="alert alert-success" role="alert" hidden></div>
+            </div>
+            <div class="col">
+              <button type="button" id="capture4" class="btn btn-secondary" onclick="handleCapture(4)">Captura</button>
+              <button type="button" id="done5" class="btn btn-info" onclick="handleDone(4)" value="Listo" hidden></button>
+            </div>
+          </div>
+
+          <br><br>
+          <input type="submit" class="btn btn-primary btn-block" value="Listo" onsubmit="loading()" onsubmit="return evalCase()">
+
+    </form>
+
+
+
+    <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+  
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/controlPesos.mp4" type="video/mp4">
+        <source src="/public/videos/controlPesos.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/controlPesos.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+ <script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script>
+
+
+$(document).ready(function () {
+       
+     $.getJSON("/getHeaderBy?id="+$("#idHeader").val(), function (data) {
+     $("#HeaderBody").empty();
+         $("#HeaderBody").append("<tr>");
+         $("#HeaderBody").append(
+           "<td> <img src='/public/images/logo00.jpg' height='59' width='53'>  Unilever Planta Belen Costa Rica</td>"+
+           "<td>Codigo del Documento: "+data.Cod_doc+"</td>"+
+           "<td>Revision No "+data.Revision_no+"</td>"
+         );
+         $("#HeaderBody").append("</tr>");
+         $("#HeaderBody").append("<tr>");
+         $("#HeaderBody").append(
+           "<td>"+data.Name+"</td>"+
+           "<td>Fecha de Ultima Revision: "+data.Revision_date+"</td>"+
+           "<td>Fecha de Proxima Revision: "+data.Next_revision_date+"</td>"
+         );
+         $("#HeaderBody").append("</tr>");
+     });
+
+ });
+
+ function printE(elemId, hint){
+  document.getElementById(elemId).innerHTML = hint;
+ }
+ function hiddeE(elemId, state){
+  document.getElementById(elemId).hidden = state;
+ }
+
+
+
+let rate = parseFloat(document.getElementById("prate").value);
+let goal = parseFloat(document.getElementById("pvalue").value);
+
+let lv = (goal - (goal * rate));//left value rate
+let rv = (goal + (goal * rate));
+var deviation = 0;
+
+
+for (let index = 0; index < 5; index++) {
+      const current = index;  
+      hiddeE("capture"+current, true);
+    }
+
+
+function evalCase(){
+  if(deviation>0){
+     alert("Si se detectan mas desviaciones, tomar medidas!");
+    
+  }console.log("Deviation: "+deviation);
+  
+  return true;
+}
+
+
+
+function evalInput(index){
+
+    var values= [ 
+      document.forms["weight_form"]["v1"].value, 
+      document.forms["weight_form"]["v2"].value, 
+      document.forms["weight_form"]["v3"].value, 
+      document.forms["weight_form"]["v4"].value, 
+      document.forms["weight_form"]["v5"].value, 
+    ];
+
+
+    const a = values[index] ;
+          const current = index + 1  
+          console.log("index: "+index);
+          
+          console.log("a: "+a);
+          
+          if (a == "") {
+          hiddeE("v"+current+"Success", true);
+          hiddeE("v"+current+"Danger", false);
+          printE("v"+current+"Danger", "No debe dejar campos vacios! ):");
+          
+        } else if ( a > rv || a < lv) {
+          hiddeE("v"+current+"Success", true);
+          hiddeE("v"+current+"Danger", false);
+          printE("v"+current+"Danger", "Se detecto una desviacion! ):");
+          //alert("Si se detectan mas desciaciones, tomar medidas!")
+          deviation++;
+        }else {
+          printE("v"+current+"Success", "Rango aceptado (:");
+          hiddeE("v"+current+"Success", false);
+          hiddeE("v"+current+"Danger", true);
+        }
+
+}
+
+
+
+
+
+function setMode(){
+
+  let state = document.getElementById('modeSwitch').checked;
+  
+  if(state){
+
+    document.getElementById('modeTitle').innerHTML = "Muestreo automatico";
+    document.getElementById('modeTitle').style.color = "#000000";
+    for (let index = 0; index < 5; index++) {
+      const current = index;  
+      let j = index + 1; 
+      hiddeE("capture"+current, false);
+      /*--------------Custom---disabled---------------------*/
+      document.getElementById("v"+j).disabled = true;
+      document.getElementById('v'+j).style.color = "#6622FF";
+    }
+
+    }else{
+
+    document.getElementById('modeTitle').innerHTML = "Muestreo manual";
+    document.getElementById('modeTitle').style.color = "#000000";
+
+    for (let index = 0; index < 5; index++) {
+      const current = index;  
+      let j = index + 1; 
+      hiddeE("capture"+current, true);
+      /*--------------Custom---disabled---------------------*/
+      document.getElementById("v"+j).disabled = false;
+      document.getElementById('v'+j).style.color = "#000000";
+    }
+
+    }
+
+}
+
+/*----------------------------------------*/
+
+let socket;
+
+
+function handleCapture(i){
+  j = i;
+  i++;
+  
+  let pline  =  document.getElementById('pline').value;
+
+
+  let L = ["S10", "S8", "S4"];
+
+  if(L.indexOf(pline)){
+
+    socket = new WebSocket("ws://192.168.1.191:3000/wsWeight");
+
+    //let socket = new WebSocket("ws://10.0.1.234:3000/ws");//10.0.1.234
+    console.log("Attempting connection...");
+    socket.onopen = () => {
+        console.log("Successfully connected");
+
+        document.getElementById('lbv'+i).innerHTML = "Capturando...";
+        document.getElementById('lbv'+i).style.backgroundColor = '#6622FF';
+        document.getElementById('lbv'+i).style.color = '#FFFFFF';
+        printE("done"+i, "Listo");
+        hiddeE("done"+i, false);
+        hiddeE("capture"+j, true);
+
+        socket.send(pline);
+    };
+
+
+    socket.onclose = event => {
+        console.log("Socket closed connection: ", event);
+    };
+
+    socket.onerror = error => {
+        console.log("Sokcet Error: ", error);
+    };
+
+    socket.onmessage = event => {   
+          document.getElementById("v"+i).value = event.data;
+          setTimeout(()=>{socket.send('on');}, 500);
+
+    };
+ }else{
+  document.getElementById('modeTitle').innerHTML = "Se perdio coneccion con balanza...";
+  document.getElementById('modeTitle').style.color = "#000000";
+  j = i;
+  i++;
+  document.getElementById('lbv'+i).innerHTML = i;
+  document.getElementById('lbv'+i).style.backgroundColor = '#FFFFFF';
+  document.getElementById('lbv'+i).style.color = '#000000';
+
+  hiddeE("done"+i, true);
+  hiddeE("capture"+j, false);
+ }
+
+}
+
+function handleDone(i){
+  j = i;
+  i++;
+  document.getElementById('lbv'+i).innerHTML = i;
+  document.getElementById('lbv'+i).style.backgroundColor = '#FFFFFF';
+  document.getElementById('lbv'+i).style.color = '#000000';
+
+  hiddeE("done"+i, true);
+  hiddeE("capture"+j, false);
+  evalInput(i);
+  socket.close();
+}
+
+$("#weight_form").submit(()=>{
+  for (let index = 0; index < 5; index++) {
+      let j = index + 1; 
+
+      /*--------------Custom---disabled---------------------*/
+      document.getElementById("v"+j).disabled = false;
+  }
+
+});
+
+
+
+
+</script>
+
+{{ template "Footer" }}
+
+{{end}}

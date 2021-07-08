@@ -1,0 +1,185 @@
+{{define "EditExL"}}
+{{ template "Header" }}
+
+{{ template "Menu" }}
+
+{{ template "Nav_report"}}
+
+
+<br>
+<center>
+  <div class="card" style="max-width:675px">
+    <div class="card-header">Reportar Paro</div>
+    <div class="card-body">
+      <form method="POST" action="updateExL" id="eventReport">
+        <input type="hidden" name="uid" value="{{ .Id}}">
+        <h3>Ubicacion</h3>
+        <div class="form-row  align-items-center">
+          <div class="col-md-5 col-md-offset-6">
+            <label for="">Area</label>
+            <select name="area" id="area" class="form-control"></select>
+          </div>
+
+          <div class="col-md-5 col-md-offset-6">
+            <label for="">Linea</label>
+            <select name="line" id="line" class="form-control" required></select>
+          </div>
+        </div>
+        <br><br><br>
+        <h3 id="lostTitle">Perdida</h3>
+        <div class="form-row  align-items-center">
+          <div class="col-md-3 col-md-offset-2">
+            <label> LTC </label>
+            <select id="LTC3" name="LTC" class="form-control"></select><br /><br />
+          </div>
+          <div class="col-md-3 col-md-offset-2">
+
+            <label> Sub categoria </label>
+            <select id="Sub2" name="Sub" class="form-control"></select><br /><br />
+          </div>
+          <div class="col-md-3 col-md-offset-2">
+
+            <label> Rama </label>
+            <select id="Branch1" name="Branch" class="form-control"></select><br /><br />
+          </div>
+          <div class="col-md-3 col-md-offset-2">
+
+            <label> Evento </label>
+            <select id="Event" name="Event" class="form-control" required></select><br /><br />
+          </div>
+        </div>
+        <br><br>
+        <h3>Instante</h3>
+        <label> Fecha | Hora </label>
+        <input type="datetime-local" name="vdate" class="form-control" required>
+        <br>
+        <label> Turno </label>
+        <select class="form-control" name="vturn" id="" required>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+
+        <br><br>
+        <label>Minutos</label>
+        <input type="number" name="minutes" class="form-control" value="{{ .Minutes}}" required>
+        <br><br>
+        <label>Nota</label>
+        <textarea name="note" value="{{ .Note}}" class="form-control" form="eventReport"  id="" cols="30" rows="10"></textarea>
+
+        <br><br>
+        <input class="btn btn-primary btn-block" type="submit" value="Guardar" onsubmit="loading()" />
+        <img class="card-img-bottom" src="/public/images/visual_ul02.jpg" height="184" width="100%">
+
+      </form>
+    </div>
+  </div>
+
+</center>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+
+
+  $("#reportEvent").removeClass("nav-item active");
+  $("#reportPlanning").removeClass("nav-item active");
+
+  $("#reportEvent").addClass("nav-item active");
+
+  $(document).ready(function () {
+    $.getJSON("/getLTC", function (data) {
+      $("#LTC3").empty();
+      $.each(data, function (index, row) {
+        $("#LTC3").append("<option value='" + row.Id + "'>" + row.Description + "</option>");
+      });
+
+      $.getJSON("/getSub?id=" + $("#LTC3").val(), function (data) {
+        $("#Sub2").empty();
+        $.each(data, function (index, row) {
+          $("#lostTitle").css('background-color', row.Color);
+          //$("#Sub2").css('background-color', row.Color);
+
+          $("#Sub2").append("<option value='" + row.Id + "'>" + row.Description + "</option>");
+        });
+      });
+    });
+    $.getJSON("/getArea", function (data) {
+      $("#area").empty();
+      $.each(data, function (index, row) {
+        $("#area").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+      });
+
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function (data) {
+        $("#line").empty();
+        $.each(data, function (index, row) {
+          $("#line").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+        });
+      });
+    });
+    $("#area").change(() => {
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function (data) {
+        $("#line").empty();
+        $.each(data, function (index, row) {
+          $("#line").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+        });
+      });
+    });
+    $("#LTC3").change(() => {
+      $.getJSON("/getSub?id=" + $("#LTC3").val(), function (data) {
+        $("#Sub2").empty();
+        $.each(data, function (index, row) {
+          //$("#Sub2").css('background-color', row.Color);
+          $("#lostTitle").css('background-color', row.Color);
+          $("#Sub2").append("<option value='" + row.Id + "'>" + row.Description + "</option>");
+        });
+      });
+    });
+
+    $("#Sub2").change(() => {
+      $("#Branch1").empty();
+      $("#Event").empty();
+
+      $.getJSON("/getBranch?id=" + $("#Sub2").val(), function (data) {
+        $("#Branch1").empty();
+        $.each(data, function (index, row) {
+          $("#Branch1").append("<option value='" + row.Id + "'>" + row.Description + "</option>");
+        });
+      });
+
+      $.getJSON("/getSubE?id=" + $("#Sub2").val(), function (data) {
+        $.each(data, function (index, row) {
+          //$("#Sub2").css('background-color', row.Color);
+          $("#lostTitle").css('background-color', row.Color);
+        });
+      });
+
+
+      $.getJSON("/getEvent?id=" + $("#Branch1").val(), function (data) {
+        $("#Event").empty();
+
+        $.each(data, function (index, row) {
+          console.log(row.Description);
+
+          $("#Event").append("<option value='" + row.Id + "'>" + row.Description + "</option>");
+        });
+      });
+
+    });
+
+
+    $("#Branch1").change(() => {
+      $.getJSON("/getEvent?id=" + $("#Branch1").val(), function (data) {
+        $("#Event").empty();
+
+        $.each(data, function (index, row) {
+          console.log(row.Description);
+
+          $("#Event").append("<option value='" + row.Id + "'>" + row.Description + "</option>");
+        });
+      });
+    });
+  });
+
+</script>
+{{ template "Footer" }}
+{{ end }}

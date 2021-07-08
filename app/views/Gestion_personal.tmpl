@@ -1,0 +1,133 @@
+{{define "Gestion_personal"}}
+{{ template "Header" }}
+{{ template "Menu"}}
+{{template "Nav_gestion_personal"}}
+
+<center>
+    <div class="card" style="max-width:600px">
+      <div class="card-body">
+        <form class="form-inline md-form form-sm mt-0">
+          <i class="fa fa-search" aria-hidden="true"></i>
+          <input
+            id="searchbox"
+            class="form-control form-control-sm ml-3 w-75"
+            type="text"
+            placeholder="Buscar"
+            aria-label="Buscar"
+            style="font-size: 24px"
+          />
+        </form>
+      </div>
+    </div>
+  </center>
+  <br />
+  
+
+<div class="container">
+ <div class="table-responsive-xl">
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <td>Foto</td>
+                <td># Empleado</td>
+                <td>Nombre</td>
+                <td>Apellido</td>
+                <td>Nivel</td>
+                <td>Planta</td>
+                <td>Accion | <a href="/newUser"> <button type="button" class="btn btn-success"
+                            style="margin-left: 20px">Agregar</button> </a>
+                            <button class="btn-primary" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+
+               </td>
+
+            </tr>
+        </thead>
+        <tbody id="tableData">
+            {{ range . }}
+            <tr>
+                <td><img  loading="lazy" style='border-radius: 50%;' src="/{{ .Profile_picture}}" width='200' height='200'></td>
+                <td>{{ .Nick_name }}</td>
+                <td>{{ .Fname }} </td>
+                <td>{{ .Lname }} </td>
+                <td>{{ .Privilege }} </td>
+                <td>{{ .Factory }} </td>
+                <td>
+                    <a href="/editUser?id={{ .Id}}" onclick="loading()">
+                        <button type="button" class="btn btn-primary">Editar</button>
+                    </a>
+                    <a href="/deleteUser?id={{ .Id}}" onclick="loading()">
+                        <button type="button" class="btn btn-danger">Borrar</button>
+                    </a>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+ </div>
+</div>
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/crearUsuarios.mp4" type="video/mp4">
+        <source src="/public/videos/crearUsuarios.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/crearUsuarios.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  var $rows = $("#tableData tr");
+  $("#searchbox").keyup(function() {
+    var val = $.trim($(this).val())
+      .replace(/ +/g, " ")
+      .toLowerCase();
+
+    $rows
+      .show()
+      .filter(function() {
+        var text = $(this)
+          .text()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+        return !~text.indexOf(val);
+      })
+      .hide();
+  });
+
+</script>
+
+{{ template "Footer" }}
+{{ end }}

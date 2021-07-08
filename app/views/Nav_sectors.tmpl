@@ -1,0 +1,22 @@
+{{ define "Nav_sectors" }}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor03" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+        <div class="collapse navbar-collapse" id="navbarColor03">
+          <ul class="navbar-nav mr-auto nav-tabs">
+            <li id="factory" >
+              <a class="nav-link" href="/Factory" onclick="loading()">Fabrica</a>
+            </li>
+            <li id="area" class="nav-item">
+              <a  class="nav-link" href="/Area" onclick="loading()">Area</a>
+            </li>
+
+            <li id="line" class="nav-item">
+              <a  class="nav-link" href="/Line" onclick="loading()">Linea</a>
+            </li>
+          </ul>
+        </div>
+    </nav>
+<br>
+{{end}}

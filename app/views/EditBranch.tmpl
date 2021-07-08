@@ -1,0 +1,83 @@
+{{define "EditBranch"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{ template "Nav_ltc"}}
+<div class="d-flex align-items-center flex-column justify-content-center h-100">
+    <div class="card w-50">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card_title">Rama</h3>
+
+                <form method="POST" action="updateBranch">
+                    <input type="hidden" name="uid" value=" {{ .Id}}">
+                    <label> LTC </label>
+                    <select id="LTC1" name="LTC" class="form-control"></select><br /><br />
+                    <label id="subTitle"> Sub categoria </label>
+                    <select id="Sub1" name="Sub" class="form-control"></select><br /><br />
+
+                    <label> Rama </label>
+                    <input name="description" value="{{ .Description }}" type="text" class="form-control"
+                        placeholder="Sub category" required>
+                    <br>
+                    <input class="btn-block" type="submit" value="Guardar" onsubmit="loading()" />
+                    <img class="card-img-bottom" src="/public/images/visual_ul02.jpg" height="92" width="100%">
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+<br />
+<hr>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script>
+    $(document).ready(() => {
+        $.getJSON("/getLTC", function (data) {
+            $("#LTC1").empty();
+
+            $.each(data, function (index, row) {
+                $("#LTC1").append("<option value='" + row.Id + "'>" + row.Description + "</option>");
+            });
+
+            $.getJSON("/getSub?id=" + $("#LTC1").val(), function (data) {
+                $("#Sub1").empty();
+
+                $.each(data, function (index, row) {
+                    $("#subTitle").css('background-color', row.Color);
+
+                    $("#Sub1").append("<option value='" + row.Id + "'>" + row.Description + "</option>");
+                });
+            });
+
+        });
+
+        $("#LTC1").change(() => {
+            $.getJSON("/getSub?id=" + $("#LTC1").val(), function (data) {
+                $("#Sub1").empty();
+
+                $.each(data, function (index, row) {
+                    $("#subTitle").css('background-color', row.Color);
+
+                    $("#Sub1").append("<option value='" + row.Id + "'>" + row.Description + "</option>");
+                });
+            });
+        });
+
+        $("#Sub1").change(() => {
+            $.getJSON("/getSubE?id=" + $("#Sub1").val(), function (data) {
+                $.each(data, function (index, row) {
+                    $("#subTitle").css('background-color', row.Color);
+                });
+            });
+        });
+    });
+
+</script>
+
+{{ template "Footer" }}
+
+
+{{end}}

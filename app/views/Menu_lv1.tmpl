@@ -1,0 +1,84 @@
+{{ define "Menu_lv1" }}
+
+<div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+
+  <a class="navbar-brand" style="padding-left: 40px" href="#"><img style="border-radius: 50%;" id="metaProfilePicture" src="" height="125" width="125" alt="Avatar"></a>
+  <div id="metaLine" style="color:gold; padding-left:80px;font-size:20px"></div>
+  <br>
+  <a class="nav-link" href="/specificDashBoard" onclick="loading()">Registros</a>
+
+  <button class="dropdown-btn">Consolidado
+    <i class="fa fa-caret-down"></i>
+  </button>
+  <div class="dropdown-container">
+      <button class="dropdown-btn">WCM
+          <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown-container" style="background-color: gold;">
+        <a href="/consolidateOEE" onclick="loading()">OEE</a>
+        <a href="/HistoricPlanning" onclick="loading()">Produccion</a>
+        <a href="/consolidatedSalsitasOutputControl" onclick="loading()"> Control de salida de grupos</a>
+      </div>
+      <button class="dropdown-btn">Calidad
+        <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown-container" style="background-color:gold;">
+
+      <button class="dropdown-btn">Variables Proceso
+          <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown-container" style="background-color:rgb(226, 194, 12);">
+        <a href="/consolidatedWeightSalsitas" onclick="loading()">Pesos</a>
+        <a href="/consolidatedTemperatureControl" onclick="loading()">Control Temperatura</a>
+        <a href="/consolidatedJawControl" onclick="loading()">Control Mordazas</a>
+        <a href="/consolidatedSealControl" onclick="loading()">Control Sellos</a>
+      </div>
+
+      <a href="/consolidatedQaTags" onclick="loading()">Boletas</a>
+      <a href="/consolidatedPChemical" onclick="loading()">Fisico-Quimico</a>
+      <a href="/consolidatedCRQS" onclick="loading()">CRQS</a>
+      <a href="/consolidatedBatch" onclick="loading()">Trazabilidad Batche</a>
+
+      <a href="/consolidatedAllergenVerification" onclick="loading()">Verificacion Alergenos</a>
+      <a href="/consolidatedCodingVerification" onclick="loading()">Verificacion Codigos</a>
+
+      <a href="/consolidatedCleanDisinfection" onclick="loading()">Limpieza y Desinfeccion</a>
+      <a href="/consolidatedPackingControl" onclick="loading()">Control de Empaque</a>
+      <a href="/consolidatedTemporalStorageProduct" onclick="loading()">Producto Temporal</a>
+      <a href="/consolidatedTomateCubeBins" onclick="loading()">Tomate en cubo</a>
+
+
+      </div>
+      <button class="dropdown-btn">Bodega
+          <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown-container" style="background-color:gold;">
+        <a href="/consolidatedCalloff" onclick="loading()">Call Off</a>
+      </div>
+      <button class="dropdown-btn">Mantenimiento
+        <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container" style="background-color:gold;">
+      <a href="/consolidatedTags" onclick="loading()">Boletas</a>
+    </div>
+    <button class="dropdown-btn">SHE
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container" style="background-color:gold;">
+      <a href="/consolidatedSHETags" onclick="loading()">Boletas</a>
+    </div>
+  </div>
+  <a class="nav-link" href="/reportFailures" onclick="loading()">Reporte de Fallas</a>
+
+  <a class="nav-link" href="/manual" onclick="loading()">Manual</a>
+
+  <br><br>
+  <a class="nav-link" href="/logout" onclick="loading()"><img src="/public/images/logout02.png" alt=""> Salir</a>
+
+</div>
+
+</div>
+<div class="main">
+  <div class="fab" onclick="openNav()"> + </div>
+  {{ end }}

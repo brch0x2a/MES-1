@@ -1,0 +1,243 @@
+{{define "ConsolidatedPChemical"}}
+
+{{template "Header"}}
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+<br />
+<center>
+  <h2 style="color: gold;">Tarjetas de Analisis Fisico-Quimicos</h2>
+</center>
+<div class="card">
+  <div class="card-body">
+    <form action="#">
+      <div class="form-row  align-items-center">
+        <div class="col-md-2 col-md-offset-3">
+          <label for="">Area</label>
+          <select name="area" id="area" class="form-control"></select>
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <label> Fecha inicio </label>
+          <input
+            type="date"
+            id="idate"
+            name="idate"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-4 col-md-offset-3">
+          <label> Fecha final </label>
+          <input
+            type="date"
+            id="fdate"
+            name="fdate"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <input
+            type="button"
+            class="btn btn-primary btn-block"
+            value="Filtrar"
+            onclick="filterPChemical()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br /><br /><br />
+
+<center><h2 style="color: gold;">Muestras</h2></center>
+<a id="dlink" style="display:none;"></a>
+
+<input
+  id="exportButton"
+  class="btn btn-block btn-success"
+  type="button"
+  onclick="tableToExcel('data_table', 'name', 'muestrasFisicoQuimicos.xls')"
+  value="Exportar a Excel"
+  hidden="true"
+/>
+<br />
+<div class="container">
+    <div class="table-responsive-xl">
+<table
+  id="data_table"
+  class="table table-dark table-striped"
+  style="font-size:small"
+>
+  <thead>
+    <tr>
+      <td>Perfil</td>
+      <td>Fecha</td>
+      <td>Usuario</td>
+      <td>Nombre</td>
+      <td>Apellido</td>
+      <td>Area</td>
+      <td>Producto</td>
+      <td>Boula/Fryma°</td>
+      <td>Bache</td>
+      <td>Apariencia</td>
+      <td>Color</td>
+      <td>Aroma</td>
+      <td>Sabor</td>
+      <td>Acides</td>
+      <td>Ph(PCC)</td>
+      <td>Cloruros</td>
+      <td>Brix°</td>
+      <td>Consitencia Plummet</td>
+      <td>Homogenizador</td>
+      <td>Densidad</td>
+      <td>Tanque</td>
+    </tr>
+  </thead>
+  <tbody id="data_p" style="color: white;"></tbody>
+</table>
+</div>
+</div>
+<br>
+<center>
+  <p id="noResult" style="color: white; font-size: 36px" hidden>No hay resultados!</p>
+  <img id="desert" src="/public/images/desertIconWhite.png" alt="noResultados" hidden>
+</center>
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+    });
+  });
+
+  function filterPChemical() {
+    $.getJSON(
+      "/getPChemicalV00?area_id=" +
+        $("#area").val() +
+        "&idate=" +
+        $("#idate").val() +
+        "&fdate=" +
+        $("#fdate").val(),
+      data => {
+        if(data.length == 0 ){
+          hiddeE('desert', false);
+          hiddeE('noResult', false);
+        }else{
+          hiddeE('desert', true);
+          hiddeE('noResult', true);
+        }
+
+        $("#data_p").empty();
+        $.each(data, function(index, row) {
+          $("#data_p").append("<tr>");
+          $("#data_p").append(
+            "<td><img style='border-radius: 50%;' src='"+row.Profile_picture+"' width='75' height='75'></td>"+
+
+            "<td>" +
+              row.Date +
+              "</td>" +
+            "<td>" +
+              row.Analystnn +
+              "</td>" +
+              "<td>" +
+              row.Analystfname +
+              "</td>" +
+              "<td>" +
+              row.Analystlname +
+              "</td>" +
+
+            "<td>" +
+              row.Area +
+              "</td>" +
+
+              "<td>" +
+              row.Product +
+              "</td>" +
+              "<td>" +
+              row.Fryma +
+              "</td>" +
+              "<td>" +
+              row.Batch +
+              "</td>" +
+              "<td>" +
+              row.Appearance +
+              "</td>" +
+              "<td>" +
+              row.Color +
+              "</td>" +
+              "<td>" +
+              row.Aroma +
+              "</td>" +
+              "<td>" +
+              row.Taste +
+              "</td>" +
+              "<td>" +
+              row.Ph +
+              "</td>" +
+              "<td>" +
+              row.Ph_pcc +
+              "</td>" +
+              "<td>" +
+              row.Chloride +
+              "</td>" +
+              "<td>" +
+              row.Brix +
+              "</td>" +
+              "<td>" +
+              row.Consistency_plummet +
+              "</td>" +
+              "<td>" +
+              row.Consistency_homogenizer +
+              "</td>" +
+              "<td>" +
+              row.Presentation_density +
+              "</td>" +
+              "<td>" +
+              row.Tank +
+              "</td>"
+          );
+          $("#data_p").append("</tr>");
+        });
+      }
+    );
+
+    hiddeE("exportButton", false);
+  }
+
+  var tableToExcel = (function() {
+    var uri = "data:application/vnd.ms-excel;base64,",
+      template =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+      base64 = function(s) {
+        return window.btoa(unescape(encodeURIComponent(s)));
+      },
+      format = function(s, c) {
+        return s.replace(/{(\w+)}/g, function(m, p) {
+          return c[p];
+        });
+      };
+    return function(table, name, filename) {
+      if (!table.nodeType) table = document.getElementById(table);
+      var ctx = { worksheet: name || "Worksheet", table: table.innerHTML };
+
+      document.getElementById("dlink").href =
+        uri + base64(format(template, ctx));
+      document.getElementById("dlink").download = filename;
+      document.getElementById("dlink").click();
+    };
+  })();
+</script>
+
+{{template "Footer"}}
+{{ end }}

@@ -1,0 +1,467 @@
+{{ define "CleanDisinfection"}}
+
+{{template "Header"}}
+{{if .User.HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{end}}
+
+
+  {{ template "Nav_report"}}
+
+  
+  <div class="card">
+    <table class="table table-responsive table-bordered">
+      <tbody id="HeaderBody" style="font-size: medium">
+      </tbody>
+    </table>
+  </div>
+
+<br>
+
+<br>  
+<div id="muestreo" class="card">
+    <div class="card-header"><center>Registro Genérico de Limpieza y Desinfección </center></div>
+    <div class="card-body">
+
+      <div  class="d-flex align-items-center flex-column justify-content-center">
+        <img style="object-fit: scale-down;" width='400' height='400' id="" src="/public/images/cleanDisinfection.png" alt="user">
+      </div>
+
+
+        <form action="insertCleanDisinfection" method="POST" id="cleanForm">
+
+            <div class="form-group row">
+                <label id="lbbatch" for="batch" class="col col-form-label">Hora Inicio Lavado</label>
+                <div  class="col">
+                  <input name="init" id="init" type="datetime-local" class="form-control"   required>
+                </div>
+
+                <label id="lbbatch" for="batch" class="col col-form-label">Etapa</label>
+                <div  class="col">
+                    <select name="stage" id="stage" class="form-control" ></select>
+                </div>
+
+
+
+            </div>
+            <div class="container" style="d-flex align-items-center flex-column justify-content-center">
+            <h5 id="lostTitle">Equipos/ Utensilios/Estructuras Involucradas</h5>
+            <br />
+    
+            <div class="form-group row" style="padding-left: 10px">
+              <input
+                id="searchbox"
+                class="form-control form-control-sm ml-3 w-75"
+                type="text"
+                placeholder="Buscar"
+                aria-label="Buscar"
+                style="font-size: 24px"
+              />
+              <i class="fa fa-search" aria-hidden="true"></i>
+            </div>
+       
+            <div  class="row">
+              <div id="table-wrapper">
+                <div id="table-scroll">
+                  <table class="table table-responsive table-bordered table-striped">
+                    <thead>
+                      <tr style="color: black">
+                        <td>ID</td>
+                        <td>Nombre</td>
+                      </tr>
+                    </thead>
+                    <tbody id="tableData">
+                      {{range.Equipo  }}
+                      <tr onclick="currentEvent({{ .Id}})">
+                        <td>{{ .Id}}</td>
+                        <td>{{ .Name}}</td>
+                      </tr>
+                      {{   end }}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+              <br/>
+            <div class="row">
+              <h4 id="currentStop">Equipo seleccionado</h4>
+              <br>
+              <p style="outline: 5px dotted #1d1838;" id="equipoActual"></p>
+              <input type="number" id="equipoActualInput" name="equipment" hidden />
+            </div>
+          
+          </div>
+          <br>
+
+
+            <div class="form-group row">
+              <label id="lbbatch" for="batch" class="col col-form-label">Tipo Lavado</label>
+              <div  class="col">
+                <select name="washed" id="washed" class="form-control" >
+                  <option value="S">Simple</option>
+                  <option value="Q">Quimico</option>
+                </select>
+            </div>
+            </div>
+            <hr>
+            <br>
+
+            <div class="form-group row">
+              <label id="lbbatch" for="batch" class="col col-form-label">Cantidad Detergente </label>
+              <div  class="col">
+                <input name="detergent" id="detergent" type="number" class="form-control"   required>
+              </div>
+
+              <label id="lbbatch" for="batch" class="col col-form-label">Cantidad Desinfectante</label>
+              <div  class="col">
+                <input name="disinfectand" id="disinfectand" type="number" class="form-control"   required>
+              </div>
+
+              <label id="lbbatch" for="batch" class="col col-form-label">Cantidad otro Químico </label>
+              <div  class="col">
+                <input name="chemical" id="chemical" type="number" class="form-control"   required>
+              </div>
+
+            </div>
+
+
+            <div class="form-group row">
+              <label id="lbbatch" for="batch" class="col col-form-label">Limpieza con espuma | AC-SEEC</label>
+              <div  class="col">
+                <input name="foam" id="foam" type="number" class="form-control"   required>
+              </div>
+
+              <label id="lbbatch" for="batch" class="col col-form-label">Desinfección con rociador | Vortexx ES</label>
+              <div  class="col">
+                <input name="spray" id="spray" type="number" class="form-control"   required>
+              </div>
+<hr>
+<br>
+
+            </div>
+            <div class="form-group row">
+              <label id="lbbatch" for="batch" class="col col-form-label">Filtro</label>
+              <div  class="col">
+                <select name="filter" id="filter" class="form-control" ></select>
+              </div>
+              <label id="lbbatch" for="batch" class="col col-form-label">pH Agua Final</label>
+              <div  class="col">
+                <input name="ph" id="ph" type="number" class="form-control"   required>
+              </div>
+            </div>
+<hr>
+<br>
+
+
+            <div class="form-group row">
+              <label id="lbbatch" for="batch" class="col col-form-label">Inspección Visual</label>
+              <div  class="col">
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="visual"
+                    value=1
+                    required
+                  />
+                  <label class="form-check-label" for="inlineCheckbox1">Si</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="inlineCheckbox2"
+                    name="visual"
+                    value=0
+                  />
+                  <label class="form-check-label" for="inlineCheckbox2">No</label>
+                </div>
+              </div>
+
+              <label id="lbbatch" for="batch" class="col col-form-label">Muestreo Microbiología (x)</label>
+              <div  class="col">
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="micro"
+                    value=1
+                    required
+                  />
+                  <label class="form-check-label" for="inlineCheckbox1">Si</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="inlineCheckbox2"
+                    name="micro"
+                    value=0
+                  />
+                  <label class="form-check-label" for="inlineCheckbox2">No</label>
+                </div>
+              </div>
+
+
+            </div>
+            <br>
+<hr>
+<br>
+            <div class="form-group row">
+              <label id="lbbatch" for="batch" class="col col-form-label">ATP</label>
+              <div  class="col">
+                <input name="atp" id="atp" type="number" class="form-control" onfocusout="loadAction()"  required>
+              </div>
+
+              <!-- <label id="lbbatch" for="batch" class="col col-form-label">Accion Correctiva</label> -->
+              <div  class="col">
+                <!-- <select name="corrective_action" id="corrective_action" class="form-control" ></select> -->
+                <input type="number" id="corrective_action" name="corrective_action" hidden>
+              </div>
+
+              <label id="lbbatch" for="batch" class="col col-form-label">Nuevo ATP </label>
+              <div  class="col">
+                <input name="new_atp" id="new_atp" type="number" class="form-control"   required>
+              </div>
+
+            </div>
+<br>
+<hr>
+<br>
+            <div class="form-group row">
+              <label id="lbbatch" for="batch" class="col col-form-label">Muestra Alergenos</label>
+              <div  class="col">
+                  <select name="allergen" id="allergen" class="form-control" >
+                    <option value="7">Aprobado</option>
+                    <option value="6">Rechazado</option>
+                    <option value="5">N/A</option>
+                  </select>
+              </div>
+              <label id="lbbatch" for="batch" class="col col-form-label">Mantenimiento</label>
+              <div  class="col">
+                  <select name="maintenance" id="maintenance" class="form-control" >
+                    <option value="D">Desarme</option>
+                    <option value="PR">Preventivo</option>
+                    <option value="C">Correctivo</option>
+                  </select>
+              </div>
+
+            </div>
+            <br>
+            <hr>
+            <br>
+            <label>Comentario</label>
+            <textarea
+              name="comment"
+              class="form-control"
+              form="cleanForm"
+              cols="30"
+              rows="5"
+            ></textarea>
+          <br><br>
+          <input type="submit" class="btn btn-primary btn-block" value="Listo" onsubmit="loading()">
+          <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+  
+        </form>
+    </div>
+</div>     
+
+
+
+  <button type="button" class="btn btn-primary" 
+  data-toggle="modal"
+  data-target="#closeForm"
+  id="toggle_target"
+  hidden >Toggle</button>
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="closeForm"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="closeFormLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Accion Correctiva</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="closeFormSet" method="POST" action="updateEquipment">
+        <div class="modal-body">
+
+          <h1 id="action_title"></h1>
+
+          <br />
+        </div>
+        <div class="modal-footer">
+
+          <button
+            data-dismiss="modal"
+            class="btn btn-primary"
+          >
+            Ok
+          </button>
+        </div>
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+  <script  src="/public/scripts/jquery-3.3.1.min.js"></script>
+  <script  type="text/javascript"> 
+
+$(document).ready(function () {
+       
+       $.getJSON("/getHeaderBy?id="+$("#idHeader").val(), function (data) {
+       $("#HeaderBody").empty();
+           $("#HeaderBody").append("<tr>");
+           $("#HeaderBody").append(
+             "<td> <img src='/public/images/logo00.jpg' height='59' width='53'>  Unilever Planta Belen Costa Rica</td>"+
+             "<td>Codigo del Documento: ACJ-CALREG-RC-028</td>"+
+             "<td>Revision No 3</td>"
+           );
+           $("#HeaderBody").append("</tr>");
+           $("#HeaderBody").append("<tr>");
+           $("#HeaderBody").append(
+             "<td>Registro Genérico de Limpieza y Desinfección </td>"+
+             "<td>Fecha de Ultima Revision: 10/03/2020</td>"+
+             "<td>Fecha de Proxima Revision: 10/03/2022</td>"
+           );
+           $("#HeaderBody").append("</tr>");
+       });
+  
+       $.getJSON("/getCleanFilter?", function(data) {
+          $("#filter").empty();
+          $.each(data, function(index, row) {
+            $("#filter").append(  "<option value='" + row.Id + "' >" + row.Name + "</option>");
+
+              
+          });
+      });
+
+      $.getJSON("/getWashingStage?", function(data) {
+          $("#stage").empty();
+          $.each(data, function(index, row) {
+            $("#stage").append(  "<option value='" + row.Id + "' >" + row.Name + "</option>");
+
+              
+          });
+      });
+
+
+      // $.getJSON("/getClean_corrective_action?", function(data) {
+      //     $("#corrective_action").empty();
+      //     $.each(data, function(index, row) {
+      //       $("#corrective_action").append(  "<option value='" + row.Id + "' >" + row.Description + "</option>");
+
+              
+      //     });
+      // });
+
+      $.getJSON("/getEquipment?", function(data) {
+          $("#equipment").empty();
+          $.each(data, function(index, row) {
+            $("#equipment").append(  "<option value='" + row.Id + "' >" + row.Name + "</option>");
+
+              
+          });
+      });
+      });
+
+
+
+  var $rows = $("#tableData tr");
+
+  $("#searchbox").keyup(function() {
+    var val = $.trim($(this).val())
+      .replace(/ +/g, " ")
+      .toLowerCase();
+
+    $rows
+      .show()
+      .filter(function() {
+        var text = $(this)
+          .text()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+
+        return !~text.indexOf(val);
+      })
+      .hide();
+  });
+
+  function currentEvent(i) {
+
+$.getJSON("/getEquipmentBy?id=" + i, function(data) {
+ 
+    document.getElementById("equipoActual").innerHTML = data.Name;
+    $("#equipoActual").css("outline-style", "dotted");
+    $('input[name="equipment"]').val(data.Id);
+
+});
+}
+
+
+function loadAction(){
+  let atp =  document.getElementById("atp").value;
+
+  document.getElementById("toggle_target").click();
+
+  let aproved;
+  let action;
+  let title; 
+
+  if ( 75 < atp  && atp < 101){//1
+    action  = 1;
+    aproved = false;
+    title = "Pasar Agua caliente";
+
+  }else if ( 100 < atp  && atp < 150){//2
+    action = 2;
+    aproved = false;
+    title = "Desinfectar nuevamente el equipo";
+
+  }else if ( 150 <= atp){//3
+    action = 3;
+    aproved = false;
+    title = "Lavado Quimico nuevamente";
+
+  }else{
+    aproved = true;
+    action = 4;
+    title = "Aprobado";
+
+
+  }
+
+  document.getElementById("action_title").innerHTML = title;
+
+  document.getElementById("corrective_action").value = action;
+
+
+  console.log("ATP: "+atp +" | Action: "+ action + " | aproved: "+ aproved);
+}
+
+</script>
+
+  {{ template "Footer" }}
+{{end}}

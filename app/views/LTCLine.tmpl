@@ -1,0 +1,389 @@
+{{define "LTCLine"}}
+
+
+{{template "Header"}}
+{{if .User.HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+{{ template "Nav_ltc"}}
+<div class="card">
+    <div class="card-body">
+        <form class="form-row align-items-center">
+            <div class="form-group col-md-2">
+                <label for="area">Area</label>
+                <select name="area" id="area" class="form-control"></select>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="line">Linea</label>
+                <select name="line" id="line" class="form-control"></select>
+            </div>
+             
+                <button type="button" id="btnOEE" class="btn btn-primary" onclick="loadEvents()">Obtener</button>
+              
+
+        </form>
+    </div>
+</div>
+
+<hr id="statusNotification">
+
+<div class="container" style="d-flex align-items-center flex-column justify-content-center">
+
+        <table id="myTable" class="table table-responsive-xl table-dark">
+            <thead>
+
+                    <th>Linea</th>
+                    <th>Clasificacion</th>
+                    <th>Sub clasificacion</th>
+                    <th>Rama</th>
+                    <th>Evento</th>
+                    <th>Codigo</th>
+                    <th> Accion |
+                      
+                        <button
+                        type="button"
+                        class="btn btn-success"
+                        style="margin-left: 20px"
+                        data-toggle="modal" data-target="#newEvent"
+                        >
+                        Relacionar
+                        </button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="data_p"></tbody>
+        </table>
+  
+</div>
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="newEvent"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="closeFormLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content card">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Crear evento</h5>
+        <button
+          type="button"
+          class="close"
+          id="doneEventCreate"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      
+      <form method="POST" style="text-align: center;" action="insertLTCLine" id="eventReport">
+        <h3 id="lostTitle">Paro</h3>
+        <br />
+
+        <div class="form-group row" style="padding-left: 10px;">
+          <input
+            id="searchbox"
+            class="form-control form-control-sm ml-3 w-75"
+            type="search"
+            placeholder="Buscar"
+            aria-label="Buscar"
+            style="font-size: 24px;"
+          />
+          <i
+            class="fa fa-search fa-2x"
+            aria-hidden="true"
+            onclick="searchEvent()"
+          ></i>
+        </div>
+
+        <div id="table-wrapper">
+          <div id="table-scroll">
+            <table
+              id="tableData"
+              class="table table-responsive-sm table-bordered text-light table-striped"
+            >
+              <thead>
+                <tr style="color: black;">
+                  <td>Codigo</td>
+                  <td>Sub clasificacion</td>
+                  <td>Rama</td>
+                  <td>Evento</td>
+                </tr>
+              </thead>
+              <tbody>
+                {{ range.Event }}
+                <tr onclick="currentEvent({{ .Id}})">
+                  <td style="background-color:{{ .Color}}">{{ .Id}}</td>
+                  <td style="background-color:{{ .Color}}">{{ .Sub}}</td>
+                  <td style="background-color:{{ .Color}}">{{ .Branch}}</td>
+                  <td style="background-color:{{ .Color}}">
+                    {{ .Description }}
+                  </td>
+                </tr>
+                {{  end  }}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br />
+        <h4 id="currentStop">Paro seleccionado</h4>
+        <p style="outline: 5px dotted blue;" id="paroActual"></p>
+        <input type="number" name="Event" hidden />
+        <br />
+
+        <br /><br />
+        <input
+          class="btn btn-primary btn-block"
+          type="submit"
+          value="Guardar"
+        />
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+<script src="/public/scripts/Chart.bundle.js"></script>
+<script src="/public/scripts/d3.v5.min.js"></script>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<!-- <script defer src="/public/scripts/datatables.min.js"></script> -->
+<script>
+
+
+    $(document).ready(() => {
+        $.getJSON("/getArea", function (data) {
+            $("#area").empty();
+            $.each(data, function (index, row) {
+                $("#area").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+            });
+            $.getJSON("/getLineBy?id=" + $("#area").val(), function (data) {
+                $("#line").empty();
+                $.each(data, function (index, row) {
+                    $("#line").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+                });
+            });
+        });
+
+
+        $("#area").change(() => {
+            $.getJSON("/getLineBy?id=" + $("#area").val(), function (data) {
+                $("#line").empty();
+                $.each(data, function (index, row) {
+                    $("#line").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+                });
+            });
+        });
+
+        // $('#myTable').DataTable();
+
+    });
+
+      // Attach a submit handler to the form
+  $( "#eventReport" ).submit(function( event ) {
+   
+   // Stop form from submitting normally
+   event.preventDefault();
+  
+   // Get some values from elements on the page:
+   var $form = $( this ),
+     
+     event = $form.find( "input[name='Event']" ).val();
+     line = $("#line").val();
+
+
+     console.log("Line: "+line+"\tevent: "+event);
+
+     url = $form.attr( "action" );
+  
+   // Send the data using post
+   var posting = $.post( url, { Event: event, Line:line} );
+  
+   // Put the results in a div
+   posting.done(function( data, status ) {
+
+     console.log("Data: "+data+"\tStatus: "+status);
+
+     if(status == "success") {
+       let container  = document.getElementById("statusNotification");
+
+       container.insertAdjacentHTML('beforebegin', `
+       <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+         <strong>Se guardo exitosamente! </strong> Relacion Creada
+         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+           <span aria-hidden="true">&times;</span>
+         </button>
+       </div>  
+       `);
+
+       $("#doneEventCreate").click();
+      //  loadRelativeDay(globalCount);
+       $("html, body").animate({ scrollTop: 0 }, "slow");
+
+       setTimeout(loadEvents(), 200);
+
+     }
+     
+
+   });
+
+ });
+
+
+ 
+ function deleteStatus(btn){
+    
+    let container  = document.getElementById("statusNotification");
+
+    container.insertAdjacentHTML('beforebegin', `
+      <div id="successAlert" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>Se elimino!</strong> Relacion
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>  
+      `);
+    
+    // loadRelativeDay(globalCount);
+    $("html, body").animate({ scrollTop: 0 }, "slow");
+
+
+ }
+
+
+
+
+    var $rows = $("#tableData tr");
+
+$("#searchbox").on("keypress", "input", function (e) {
+  if (e.which == 13) {
+    searchEvent();
+  }
+});
+
+function searchEvent() {
+  var val = $.trim($("#searchbox").val()).replace(/ +/g, " ").toLowerCase();
+
+  $rows
+    .show()
+    .filter(function () {
+      var text = $(this).text().replace(/\s+/g, " ").toLowerCase();
+
+      return !~text.indexOf(val);
+    })
+    .hide();
+}
+
+//$("#searchbox").keyup();//function search
+
+function currentEvent(i) {
+  console.log(i);
+
+  $.getJSON("/getEventBy?id=" + i, function (data) {
+    $.each(data, function (index, row) {
+      document.getElementById("paroActual").innerHTML = row.Description;
+      $("#paroActual").css("outline-style", "dotted");
+      $('input[name="Event"]').val(row.Id);
+      $("#lostTitle").css("background-color", row.Color);
+      $("#lostTitle").css("color", "white");
+
+      $("#currentStop").css("background-color", row.Color);
+      $("#currentStop").css("color", "white");
+    });
+  });
+}
+
+
+   
+
+    function loadEvents(){
+
+        let pline = document.getElementById("line").value;
+
+        console.log("pline"+pline);
+
+        $("#data_p").empty();
+
+          $.getJSON(
+          "/getLTCLineBy?line=" +
+            pline,
+          data => {
+
+            $.each(data, function(index, row) {
+              $("#data_p").append("<tr>");
+              $("#data_p").append(
+
+                "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Line +
+                  "</td>" +
+
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.LTC +
+                  "</td>" +
+
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Sub +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Branch +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Event +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Code +
+                  "</td>" +
+                  "<td>" +
+                    "<a onclick='deleteExL(this, "+row.Id+")'><button  type='button' class='btn btn-danger'>Borrar</button></a>"+
+                  "</td>"
+              );
+              $("#data_p").append("</tr>");
+            });
+          }
+        );
+      
+
+    }
+
+
+    function deleteExL(btn, pid){
+
+        $.get("/deleteLTCLine?id="+pid, (data)=> {
+
+          setTimeout(loadEvents(), 200);
+        });
+
+        deleteStatus(btn, pid);
+    }
+
+
+
+</script>
+{{ template "Footer" }}
+
+{{end}}

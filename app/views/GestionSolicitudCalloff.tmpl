@@ -1,0 +1,368 @@
+{{define "GestionSolicitudCalloff"}}
+{{template "Header"}}
+
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "NavGestionBodega"}}
+
+<br />
+<center><h2 style="color: gold;">Call Off</h2></center>
+<div class="card">
+  <div class="card-body">
+    <form action="#">
+      <div class="form-row  align-items-center">
+        <div class="col-md-2 col-md-offset-3">
+          <label> Fecha inicio </label>
+          <input
+            type="date"
+            id="idate"
+            name="dinit"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-4 col-md-offset-3">
+          <label> Fecha final </label>
+          <input
+            type="date"
+            id="fdate"
+            name="dfinal"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <input
+            type="button"
+            class="btn btn-primary btn-block"
+            value="Filtrar"
+            onclick="filterCalloff()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br /><br /><br />
+<center><h2 style="color: gold;">Solicitudes</h2></center>
+<a id="dlink" style="display:none;"></a>
+
+<input
+  id="exportButton"
+  class="btn btn-block btn-success"
+  type="button"
+  onclick="tableToExcel('data_table', 'name', 'reporteSolicitudesCalloff.xls')"
+  value="Exportar a Excel"
+  hidden="true"
+/>
+<br />
+
+<table
+  id="data_table"
+  class="table table-responsive table-dark table-striped"
+  style="font-size:small"
+>
+  <thead >
+    <tr>
+      <td>Perfil</td>
+      <td>#Transaccion</td>
+      <td>Linea</td>
+      <td>Usuario</td>
+      <td>Nombre</td>
+      <td>Apellido</td>
+      <td>Fecha solicitud</td>
+      <td>Fecha de resolucion</td>
+      <td>Codigo material</td>
+      <td>Nombre Material</td>
+      <td>Cantidad</td>
+      <td>Comentario</td>
+      <td>Estado</td>
+    </tr>
+  </thead>
+  <tbody style="color: black;" id="data_p"></tbody>
+</table>
+<br />
+<div id="setRequest">
+  <center><h2 style="color: gold;">Solicitud Actual</h2></center>
+  <div class="card">
+    <div class="card-body">
+      <form>
+        <div class="form-row">
+          <div class="col">
+            <input
+              id="uid"
+              type="number"
+              class="form-control"
+              placeholder="#Transaccion"
+            />
+          </div>
+          <div class="col">
+            <input
+              type="button"
+              class="btn btn-primary btn-block"
+              value="Obtener"
+              onclick="currentRequest()"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <br />
+
+  <table
+    id="tableCurrentRequest"
+    class="table table-responsive table-dark table-striped"
+    style="font-size:small"
+  >
+    <thead >
+      <tr>
+        <td>Perfil</td>
+        <td>#Transaccion</td>
+        <td>Linea</td>
+        <td>Usuario</td>
+        <td>Nombre</td>
+        <td>Apellido</td>
+        <td>Fecha solicitud</td>
+        <td>Fecha de resolucion</td>
+        <td>Codigo material</td>
+        <td>Nombre Material</td>
+        <td>Cantidad</td>
+        <td>Comentario</td>
+        <td>Estado</td>
+      </tr>
+    </thead>
+    <tbody style="color: black;" id="dataCurrent_p"></tbody>
+  </table>
+
+  <form>
+    <div class="form-row">
+      <div class="col">
+        <input
+          type="button"
+          class="btn btn-warning btn-block"
+          value="Abrir"
+          onclick="currentState(1)"
+        />
+      </div>
+      <div class="col">
+        <input
+          type="button"
+          class="btn btn-primary btn-block"
+          value="Procesar"
+          onclick="currentState(2)"
+        />
+      </div>
+      <div class="col">
+        <input
+          type="button"
+          class="btn btn-secondary btn-block"
+          value="Cerrar"
+          onclick="currentState(3)"
+        />
+      </div>
+    </div>
+  </form>
+</div>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  $(document).ready(() => {
+    hiddeE("setRequest", true);
+  });
+
+  function getCallOffE(uid) {
+    $("#dataCurrent_p").empty();
+    $.getJSON("/getCalloffEV00?uid=" + uid, row => {
+      $("#dataCurrent_p").append("<tr>");
+      $("#dataCurrent_p").append(
+        "<td style='background-color:"+row.StateColor +"'><img style='border-radius: 50%;' src='"+row.Profile_picture+"' width='75' height='75'></td>"+
+
+        "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.Id +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.Linea +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.NickName +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.Fname +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.Lname +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.RequestDate +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.CloseDate.String +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.CodMaterial +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.MaterialName +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.Amount +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.Comment +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.State +
+          "</td>"
+      );
+      $("#dataCurrent_p").append("</tr>");
+    });
+  }
+
+  function currentRequest() {
+    let uid = $("#uid").val();
+    getCallOffE(uid);
+  }
+
+  function currentState(i) {
+    loading();
+    let id = $("#uid").val();
+    $.post("/updateCalloff", {
+      uid: id,
+      state: i
+    });
+    filterCalloff();
+    currentRequest();
+    doneCharge();
+  }
+  function filterCalloff() {
+    var idate = $("#idate").val();
+    var fdate = $("#fdate").val();
+
+    $.getJSON("/getCalloffV02?idate=" + idate + "&fdate=" + fdate, data => {
+      $("#data_p").empty();
+      $.each(data, function(index, row) {
+        hiddeE("setRequest", false);
+        $("#data_p").append("<tr onclick='console.log(" + row.Id + ")'>");
+        $("#data_p").append(
+          "<td style='background-color:"+row.StateColor +"'><img style='border-radius: 50%;' src='"+row.Profile_picture+"' width='75' height='75'></td>"+
+
+          "<td style='background-color:" +
+            row.StateColor +
+            "'>" +
+            row.Id +
+            "</td>" +
+            "<td style='background-color:" +
+            row.StateColor +
+            "'>" +
+            row.Linea +
+            "</td>" +
+            "<td style='background-color:" +
+            row.StateColor +
+            "'>" +
+            row.NickName +
+            "</td>" +
+            "<td style='background-color:" +
+            row.StateColor +
+            "'>" +
+            row.Fname +
+            "</td>" +
+            "<td style='background-color:" +
+            row.StateColor +
+            "'>" +
+            row.Lname +
+            "</td>" +
+            "<td style='background-color:" +
+            row.StateColor +
+            "'>" +
+            row.RequestDate +
+            "</td>" +
+            "<td style='background-color:" +
+            row.StateColor +
+            "'>" +
+            row.CloseDate.String +
+            "</td>" +
+            "<td style='background-color:" +
+            row.StateColor +
+            "'>" +
+            row.CodMaterial +
+            "</td>" +
+            "<td style='background-color:" +
+            row.StateColor +
+            "'>" +
+            row.MaterialName +
+            "</td>" +
+            "<td style='background-color:" +
+            row.StateColor +
+            "'>" +
+            row.Amount +
+            "</td>" +
+            "<td style='background-color:" +
+            row.StateColor +
+            "'>" +
+            row.Comment +
+            "</td>" +
+            "<td style='background-color:" +
+            row.StateColor +
+            "'>" +
+            row.State +
+            "</td>"
+        );
+        $("#data_p").append("</tr>");
+      });
+    });
+    hiddeE("exportButton", false);
+  }
+
+  var tableToExcel = (function() {
+    var uri = "data:application/vnd.ms-excel;base64,",
+      template =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+      base64 = function(s) {
+        return window.btoa(unescape(encodeURIComponent(s)));
+      },
+      format = function(s, c) {
+        return s.replace(/{(\w+)}/g, function(m, p) {
+          return c[p];
+        });
+      };
+    return function(table, name, filename) {
+      if (!table.nodeType) table = document.getElementById(table);
+      var ctx = { worksheet: name || "Worksheet", table: table.innerHTML };
+
+      document.getElementById("dlink").href =
+        uri + base64(format(template, ctx));
+      document.getElementById("dlink").download = filename;
+      document.getElementById("dlink").click();
+    };
+  })();
+</script>
+{{ template "Footer" }}
+{{ end }}

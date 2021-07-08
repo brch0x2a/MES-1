@@ -1,0 +1,138 @@
+{{define "AM_Job"}}
+{{template "Header"}}
+{{template "Menu"}}
+{{template "NavAM"}}
+
+<center>
+  <div class="card" style="max-width:600px">
+    <div class="card-body">
+      <form class="form-inline md-form form-sm mt-0">
+        <i class="fa fa-search" aria-hidden="true"></i>
+        <input
+          id="searchbox"
+          class="form-control form-control-sm ml-3 w-75"
+          type="text"
+          placeholder="Buscar"
+          aria-label="Buscar"
+          style="font-size: 24px"
+        />
+      </form>
+    </div>
+  </div>
+</center>
+<br />
+
+<div class="container">
+  <h2 style="color: gold;">Trabajos</h2>
+  <table
+    id="tableData"
+    class="table table-dark table-striped"
+    style="font-size:small"
+  >
+    <thead>
+      <tr>
+        <td>Id</td>
+        <td>Maquina</td>
+        <td>Componente</td>
+        <td>ComponenteImagen</td>
+        <td>LILA</td>
+        <td>EPP</td>
+        <td>EPPImagen</td>
+        <td>Descripcion</td>
+        <td>
+          Accion |
+          <a href="/newAM_Job">
+            <button
+              type="button"
+              class="btn btn-success"
+              style="margin-left: 20px"
+            >
+              Agregar
+            </button>
+          </a>
+        </td>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range . }}
+      <tr>
+        <td>{{ .Id }}</td>
+        <td>{{ .Machine}}</td>
+        <td>{{ .Component }}</td> 
+        <td><img style="object-fit: scale-down;"  src="/{{ .ComponentPhoto}}" width='200' height='180'></td>
+        <td style="background-color: {{ .LILAColor}}; color: black;">{{ .LILA}}</td>
+        <td>{{ .EPP}}</td>
+        <td style="background-color: white;"><img style="object-fit: scale-down;"  src="/{{ .EPPPhoto}}" width='200' height='180'></td>
+        <td>{{ .Description}}</td>
+        
+        <td>
+          <!-- <a onclick="editEquipment({{.Id}})">
+            <button type="button" class="btn btn-primary" 
+            data-toggle="modal"
+            data-target="#closeForm"
+            >Editar</button>
+          </a> -->
+          <a href="/deleteAM_Job?id={{.Id}}">
+            <button type="button"          data-toggle="modal"
+        data-target="#closeForm"class="btn btn-danger">Borrar</button>
+          </a>
+        </td>
+      </tr>
+      {{  end }}
+    </tbody>
+  </table>
+</div>
+
+<hr />
+
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  var $rows = $("#tableData tr");
+  $("#searchbox").keyup(function() {
+    var val = $.trim($(this).val())
+      .replace(/ +/g, " ")
+      .toLowerCase();
+
+    $rows
+      .show()
+      .filter(function() {
+        var text = $(this)
+          .text()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+        return !~text.indexOf(val);
+      })
+      .hide();
+  });
+
+  function editEquipment(i) {
+    
+    $.getJSON("/getAM_Job?id="+i, row =>{
+      $('input[name="pid"]').val(row.Id);
+      $('input[name="name"]').val(row.Name);
+      $("textarea#description").val(row.Description);
+      $("#machine").val(row.Id_machine);
+    });
+  }
+
+
+
+  $.getJSON("/getMachineCatalog", function(data) {
+                $("#machine").empty();
+                $.each(data, function(index, row) {
+                $("#machine").append(
+                    "<option value='" + row.Id +"' >" + row.Name + "</option>"
+                );
+            });
+    });
+
+
+
+
+</script>
+
+{{ template "Footer" }}
+
+{{ end }}

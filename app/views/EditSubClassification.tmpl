@@ -1,0 +1,46 @@
+{{define "EditSubClassification"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{ template "Nav_ltc"}}
+<div class="d-flex align-items-center flex-column justify-content-center h-100">
+    <div class="card w-50">
+        <div class="card-header">Editar sub clasificacion</div>
+        <div class="card-body">
+            <form method="POST" action="updateSubClassification">
+                <input type="hidden" name="uid" value="{{ .Id }}" />
+
+                <label> LTC </label>
+                <select id="LTC1" name="LTC" class="form-control"></select><br /><br />
+                <label> Sub categoria </label>
+                <input name="description" type="text" class="form-control" placeholder="description"
+                    value="{{ .Description}}" style="background-color:{{ .Color}}" required>
+                <br><br>
+                <label> Color</label>
+                <br>
+
+                <input type="color" name="vcolor" class="form-control">
+                <br>
+                <input class="btn-block" type="submit" value="Guardar" onsubmit="loading()" />
+                <img class="card-img-bottom" src="/public/images/visual_ul02.jpg" height="92" width="100%">
+            </form>
+        </div>
+    </div>
+</div>
+<br />
+<hr>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script>
+    $(document).ready(() => {
+        $.getJSON("/getLTC", function (data) {
+            $("#LTC1").empty();
+
+            $.each(data, function (index, row) {
+                $("#LTC1").append("<option value='" + row.Id + "'>" + row.Description + "</option>");
+            });
+        });
+    });
+
+</script>
+{{ template "Footer" }}
+{{end}}

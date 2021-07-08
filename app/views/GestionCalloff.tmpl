@@ -1,0 +1,326 @@
+rurl{{define "GestionCalloff"}}
+{{ template "Header" }}
+
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+
+
+{{ template "NavGestionBodega"}}
+
+<center><h2 style="color: gold;">Call Off</h2></center>
+
+<div id="table-wrapper">
+  <div id="table-scroll">
+    <table
+      id="tableData"
+      class="table table-hover table-responsive table-dark table-striped"
+      style="font-size:small"
+    >
+      <thead >
+        <tr>
+          <td>Perfil</td>
+          <td>#Transaccion</td>
+          <td>Linea</td>
+          <td>Usuario</td>
+          <td>Nombre</td>
+          <td>Apellido</td>
+          <td>Fecha solicitud</td>
+          <td>Fecha de resolucion</td>
+          <td>Codigo material</td>
+          <td>Nombre Material</td>
+          <td>Cantidad</td>
+          <td>Comentario</td>
+          <td>Estado</td>
+        </tr>
+      </thead>
+      <tbody  style="color: black;" id="data_p"></tbody>
+    </table>
+  </div>
+</div>
+<hr style="color: gold;" />
+
+<div class="card">
+  <div class="card-body">
+    <form>
+      <div class="form-row">
+        <div class="col">
+          <input
+            id="uid"
+            type="number"
+            class="form-control"
+            placeholder="#Transaccion"
+          />
+        </div>
+        <div class="col">
+          <input
+            type="button"
+            class="btn btn-primary btn-block"
+            value="Obtener"
+            onclick="currentRequest()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br />
+<center><h2 style="color: gold;">Solicitud Actual</h2></center>
+<table
+  id="tableCurrentRequest"
+  class="table table-hover table-responsive table-dark table-striped"
+  style="font-size:small"
+>
+  <thead>
+    <tr>
+      <td>Perfil</td>
+      <td>#Transaccion</td>
+      <td>Linea</td>
+      <td>Usuario</td>
+      <td>Nombre</td>
+      <td>Apellido</td>
+      <td>Fecha solicitud</td>
+      <td>Fecha de resolucion</td>
+      <td>Codigo material</td>
+      <td>Nombre Material</td>
+      <td>Cantidad</td>
+      <td>Comentario</td>
+      <td>Estado</td>
+    </tr>
+  </thead>
+  <tbody style="color: black;" id="dataCurrent_p"></tbody>
+</table>
+
+<form>
+  <div class="form-row">
+    <div class="col">
+      <input
+        type="button"
+        class="btn btn-warning btn-block"
+        value="Abrir"
+        onclick="currentState(1)"
+      />
+    </div>
+    <div class="col">
+      <input
+        type="button"
+        class="btn btn-primary btn-block"
+        value="Procesar"
+        onclick="currentState(2)"
+      />
+    </div>
+    <div class="col">
+      <input
+        type="button"
+        class="btn btn-secondary btn-block"
+        value="Cerrar"
+        onclick="currentState(3)"
+      />
+    </div>
+  </div>
+</form>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  let socket;
+  var url = "192.168.1.191:3000";
+
+  function currentState(i) {
+    loading();
+    let id = $("#uid").val();
+    $.post("/updateCalloff", {
+      uid: id,
+      state: i
+    });
+    currentRequest();
+    doneCharge();
+  }
+
+  function getCallOffE(uid) {
+    $("#dataCurrent_p").empty();
+    $.getJSON("/getCalloffEV00?uid=" + uid, row => {
+      $("#dataCurrent_p").append("<tr>");
+      $("#dataCurrent_p").append(
+        "<td style='background-color:"+row.StateColor +"'><img style='border-radius: 50%;' src='"+row.Profile_picture+"' width='75' height='75'></td>"+
+
+        "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.Id +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.Linea +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.NickName +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.Fname +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.Lname +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.RequestDate +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.CloseDate.String +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.CodMaterial +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.MaterialName +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.Amount +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.Comment +
+          "</td>" +
+          "<td style='background-color:" +
+          row.StateColor +
+          "'>" +
+          row.State +
+          "</td>"
+      );
+      $("#dataCurrent_p").append("</tr>");
+    });
+  }
+
+  function currentRequest() {
+    let uid = $("#uid").val();
+    getCallOffE(uid);
+  }
+
+  function startMonitor() {
+    socket = new WebSocket("ws://" + url + "/wsCalloff");
+    console.log("Attempting connection...");
+
+    socket.onopen = () => {
+      console.log("Successfully connected");
+      //socket.send(turn + "_" + date + "_" + line);
+    };
+
+    socket.onclose = event => {
+      console.log("Socket closed connection: ", event);
+    };
+
+    socket.onmessage = event => {
+      //console.log(event.data);
+      $("#data_p").empty();
+      try {
+        var data = JSON.parse(event.data);
+        $.each(data, (index, row) => {
+          $("#data_p").append("<tr>");
+          $("#data_p").append(
+            "<td style='background-color:"+row.StateColor +"'><img style='border-radius: 50%;' src='"+row.Profile_picture+"' width='75' height='75'></td>"+
+
+
+            "<td style='background-color:" +
+
+
+              row.StateColor +
+              "'>" +
+              row.Id +
+              "</td>" +
+              "<td style='background-color:" +
+              row.StateColor +
+              "'>" +
+              row.Linea +
+              "</td>" +
+              "<td style='background-color:" +
+              row.StateColor +
+              "'>" +
+              row.NickName +
+              "</td>" +
+              "<td style='background-color:" +
+              row.StateColor +
+              "'>" +
+              row.Fname +
+              "</td>" +
+              "<td style='background-color:" +
+              row.StateColor +
+              "'>" +
+              row.Lname +
+              "</td>" +
+              "<td style='background-color:" +
+              row.StateColor +
+              "'>" +
+              row.RequestDate +
+              "</td>" +
+              "<td style='background-color:" +
+              row.StateColor +
+              "'>" +
+              row.CloseDate.String +
+              "</td>" +
+              "<td style='background-color:" +
+              row.StateColor +
+              "'>" +
+              row.CodMaterial +
+              "</td>" +
+              "<td style='background-color:" +
+              row.StateColor +
+              "'>" +
+              row.MaterialName +
+              "</td>" +
+              "<td style='background-color:" +
+              row.StateColor +
+              "'>" +
+              row.Amount +
+              "</td>" +
+              "<td style='background-color:" +
+              row.StateColor +
+              "'>" +
+              row.Comment +
+              "</td>" +
+              "<td style='background-color:" +
+              row.StateColor +
+              "'>" +
+              row.State +
+              "</td>"
+          );
+          $("#data_p").append("</tr>");
+        });
+      } catch (e) {
+        console.log("invalid json");
+      }
+      setTimeout(() => {
+        socket.send("on");
+      }, 500);
+    };
+
+    socket.onerror = error => {
+      console.log("Sokcet Error: ", error);
+    };
+  }
+
+  $(document).ready(() => {
+    startMonitor();
+  });
+</script>
+
+{{ template "Footer" }}
+{{ end }}

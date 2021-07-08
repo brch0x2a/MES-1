@@ -1,0 +1,216 @@
+{{define "FillSealStep"}}
+
+{{template "Header"}}
+
+{{if .User.HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{end}}
+
+
+  {{ template "Nav_report"}}
+
+
+  <input id="idHeader" type="number" value={{ .SubHeader.Header}} hidden>
+  <input id="pvalue" type="number" value={{ .SubHeader.Pvalue}} hidden>
+  <input id="pline" type="text" value={{ .SubHeader.Line}} hidden>
+
+  <div class="card">
+     <table class="table table-responsive table-bordered">
+       <tbody id="HeaderBody" style="font-size: medium">
+       </tbody>
+     </table>
+   </div>
+ 
+ <br><br>
+
+ <div class="card">
+  <table class="table table-responsive table-bordered">
+    <tbody style="font-size: medium">
+    <tr>
+      <td><strong>Linea:</strong>  {{.SubHeader.Line}} </td>
+      <td><strong>Coordinador:</strong>  {{.SubHeader.Coordinator}} </td>
+      <td><strong>Operador:</strong>  {{.SubHeader.Operator}} </td>
+      <td><strong>Producto:</strong>  {{.SubHeader.Presentation}}  {{.SubHeader.Pvalue}}  {{.SubHeader.Punit}}</td>
+      <td><strong>Fecha:</strong>  {{.SubHeader.Date}}</td>
+      <td><strong>Turno:</strong>  {{.SubHeader.Turn}}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<br><br>  
+<div id="muestreo" class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col">
+            Verificacion de sellos por prensa neumatica
+      </div>
+      <div class="col">
+        <button class="btn-primary btn-block" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+      </div>
+    </div>
+      
+    </div>
+    <div class="card-body">
+      
+        <form action="insertSealControl" method="POST" id="seal">
+            <input name="unit" type="text" value={{ .SubHeader.Punit}} hidden>
+            <input name="sub" type="number" value={{ .SubHeader.Id}} hidden>
+            <input id="prate" type="number" value={{ .SubHeader.Perror}} hidden>
+
+            <center><h4>Medicion de sellos (mm)</h4></center>
+            <br>
+
+              <div class="form-group col-6">
+                  <label for="top">Superior: <label>
+                  <input name="top" id="top" type="number" class="form-control" step="0.1"  required>
+              </div>
+
+
+            <div class="form-group row">
+                <div class="form-group col-6">
+                    <label for="lateral_a">Lateral A</label>
+                    <input name="lateral_a" id="lateral_a" type="number" class="form-control" step="0.1"  required>
+                </div>
+                <div class="form-group col-6">
+                    <label for="lateral_b">Lateral B</label>
+                    <input name="lateral_b" id="lateral_b" type="number" class="form-control" step="0.1"  required>
+                </div>
+            </div>
+            <div class="form-group row">
+              <div class="form-group col-6">
+                <label for="bottom">Fondo A: <label>
+                <input name="bottom_a" id="bottom_a" type="number" class="form-control" step="0.1"  required>
+            </div>
+            <div class="form-group col-6">
+                <label for="bottom">Fondo B: <label>
+                <input name="bottom_b" id="bottom_b" type="number" class="form-control" step="0.1"  required>
+          </div>
+          </div>
+            <hr>
+            <center>
+            <div class="form-group row">
+                <div class="col">
+                    <h4>Prensa</h4>
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="yield"
+                        value="1"
+                      />
+                      <label class="form-check-label" for="inlineCheckbox1">Cede</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        id="inlineCheckbox2"
+                        name="yield"
+                        value="0"
+                        required
+                      />
+                      <label class="form-check-label" for="inlineCheckbox2">No cede</label>
+                    </div>
+                  </div>
+            </div>
+            </center>
+            <br><hr>
+        <br>
+      <div  class="d-flex align-items-center flex-column justify-content-center">
+        <img style="object-fit: scale-down;" width='400' height='400' id="" src="/public/images/sellosSalsitas.png" alt="user">
+      </div>
+      <hr>
+      <div  class="d-flex align-items-center flex-column justify-content-center">
+        <img style="object-fit: scale-down;" width='400' height='400' id="" src="/public/images/sellosMayonesa.png" alt="user">
+      </div>
+      <hr>
+      <div  class="d-flex align-items-center flex-column justify-content-center">
+        <img style="object-fit: scale-down;" width='400' height='400' id="" src="/public/images/sellosFrijoles.png" alt="user">
+      </div>
+      <br>
+            
+          <br><br>
+          <input type="submit" class="btn btn-primary btn-block" value="Listo" onsubmit="loading()">
+          <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+  
+        </form>
+    </div>
+</div>     
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/verificacionSellos.mp4" type="video/mp4">
+        <source src="/public/videos/verificacionSellos.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/verificacionSellos.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script> 
+
+
+
+$(document).ready(function () {
+       
+     $.getJSON("/getHeaderBy?id="+$("#idHeader").val(), function (data) {
+     $("#HeaderBody").empty();
+         $("#HeaderBody").append("<tr>");
+         $("#HeaderBody").append(
+           "<td> <img src='/public/images/logo00.jpg' height='59' width='53'>  Unilever Planta Belen Costa Rica</td>"+
+           "<td>Codigo del Documento: "+data.Cod_doc+"</td>"+
+           "<td>Revision No "+data.Revision_no+"</td>"
+         );
+         $("#HeaderBody").append("</tr>");
+         $("#HeaderBody").append("<tr>");
+         $("#HeaderBody").append(
+           "<td>"+data.Name+"</td>"+
+           "<td>Fecha de Ultima Revision: "+data.Revision_date+"</td>"+
+           "<td>Fecha de Proxima Revision: "+data.Next_revision_date+"</td>"
+         );
+         $("#HeaderBody").append("</tr>");
+     });
+
+ });
+</script>
+
+
+
+
+{{ template "Footer" }}
+{{ end }}

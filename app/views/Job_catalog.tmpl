@@ -1,0 +1,92 @@
+{{define "Job_catalog"}}
+{{template "Header"}}
+{{template "Menu"}}
+
+<center>
+  <div class="card" style="max-width:600px">
+    <div class="card-body">
+      <form class="form-inline md-form form-sm mt-0">
+        <i class="fa fa-search" aria-hidden="true"></i>
+        <input
+          id="searchbox"
+          class="form-control form-control-sm ml-3 w-75"
+          type="text"
+          placeholder="Buscar"
+          aria-label="Buscar"
+          style="font-size: 24px"
+        />
+      </form>
+    </div>
+  </div>
+</center>
+<br />
+
+<div class="container">
+  <table
+    id="tableData"
+    class="table table-dark table-striped"
+    style="font-size:small"
+  >
+    <thead>
+      <tr>
+        <td>Id</td>
+        <td>Nombre</td>
+        <td>
+          Accion |
+          <a href="/newJob_catalog">
+            <button
+              type="button"
+              class="btn btn-success"
+              style="margin-left: 20px"
+            >
+              Agregar
+            </button>
+          </a>
+        </td>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range . }}
+      <tr>
+        <td style="background-color:{{ .Color}}"> {{ .Id}} </td>
+        <td  style="background-color:{{ .Color}}">{{ .Name }}</td>
+        <td>
+          <a href="/editJob_catalog?id={{.Id}}">
+            <button type="button" class="btn btn-primary">Editar</button>
+          </a>
+          <a href="/deleteJob_catalog?id={{.Id}}">
+            <button type="button" class="btn btn-danger">Borrar</button>
+          </a>
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+
+<hr />
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  var $rows = $("#tableData tr");
+  $("#searchbox").keyup(function() {
+    var val = $.trim($(this).val())
+      .replace(/ +/g, " ")
+      .toLowerCase();
+
+    $rows
+      .show()
+      .filter(function() {
+        var text = $(this)
+          .text()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+        return !~text.indexOf(val);
+      })
+      .hide();
+  });
+</script>
+
+{{ template "Footer" }}
+
+{{ end }}

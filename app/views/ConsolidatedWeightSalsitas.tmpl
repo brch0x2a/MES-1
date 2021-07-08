@@ -1,0 +1,309 @@
+{{define "ConsolidatedWeightSalsitas"}}
+{{template "Header"}}
+
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+{{template "Nav_weight"}}
+
+<div class="card">
+  <div class="card-body">
+    <form action="#">
+      <div class="form-row  align-items-center">
+        <div class="col-md-2 col-md-offset-3">
+          <label for="">Area</label>
+          <select name="area" id="area" class="form-control"></select>
+        </div>
+
+        <div class="col-md-2 col-md-offset-3">
+          <label for="">Linea</label>
+          <select name="line" id="line" class="form-control" required></select>
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <label> Fecha inicio </label>
+          <input
+            type="date"
+            id="dinit"
+            name="dinit"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-4 col-md-offset-3">
+          <label> Fecha final </label>
+          <input
+            type="date"
+            id="dfinal"
+            name="dfinal"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <input
+            type="button"
+            class="btn btn-primary"
+            value="Filtrar"
+            onclick="filterWeight()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br /><br /><br />
+<a id="dlink" style="display:none;"></a>
+
+<input
+  id="exportButton"
+  class="btn btn-block btn-success"
+  type="button"
+  onclick="tableToExcel('data_table', 'name', 'reportePesos.xls')"
+  value="Exportar a Excel"
+  hidden="true"
+/>
+<br />
+<div class="container">
+  <div class="table-responsive-xl">
+  <table
+    class="table  table-dark table-striped"
+    style="font-size: small"
+    id="data_table"
+  >
+    <thead>
+      <tr>
+        <td>Perfil</td>
+        <td>Fecha</td>
+        <td>Operador</td>
+        <td>Turno</td>
+        <td>Linea</td>
+        <td>Presentacion</td>
+        <td>Peso Teorico</td>
+        <td>Unidad</td>
+        <td>Porcentaje de error</td>
+        <td>Coordinador</td>
+        <td>V1</td>
+        <td>V2</td>
+        <td>V3</td>
+        <td>V4</td>
+        <td>V5</td>
+        <td>Promedio</td>
+      </tr>
+    </thead>
+    <tbody id="data_p"></tbody>
+  </table>
+  </div>
+</div>
+<br>
+<center>
+    <p id="noResult" style="color: white; font-size: 36px" hidden>No hay resultados!</p>
+    <img id="desert" src="/public/images/desertIconWhite.png" alt="noResultados" hidden>
+</center>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  $(document).ready(function() {
+
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+    $("#area").change(() => {
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+  });
+
+  function filterWeight() {
+    loading();
+
+    $.getJSON(
+      "/getWeightSalsitas?line=" +
+        $("#line").val() +
+        "&dinit=" +
+        $("#dinit").val() +
+        "&dfinal=" +
+        $("#dfinal").val(),
+      data => {
+        //$.getJSON("/getWeightSalsitas?line=3&dinit=20190827&dfinal=20190828", data=>{
+        //console.log("dataLength: "+data.length)
+        if(data.length == 0 ){
+          hiddeE('desert', false);
+          hiddeE('noResult', false);
+        }else{
+          hiddeE('desert', true);
+          hiddeE('noResult', true);
+        }
+
+        $("#data_p").empty();
+        $.each(data, function(index, row) {
+          $("#data_p").append("<tr>");
+          $("#data_p").append(
+            "<td>" +
+              "<img loading='lazy' style='border-radius: 50%;' src='"+row.Profile_picture+"' width='75' height='75'>"+
+            "</td>"+
+            "<td>" +
+              row.Date +
+              "</td>" +
+              "<td>" +
+              row.Operator +
+              " " +
+              row.Olname +
+              "</td>"+
+              "<td>" +
+              row.Turn +
+              "</td>" +
+              "<td>" +
+              row.Line +
+              "</td>" +
+              "<td>" +
+              row.Pname +
+              "</td>" +
+              "<td>" +
+              row.Pvalue +
+              "</td>" +
+              "<td>" +
+              row.Punit +
+              "</td>" +
+              "<td>" +
+              row.Prate +
+              "</td>" +
+              "<td>" +
+              row.Coordinator +
+              " " +
+              row.Clname +
+              "</td>" 
+
+          );
+
+          evalCase(row.V1, row.Prate, row.Pvalue);
+          evalCase(row.V2, row.Prate, row.Pvalue);
+          evalCase(row.V3, row.Prate, row.Pvalue);
+          evalCase(row.V4, row.Prate, row.Pvalue);
+          evalCase(row.V5, row.Prate, row.Pvalue);
+
+          var currentValues = [row.V1, row.V2, row.V3, row.V4, row.V5];
+
+          currentAverage = averageEval(currentValues, row.Pvalue);
+
+          evalCase(currentAverage, row.Prate, row.Pvalue);
+
+          $("#data_p").append("</tr>");
+        });
+      }
+    );
+    hiddeE("exportButton", false);
+    doneCharge();
+  }
+
+  function hasDeviation(pv, prate, pgoal) {
+    let goal = parseFloat(pgoal);
+    let rate = parseFloat(prate);
+    let v = parseFloat(pv);
+
+    let lv = goal - goal * rate; //left value rate
+    let rv = goal + goal * rate;
+
+    if (v > rv) {
+      return 2;
+    }
+    if (v < lv) {
+      return 3;
+    } else {
+      return 1;
+    }
+  }
+
+  function averageEval(L, pgoal) {
+    let average = 0.0;
+    let relativeCount = 0;
+
+    for (let index = 0; index < L.length; index++) {
+      const element = L[index];
+
+      if (element < pgoal) {
+        //ignora los casos que serian problamente dedasos o errores de digitacion
+        isOutOfRange = Math.abs(element - pgoal) > pgoal * 0.2;
+
+        if (!isOutOfRange) {
+          average += element;
+          relativeCount++;
+        }
+      } else {
+        average += element;
+        relativeCount++;
+      }
+    }
+    return average / relativeCount;
+  }
+
+  function evalCase(pv, prate, pgoal) {
+    let op = hasDeviation(pv, prate, pgoal);
+
+    switch (op) {
+      case 1:
+        $("#data_p").append(
+          "<td style='background-color: green'>" + pv + "</td>"
+        );
+        break;
+
+      case 2:
+        $("#data_p").append(
+          "<td style='background-color: orange'>" + pv + "</td>"
+        );
+        break;
+
+      case 3:
+        $("#data_p").append(
+          "<td style='background-color: red'>" + pv + "</td>"
+        );
+        break;
+    }
+  }
+
+  var tableToExcel = (function() {
+    var uri = "data:application/vnd.ms-excel;base64,",
+      template =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+      base64 = function(s) {
+        return window.btoa(unescape(encodeURIComponent(s)));
+      },
+      format = function(s, c) {
+        return s.replace(/{(\w+)}/g, function(m, p) {
+          return c[p];
+        });
+      };
+    return function(table, name, filename) {
+      if (!table.nodeType) table = document.getElementById(table);
+      var ctx = { worksheet: name || "Worksheet", table: table.innerHTML };
+
+      document.getElementById("dlink").href =
+        uri + base64(format(template, ctx));
+      document.getElementById("dlink").download = filename;
+      document.getElementById("dlink").click();
+    };
+  })();
+</script>
+{{template "Footer"}}
+{{ end }}

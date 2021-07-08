@@ -1,0 +1,1177 @@
+{{define "GeneralDashboard"}}
+{{ template "Header" }}
+
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+
+
+
+<div id="carousel" class="owl-carousel owl-theme">
+
+  <div class="item" onclick="loadMetaLine(1)">
+    <h1 style="display:flex; justify-content:center; text-align:center">S1</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(2)">
+    <h1 style="display:flex; justify-content:center; text-align:center">S2</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(6)">
+    <h1 style="display:flex; justify-content:center; text-align:center">S3</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(7)">
+    <h1 style="display:flex; justify-content:center; text-align:center">S4</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(8)">
+    <h1 style="display:flex; justify-content:center; text-align:center">S5</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(9)">
+    <h1 style="display:flex; justify-content:center; text-align:center">S6</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(3)">
+    <h1 style="display:flex; justify-content:center; text-align:center">S7</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(5)">
+    <h1 style="display:flex; justify-content:center; text-align:center">S8</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(10)">
+    <h1 style="display:flex; justify-content:center; text-align:center">S9</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(20)">
+    <h1 style="display:flex; justify-content:center; text-align:center">Horix</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(19)">
+    <h1 style="display:flex; justify-content:center; text-align:center">KM</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(18)">
+    <h1 style="display:flex; justify-content:center; text-align:center">SO</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(11)">
+    <h1 style="display:flex; justify-content:center; text-align:center">M1</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(14)">
+    <h1 style="display:flex; justify-content:center; text-align:center">M2</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(15)">
+    <h1 style="display:flex; justify-content:center; text-align:center">M3</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(16)">
+    <h1 style="display:flex; justify-content:center; text-align:center">FS1</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(17)">
+    <h1 style="display:flex; justify-content:center; text-align:center">FS2</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(12)">
+    <h1 style="display:flex; justify-content:center; text-align:center">FR1</h1>
+  </div>
+
+  <div class="item" onclick="loadMetaLine(13)">
+    <h1 style="display:flex; justify-content:center; text-align:center">FR2</h1>
+  </div>
+
+
+</div>
+
+<br>
+
+<h1 id="currentTitle" style="color: gold; display:flex; justify-content:center; text-align:center">
+    Dashboard General
+</h1>
+<br>
+
+
+
+<div class="container">
+  <div class="table-responsive-xl">
+    <table style="font-size: small" class="table table-dark table-striped">
+        <thead>
+        <th>OEE Hoy</th>
+          <th>WO</th>
+          <th>BoletaRoja</th>
+          <th>BoletaAzul</th>
+          <th>BoletaVerde</th>
+          <th>BoletaNaranja</th>
+
+        </thead>
+        <tbody id="data">
+
+      </tbody>
+    </table>
+  </div>
+  <br>
+  <button class="btn-primary btn-block" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+
+</div>
+
+<br>
+
+<div class="container">
+  <div class="row">
+      <div class="col">
+
+          <div class="card bg-dark text-light">
+            <div class="card-header">
+              OEE Semanal
+            </div>
+            <div class=""></div>
+              <div class="card-body">
+                <div style=" display:flex; justify-content:center; text-align:center">
+                  <div class="circle" id="circles-1"></div>
+                </div>
+                <br>
+                <div style=" display:flex; justify-content:center; text-align:center"> 
+                  <canvas id="oeeWeekChart" width="300" height="160"></canvas>
+                </div>
+              </div>
+          </div>
+      </div>
+      <br>
+      <div class="col">
+
+        <div class="card bg-dark text-light">
+          <div class="card-header">
+            Boletas Abiertas
+          </div>
+            <div class="card-body">
+              <canvas id="tags" width="300" height="304"></canvas>
+            </div>
+        </div>
+    </div>
+   </div>     
+   <br>
+   <div class="row">
+     <div class="col">
+        <div class="card bg-dark text-light">
+          <div class="card-header">
+            <div class="row">
+                  <div class="col">
+                    Filtrar datos
+                  </div>
+                  <input type="number" id="qalineID" hidden >
+                  <div class="col">
+                    <input type="date"  id="dateQADocs" class="form-control bg-dark text-light">
+                  </div>
+              <div class="col">
+                <select class="form-control bg-dark text-light" name="turn" id="turnQADocs">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                </select>
+              </div>
+              <div class="col">
+                <button class="btn-primary btn-block" onclick="loadRelativeData()">Filtrar</button>
+              </div>
+           </div>
+          </div>
+            <div class="card-body">
+            </div>
+        </div>
+     </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+      <div class="col">
+         <div class="card bg-dark text-light">
+           <div class="card-header">
+            Uso Documentos de Calidad X Turno
+           </div>
+             <div class="card-body">
+               <div style=" display:flex; justify-content:center; text-align:center">
+
+                 <canvas id="qaDocs" width="300" height="304"></canvas>
+              
+               </div>
+             </div>
+         </div>
+      </div>
+ 
+ 
+     </div>
+
+     <br>
+     <div class="row">
+        <div class="col">
+
+            <div class="card bg-dark text-light">
+              <div class="card-header">
+                OR
+              </div>
+              <div class=""></div>
+                <div class="card-body">
+                  <div style=" display:flex; justify-content:center; text-align:center">
+                    <div class="circle" id="or-circle"></div>
+                  </div>
+                  <br>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="col">
+
+          <div class="card bg-dark text-light">
+            <div class="card-header">
+              Plan produccion
+            </div>
+              <div class="card-body">
+                <div class="container">
+                  <table  style="font-size: small" class="table table-responsive-sm table-dark">
+              
+                      <thead>
+                          <tr>
+                              <td>Turno</td>
+                              <td>Producto</td>
+                              <td>Precentacion</td>
+                              <td>Velocidad nominal</td>
+                              <td>Planeado</td>
+                              <td>Producido</td>
+                          </tr>
+                      </thead>
+                      <tbody id="data_plan"></tbody>
+                  </table>
+              </div>
+              </div>
+          </div>
+      </div>
+    </div>     
+    <br>
+
+     <div class="row">
+      <div class="col">
+         <div class="card bg-dark text-light">
+           <div class="card-header">
+            Produccion Actual
+           </div>
+             <div class="card-body">
+              <div class="container">
+                <div class="table-responsive-xl">
+                  <table style="font-size: small" class="table table-dark table-striped">
+                      <thead>
+                        <th>Perfil</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Linea</th>
+                        <th>Instante</th>
+                        <th>Cajas</th>
+                      
+                      </thead>
+                      <tbody id="data_actual_production">
+              
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+             </div>
+         </div>
+      </div>
+ 
+ 
+     </div>
+     <br>
+
+     <div class="row">
+      <div class="col">
+         <div class="card bg-dark text-light">
+           <div class="card-header">
+            Paros reportados 
+           </div>
+             <div class="card-body">
+              <div class="container" style="d-flex align-items-center flex-column justify-content-center">
+
+                <table id="myTable" class="table table-responsive-xl table-dark">
+                    <thead>
+                        <tr>
+                            <th>Perfil</th>
+                            <th>Fecha | Hora</th>
+                            <th>#Empleado</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Sub clasificacion</th>
+                            <th>Rama</th>
+                            <th>Evento</th>
+                            <th>Turno</th>
+                            <th>Minutos</th>
+                            <th>Nota</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data_p"></tbody>
+                </table>
+          
+                </div>
+        
+             </div>
+         </div>
+      </div>
+ 
+ 
+     </div>
+
+
+
+</div>
+
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="specific"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="closeFormLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="subHeaderTitle"></h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+        <div class="modal-body">
+          <div class="container" style="background-image: linear-gradient(to left,hsla(211, 99%, 34%, 1),hsla(238, 80%, 37%, 1));">
+             <div class="item">
+                <canvas id="myChart2" width="300" height="300"></canvas>
+              </div>
+              <div class="item">
+                <canvas id="ctxPie2" width="300" height="300"></canvas>
+              </div>
+            
+          </div>
+
+        </div>
+        <div class="modal-footer">
+            <h4 style="color: gold;" id="lineFooterTitle"></h4>
+          
+   
+        </div>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/dashBoardGeneral.mp4" type="video/mp4">
+        <source src="/public/videos/dashBoardGeneral.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/dashBoardGeneral.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+<script src="/public/scripts/Chart.bundle.min.js"></script>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script defer src="/public/scripts/owl.carousel.min.js"></script>
+<script src="/public/scripts/circles.min.js"></script>
+<script>
+
+$(document).ready(() => {
+
+    $('.owl-carousel').owlCarousel({
+        loop:true,
+        margin:10,
+        nav:true,
+        responsive:{
+            0:{
+                items:1
+            },
+            600:{
+                items:3
+            },
+            1000:{
+                items:5
+            }
+        }
+    });
+    
+    loadMetaLine(1);
+});
+
+
+
+
+function loadMetaLine(id){
+
+  for (let index = 0; index < 4; index++) {
+    removeData(tags);
+  }
+
+  let today = new Date();
+  let result = getWeekNumber(today);
+  let year = result[0];
+  let week = result[1];
+  let lineName = "";
+
+  $.getJSON("/getLineE?line="+id, function(data) {
+    lineName = data.Name;
+    document.getElementById("currentTitle").innerHTML = "Dashboard General "+lineName +" WK"+week;
+
+  });
+
+  $.getJSON("/dashBoardCounterBy?line="+id, function(data) {
+      $("#data").empty();
+
+      $("#data").append("<tr>");
+      $("#data").append(
+        "<td   data-toggle='modal' data-target='#specific'  onclick='getByLineLossTreeByFancy("+id+")'><u>"+data.OEE+"%</u></td>"+
+        "<td>"+data.WO+"</td>"+
+        "<td>"+data.Red+"</td>"+
+        "<td>"+data.Blue+"</td>"+
+        "<td>"+data.Green+"</td>"+
+        "<td>"+data.Orange+"</td>"
+      );
+
+      $("#data").append("</tr>");
+
+      addData(tags, "Rojas", data.Red, "#fc051d");
+      addData(tags, "Azules", data.Blue, "#2a05fc");
+      addData(tags, "Verdes", data.Green, "#08c921");
+      addData(tags, "Naranjas", data.Orange, "#fc8405");
+
+    });
+
+    loadOEEGauge(id, week, year);
+    loadQADocsCurrent(id);
+
+    $("#qalineID").val(id);
+
+
+}
+
+
+function loadORGauge(){
+  line = document.getElementById("qalineID").value;
+  turn = document.getElementById("turnQADocs").value;
+  date = document.getElementById("dateQADocs").value;
+
+
+  $.getJSON("/calcORbyTurn?line=" +line + "&turn=" +turn + "&init=" + date, function (data) {
+
+      console.log(data);
+
+      let oeeTotal = data;
+      let oeeColors = []
+
+      if (oeeTotal > 80) {//green state
+        oeeColors.push("#33cc33");
+        oeeColors.push("#d6f5d6");
+      }else if (oeeTotal > 60 && oeeTotal <= 80){//orange state
+        oeeColors.push("#ff9900");
+        oeeColors.push("#ffebcc");
+      }else {//red state
+        oeeColors.push("#ff0000");
+        oeeColors.push("#ffcccc");
+      }
+
+      orCircle.updateColors(oeeColors);
+      orCircle.update(oeeTotal, 400);
+
+    });
+
+}
+
+
+function loadOEEGauge(pline, pweek, pyear){
+
+
+  $.getJSON("/getOEEWeekxLineAPI?line=" +pline + "&week=" +pweek + "&year=" + pyear, function (data) {
+
+          let oeeTotal = data.Total;
+          let oeeColors = []
+          
+          if (oeeTotal > 80) {//green state
+            oeeColors.push("#33cc33");
+            oeeColors.push("#d6f5d6");
+          }else if (oeeTotal > 60 && oeeTotal <= 80){//orange state
+            oeeColors.push("#ff9900");
+            oeeColors.push("#ffebcc");
+          }else {//red state
+            oeeColors.push("#ff0000");
+            oeeColors.push("#ffcccc");
+          }
+
+          myCircle.updateColors(oeeColors);
+          myCircle.update(oeeTotal, 400);
+
+          for (let di = 0; di < 7; di++) {
+            removeData(oeeWeekChart);
+          }
+
+          data.DayInfo.forEach(element => {
+              currDay = element.Day.split(" ")[0];
+
+              addData(oeeWeekChart, currDay, element.OEE, "#4da6ff");
+          });
+
+        });
+}
+
+
+function loadRelativeData(){
+  loadQADocs();
+
+  setTimeout(loaadActualProduction(), 200);
+
+  setTimeout(loadEvents(), 200);
+
+  setTimeout(loadORGauge(), 200);
+
+  setTimeout(loadRealativePlanning(), 200);
+
+}
+
+
+function loadRealativePlanning(){
+
+  line = document.getElementById("qalineID").value;
+  date = document.getElementById("dateQADocs").value;
+
+$.getJSON("/getHistoricPlanning?date=" + date + "&line=" + line, data => {
+
+    $("#data_plan").empty();
+    $.each(data, function (index, row) {
+        $("#data_plan").append("<tr>");
+        $("#data_plan").append(
+            
+            "<td>" + row.Turn + "</td>" +
+            "<td><img style='object-fit: scale-down;' src='/"+row.Photo+"' width='120' height='120'></td>"+
+
+            "<td>" + row.Presentation + "</td>" +
+            "<td>" + row.Nominal_speed + "</td>" +
+            "<td>" + row.Planned + "</td>" +
+            "<td>" + row.Produced + "</td>"
+        );
+
+        $("#data_plan").append("</tr>");
+    });
+
+});
+
+
+}
+
+function loadQADocs(){
+  line = document.getElementById("qalineID").value;
+  turn = document.getElementById("turnQADocs").value;
+  date = document.getElementById("dateQADocs").value;
+
+  removeDataset(qaDocs);
+  removeDataset(qaDocs);
+
+
+  let goalData = [24, 16, 8, 24, 16, 1, 1, 1, 1]; 
+  let qabackgroundColor= ["#ff3399", "#ff3399", "#ff3399", "#ff3399", "#ff3399", "#ff3399", "#ff3399", "#ff3399", "#ff3399"];
+       
+    
+  addDataset(qaDocs, goalData, qabackgroundColor, "Meta");
+
+  $.getJSON("/getQARelativeMonitor?line="+line+"&turn="+turn+"&date="+date, function(data) {
+
+      let currentData = [ data.WeightCounter, data.ProcessTemperature,
+                          data.JawTeflonState, data.SealVerification,
+                          data.CRQS, data.BatchCounter, data.AllergenCounter,
+                          data.CleanDisinfection, data.CodingVerification
+                        ];
+                  
+      let pbackgroundColor = [
+                "#00ffff", "#00ffff", "#00ffff", 
+                "#00ffff", "#00ffff", "#00ffff", 
+                "#00ffff", "#00ffff", "#00ffff"
+      ];
+    
+  addDataset(qaDocs, currentData, pbackgroundColor, "Actual");
+
+  });
+  
+}
+function loaadActualProduction(){
+  line = document.getElementById("qalineID").value;
+  turn = document.getElementById("turnQADocs").value;
+  date = document.getElementById("dateQADocs").value;
+
+
+  $.getJSON("/getActualPlanningBy?line="+line+"&turn="+turn+"&init="+date, function(data) {
+    $("#data_actual_production").empty();
+    $.each(data, function(index, row) {
+
+        $("#data_actual_production").append("<tr>");
+          $("#data_actual_production").append(
+          "<td><img  loading='lazy' style='border-radius: 50%;' src='"+row.Profile+"' width='75' height='75'></td>"+
+          "<td>"+row.Fname+"</td>"+
+          "<td>"+row.Lname+"</td>"+
+          "<td>"+row.Line+"</td>"+
+          "<td>"+row.Date_reg+"</td>"+
+          "<td>"+row.Box+"</td>"
+        );
+
+      $("#data_actual_production").append("</tr>");
+
+    });
+
+
+  });
+  
+}
+
+
+ function loadEvents(){
+        $("#data_p").empty();
+        pline = document.getElementById("qalineID").value;
+        pturn = document.getElementById("turnQADocs").value;
+        pdate = document.getElementById("dateQADocs").value;
+
+          $.getJSON(
+          "/getEventFilterV00?line=" +
+            pline+
+            "&turn=" +
+            pturn +
+            "&date=" +
+            pdate,
+          data => {
+
+            $.each(data, function(index, row) {
+              $("#data_p").append("<tr>");
+              $("#data_p").append(
+                "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  "<img style='border-radius: 50%;' src='"+row.Profile_picture+"' width='75' height='75'>"+
+                  "</td>"+
+                "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Date_event +
+                  "</td>" +
+
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Nick_name +
+                  "</td>" +
+
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Fname +
+                  "</td>" +
+
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Lname +
+                  "</td>" + 
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Sub +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Branch +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Event +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Turn +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Minutes +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Note +
+                  "</td>"
+              );
+              $("#data_p").append("</tr>");
+            });
+          }
+        );
+      
+
+    }
+
+function loadQADocsCurrent(pline){
+
+  removeDataset(qaDocs);
+  removeDataset(qaDocs);
+
+
+  let goalData = [96, 16, 8, 24, 16, 1, 1];
+  let qabackgroundColor= ["#ff3399", "#ff3399", "#ff3399", "#ff3399", "#ff3399", "#ff3399", "#ff3399"];
+       
+    
+  addDataset(qaDocs, goalData, qabackgroundColor, "Meta");
+
+  $.getJSON("/getQACurrentMonitor?line="+pline, function(data) {
+
+      let currentData = [ data.WeightCounter, data.ProcessTemperature,
+                          data.JawTeflonState, data.SealVerification,
+                          data.CRQS, data.BatchCounter, data.AllergenCounter
+                        ];
+                  
+      let pbackgroundColor = [
+                "#00ffff", "#00ffff", "#00ffff", 
+                "#00ffff", "#00ffff", "#00ffff", 
+                "#00ffff"
+      ];
+    
+  addDataset(qaDocs, currentData, pbackgroundColor, "Actual");
+
+  });
+
+}
+
+
+
+var myCircle = Circles.create({
+    id:                  'circles-1',
+    radius:              60,
+    value:               100,
+    maxValue:            100,
+    width:               10,
+    text:                function(value){return value + '%';},
+    colors:              ['#33cc33', '#d6f5d6'],
+    duration:            400,
+    wrpClass:            'circles-wrp',
+    textClass:           'circles-text',
+    valueStrokeClass:    'circles-valueStroke',
+    maxValueStrokeClass: 'circles-maxValueStroke',
+    styleWrapper:        true,
+    styleText:           true
+});
+
+
+var orCircle = Circles.create({
+    id:                  'or-circle',
+    radius:              60,
+    value:               100,
+    maxValue:            150,
+    width:               10,
+    text:                function(value){return value + '%';},
+    colors:              ['#33cc33', '#d6f5d6'],
+    duration:            400,
+    wrpClass:            'circles-wrp',
+    textClass:           'circles-text',
+    valueStrokeClass:    'circles-valueStroke',
+    maxValueStrokeClass: 'circles-maxValueStroke',
+    styleWrapper:        true,
+    styleText:           true
+});
+
+
+
+
+Chart.defaults.global.defaultFontColor = "white";
+
+
+var ctxOEEWeek = document.getElementById("oeeWeekChart").getContext("2d");
+var oeeWeekChart = new Chart(ctxOEEWeek, {
+  type: "line",
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: "OEExDia",
+        data: [],
+        fill:false,
+        // fillColor: "rgba(255, 52, 21, 0.2)",
+
+        // fillColor : "#ffff00",
+        backgroundColor: [],
+        borderColor: [],
+        borderWidth: 5,
+        pointRadius: 7,
+      },
+    ],
+  },
+  options: {
+    // scales: {
+    //   yAxes: [
+    //     {
+    //       ticks: {
+    //         beginAtZero: true,
+    //       },
+    //     },
+    //   ],
+    // },
+    animation: {
+      duration: 3000,
+    },
+    responsive: false,
+    maintainAspectRatio: false,
+
+
+        tooltips: {
+            mode: 'single',
+        },
+        scales: {
+            xAxes: [{            
+                gridLines: {
+                  color: ' rgba(255, 255, 255, 0.5)' ,
+                },
+  
+            }],
+            yAxes: [{
+              
+                gridLines: {
+                  color: ' rgba(255, 255, 255, 0.5)' ,
+                },
+                ticks: {
+            beginAtZero: true,
+          },
+            }],
+        }
+  },
+});
+
+var tagsCtx = document.getElementById("tags").getContext("2d");
+var tags = new Chart(tagsCtx, {
+  type: "bar",
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: "Boletas",
+        data: [],
+        backgroundColor: [],
+        // borderColor: ["rgba(0, 0, 255, 1)"],
+        borderWidth: 1,
+      },
+    ],
+  },
+  options: {
+    scales: {
+      xAxes: [{ 
+                gridLines: {
+
+                    color: ' rgba(255, 255, 255, 0.5)' ,
+                },
+            }],
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+         
+                gridLines: {
+                  color: ' rgba(255, 255, 255, 0.5)' ,
+                },
+        },
+      ],
+    },
+    animation: {
+      duration: 3000,
+    },
+    responsive: false,
+    maintainAspectRatio: false,
+  },
+});
+
+
+
+var qaDocsCtx = document.getElementById("qaDocs").getContext("2d");
+var qaDocs = new Chart(qaDocsCtx, {
+  type: "horizontalBar",
+  data: {
+    labels: ["Pesos", "Temperaturas", "Mordazas", "Sellos", "CRQS", "Batches", "Allergenos", "Limpieza", "Codificacion"],
+    datasets: [
+      {
+        label: "",
+        data: [],
+        backgroundColor: [],
+        borderWidth: 1,
+      },
+    ],
+  },
+  options: {
+    scales: {
+      xAxes: [{ 
+                gridLines: {
+
+                    color: ' rgba(255, 255, 255, 0.5)' ,
+                },
+            }],
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+         
+                gridLines: {
+                  color: ' rgba(255, 255, 255, 0.5)' ,
+                },
+        },
+      ],
+    },
+    animation: {
+      duration: 3000,
+    },
+    responsive: false,
+    maintainAspectRatio: false,
+  },
+});
+
+
+var ctx2 = document.getElementById("myChart2").getContext("2d");
+var myChart2 = new Chart(ctx2, {
+  type: "bar",
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: "Paros",
+        data: [],
+        backgroundColor: [],
+        borderColor: ["rgba(0, 0, 255, 1)"],
+        borderWidth: 1,
+      },
+    ],
+  },
+  options: {
+    scales: {
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+        },
+      ],
+    },
+    animation: {
+      duration: 3000,
+    },
+    responsive: false,
+    maintainAspectRatio: false,
+  },
+});
+
+var ctxPie2 = document.getElementById("ctxPie2").getContext("2d");
+var myPieChart2 = new Chart(ctxPie2, {
+  type: "pie",
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: "Paros",
+        data: [],
+        backgroundColor: [],
+        borderColor: ["rgba(0, 0, 255, 1)"],
+        borderWidth: 1,
+      },
+    ],
+  },
+  options: {
+    scales: {
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+        },
+      ],
+    },
+    animation: {
+      duration: 3000,
+    },
+    responsive: false,
+    maintainAspectRatio: false,    
+  },
+});
+
+
+function addData(chart, label, data, color) {
+  chart.data.labels.push(label);
+  chart.data.datasets.forEach((dataset) => {
+    dataset.data.push(data);
+    dataset.backgroundColor.push(color);
+  });
+  chart.update();
+}
+
+function removeData(chart) {
+  chart.data.labels.pop();
+  chart.data.datasets.forEach((dataset) => {
+    dataset.data.pop();
+    dataset.backgroundColor.pop();
+  });
+  chart.update();
+}
+
+Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+}
+
+function getWeekNumber(d) {
+    // Copy date so don't modify original
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    // Set to nearest Thursday: current date + 4 - current day number
+    // Make Sunday's day number 7
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    // Get first day of year
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    // Calculate full weeks to nearest Thursday
+    var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+    // Return array of year and week number
+    return [d.getUTCFullYear(), weekNo];
+}
+
+
+function getByLineLossTreeByFancy(line){
+
+
+
+    let dateInit = new Date();
+    let dateEnd = dateInit.addDays(1);
+
+
+    dateInit = dateInit.getFullYear() + "" + (dateInit.getMonth() + 1) + "" + (dateInit.getDate());
+    dateEnd = dateEnd.getFullYear() + "" + (dateEnd.getMonth() + 1) + "" + (dateEnd.getDate());
+
+
+    console.log("init: "+dateInit+"\tend: "+dateEnd);
+
+    document.getElementById("lineFooterTitle").innerHTML = "General";
+
+
+    $.getJSON("/getLineE?line="+line,
+    function (data) {
+    document.getElementById("subHeaderTitle").innerHTML = data.Name;
+    });
+
+    for (let i = 0; i < 20; i++) {
+      removeData(myChart2);
+      removeData(myPieChart2);
+    }
+
+    $.getJSON("/getByLineLossTreeDataGridBy?"+
+    "line="+line+
+    "&startDate=" +dateInit +
+    "&endDate=" + dateEnd, 
+    function (data) {
+
+    let sumLosses = 0;
+
+      for (let i = 0; i < data.length; i++) {
+        const element = data[i];
+        sumLosses += element.TotalMinutes;
+      }
+
+
+      for (let j = 0; j < data.length; j++) {
+        const element = data[j];
+        addData(
+          myPieChart2,
+          element.SubCategoryName,
+          (element.TotalMinutes / sumLosses) * 100,
+          element.Color
+        );
+
+        addData(
+          myChart2,
+          element.SubCategoryName,
+          element.TotalMinutes,
+          element.Color
+        );
+      }
+
+    });
+
+}
+
+
+function removeDataset(chart) {   
+    chart.data.datasets.shift();
+    chart.update();
+  }
+
+function addDataset(chart, pdata, pbackgroundColor, plabel) {
+			chart.data.datasets.push({
+        data: pdata,
+        backgroundColor: pbackgroundColor,
+        label : plabel,
+			});
+			chart.update();
+		}
+
+
+
+</script>
+
+
+{{template "Footer"}}
+{{ end }}

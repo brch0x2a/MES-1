@@ -1,0 +1,27 @@
+{{define "EditFactory"}}
+{{ template "Header" }}
+{{ template "Menu" }} 
+{{ template "Nav_sectors"}}
+<div class="d-flex align-items-center flex-column justify-content-center h-100">
+<div class="card w-50">
+<div class="card-header">Editar Fabrica</div>
+<div class="card-body">
+    <form method="POST" action="updateFactory">
+    <input type="hidden" name="uid" value="{{ .Id }}" />
+
+    <div class="form-group">    
+    <label>Nombre</label>
+    <input type="text" name="name"  class="form-control" value="{{ .Name }}"  /><br /> 
+    </div>
+    <br><br>
+    <input class="btn-block" type="submit" value="Guardar" onsubmit="loading()" required/>
+    <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+    </form>
+</div>
+</div>
+</div> 
+<br />    
+<hr>
+
+{{ template "Footer" }}
+{{end}}

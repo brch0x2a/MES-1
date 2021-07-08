@@ -1,0 +1,78 @@
+{{define "FillSubHeaderPChemical"}}
+{{ template "Header" }}
+
+{{if .User.HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{end}}
+
+  {{ template "Nav_report"}}
+
+  <div class="card">
+    <table class="table table-responsive table-bordered">
+      <tbody style="font-size: medium">
+        <tr>
+       
+          <td> <img src='/public/images/logo00.jpg' height='59' width="53">  Unilever Planta Belen Costa Rica</td>
+          <td>Codigo del Documento: {{.Header.Cod_doc}}</td>
+          <td>Revision No {{.Header.Revision_no}}</td>
+        </tr>
+        <tr>
+          <td> {{.Header.Name}} </td>
+          <td> Fecha de Ultima Revision: {{.Header.Revision_date}} </td>
+          <td> Fecha de Proxima Revision: {{.Header.Next_revision_date}} </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <br><br>
+  <div class="card">
+
+    <div class="card-body">
+    <h3 class="card_title">Sub  encabezado</h3>
+
+    <form method="POST" action="/insertSubPChemical">
+        <input type="number" name="header" value={{ .Header.Id}} hidden> 
+
+        <label for="">Producto</label>
+        <select name="product" id="product" class="form-control"></select>
+        
+        <label  for="area">Area</label>
+        <select name="area" id="area" class="form-control">Area</select>
+
+        <label for="fryma">Boula/Frima No</label>
+        <input type="number" id="fryma"  name="fryma" class="form-control" required>
+        <br><br>
+        <input type="submit" class="btn btn-primary btn-block" value="Siguiente">
+        <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+
+    </form>
+
+  </div>
+</div>
+  <script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+    $(document).ready(()=>{
+        $.getJSON("/getArea", function(data){
+            $("#area").empty();
+            $.each(data, function(index, row){
+                $("#area").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+            });
+        });
+
+        $.getJSON("/getProducts", function(data){
+            $("#product").empty();
+            $.each(data, function(index, row){
+                $("#product").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+            });
+        });        
+
+    });
+
+
+</script>
+
+  {{ template "Footer" }}
+{{end}}

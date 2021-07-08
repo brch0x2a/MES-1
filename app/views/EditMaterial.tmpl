@@ -1,0 +1,29 @@
+{{ define "EditMaterial" }}
+  {{ template "Header" }}
+    {{ template "Menu" }} 
+
+    <br><br><br>
+<div class="d-flex align-items-center flex-column justify-content-center h-100">
+  <div class="card w-50">
+   <div class="card-header">Editar Material</div>
+   <div class="card-body">
+        <form method="POST" action="updateMaterial">
+        <input type="hidden" name="uid" value="{{ .Id }}" />
+        <div class="form-group">
+        <label>Cod</label>
+        <input type="number" name="cod"  class="form-control" value="{{ .Cod_material }}"  /><br />
+        <div>
+        <div class="form-group">    
+        <label>Nombre</label>
+        <input type="text" name="name"  class="form-control" value="{{ .Material_name }}"  /><br /> 
+        </div>
+        <input class="btn-block" type="submit" value="Guardar" onsubmit="loading()"/>
+        <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+        </form>
+    </div>
+  </div>
+</div> 
+<br />    
+<hr>
+  {{ template "Footer" }}
+{{ end }}

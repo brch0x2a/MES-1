@@ -1,0 +1,610 @@
+{{define "Index"}}
+{{ template "Header" }}
+
+<br /><br />
+<center>
+  <div id="login_card" class="card" style="width: 100%;">
+    <img
+      class="card-img-top"
+      src="/public/images/logo01.jpg"
+      alt="Card image cap"
+    />
+
+    <div class="card-body">
+      <h3>Login</h3>
+      <form action="/login" id="login_form" method="post" onsubmit="loading()">
+        <br />
+        <div class="tab">
+          <label for="">Usuario</label>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            placeholder="#Empleado"
+            class="form-control"
+            onfocusout="getUserType()"
+          />
+          <br />
+          <label for="">Contraseña</label>
+          <input
+            name="code"
+            type="password"
+            class="form-control"
+            
+          />
+        </div>
+        <div class="tab">
+          <label for="">Area</label>
+          <select name="area" id="area" class="form-control"
+            >Area</select
+          >
+
+          <div class="col-md-5 col-md-offset-6">
+            <label for="">Linea</label>
+            <select
+              name="line"
+              id="line"
+              class="form-control"
+              required
+            ></select>
+          </div>
+        </div>
+        <div class="tab">
+          <h3>Presentacion</h3>
+
+          <div class="form-group row" style="padding-left: 10px">
+            <input
+              id="searchbox"
+              class="form-control form-control-sm ml-3 w-75"
+              type="text"
+              placeholder="Buscar"
+              aria-label="Buscar"
+              style="font-size: 24px"
+            />
+            <i class="fa fa-search" aria-hidden="true"></i>
+          </div>
+
+          <div id="table-wrapper">
+            <div id="table-scroll">
+              <table
+                id="tableData"
+                class="table table-hover table-bordered table-striped"
+                style="font-size:small"
+              >
+                <thead>
+                  <tr>
+                    <td>Imagen</td>
+                    <td>Producto</td>
+                    <td>Presentacion</td>
+                    <td>Peso teorico</td>
+                    <td>Unidad</td>
+                    <td>Porcentaje de error</td>
+                    <td>Cajas</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{ range .}}
+                  <tr id="p{{ .Id}}" onclick="currentPresentation({{ .Id}})">
+                    <td><img style="object-fit: scale-down;"  src="{{ .Photo}}" width='190' height='190'></td>
+                    <td>{{.Product}}</td>
+                    <td>{{.Name}}</td>
+                    <td>{{.Weight_value}}</td>
+                    <td>{{.Weight_unit}}</td>
+                    <td>{{.Error_rate}}</td>
+                    <td>{{.Box_amount}}</td>
+                  </tr>
+                  {{end}}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <br />
+<!-- 
+          <h4 id="currentPresentation">Presentacion seleccionada</h4>
+          <p style="outline: 5px dotted blue;" id="presentacionActual"></p> -->
+          <input type="number" name="presentation" hidden />
+          <br />
+        </div>
+        <div class="tab">
+          <div class="form-group">
+            <label for="">Coordinador</label>
+            <select
+              name="coordinador"
+              id="coordinador"
+              class="form-control"
+            ></select>
+          </div>
+        </div>
+        <br />
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <button
+              class="btn btn-dark"
+              type="button"
+              id="prevBtn"
+              onclick="nextPrev(-1)"
+            >
+              Anterior
+            </button>
+            <button
+              class="btn btn-dark"
+              type="button"
+              id="nextBtn"
+              onclick="nextPrev(1)"
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+        <!-- Circles which indicates the steps of the form: -->
+        <div style="text-align:center;margin-top:40px;">
+          <span class="step"></span>
+          <span class="step"></span>
+          <span class="step"></span>
+          <span class="step"></span>
+          <span class="step"></span>
+        </div>
+        <br />
+      </form>
+    </div>
+  </div>
+</center>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script>
+
+if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) == false ) {
+  document.getElementById("login_card").style.width = "50%";
+}
+
+
+
+  $(document).ready(() => {
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+    $.getJSON("/getLineManagers", function(data) {
+      $("#coordinador").empty();
+      $.each(data, function(index, row) {
+        $("#coordinador").append(
+          "<option value='" +
+            row.Id +
+            "' >" +
+            row.Fname +
+            " " +
+            row.Lname +
+            "</option>"
+        );
+      });
+    });
+
+    $("#area").change(() => {
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+  });
+
+  function getUserType(){
+    let level = 0;
+
+
+    $.getJSON("/getUserTypeAccesor?username="+$("#username").val(), data=>{
+       if (data > 1) {
+        let doneButton =   document.getElementById("nextBtn");
+        doneButton.innerHTML = "Listo";
+
+        $('input[name="presentation"]').val(15);
+
+        doneButton.onclick = () => { document.getElementById("login_form").submit();}
+       }
+    });
+
+
+  }
+
+
+  var $rows = $("#tableData tr");
+
+  $("#searchbox").keyup(function() {
+    var val = $.trim($(this).val())
+      .replace(/ +/g, " ")
+      .toLowerCase();
+
+    $rows
+      .show()
+      .filter(function() {
+        var text = $(this)
+          .text()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+
+        return !~text.indexOf(val);
+      })
+      .hide();
+  });
+
+  function currentPresentation(i) {
+    console.log(i);
+
+    $('input[name="presentation"]').val(i);
+    
+    $("#p"+i).addClass("table-active");
+
+  }
+
+  /*--------------------------------------------------------*/
+  var currentTab = 0; // Current tab is set to be the first tab (0)
+  showTab(currentTab); // Display the current tab
+
+  function showTab(n) {
+    // This function will display the specified tab of the form...
+    var x = document.getElementsByClassName("tab");
+    //console.log("x lenght" + x.length);
+
+    x[n].style.display = "block";
+    //... and fix the Previous/Next buttons:
+    if (n == 0) {
+      document.getElementById("prevBtn").style.display = "none";
+    } else {
+      document.getElementById("prevBtn").style.display = "inline";
+    }
+    if (n == x.length - 1) {
+      document.getElementById("nextBtn").innerHTML = "Listo";
+    } else {
+      document.getElementById("nextBtn").innerHTML = "Siguiente";
+      if(n==2){
+        $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+      }
+    }
+    //... and run a function that will display the correct step indicator:
+    fixStepIndicator(n);
+  }
+
+  function nextPrev(n) {
+    //console.log("nextPrev n:" + n);
+
+    // This function will figure out which tab to display
+    var x = document.getElementsByClassName("tab");
+    // Exit the function if any field in the current tab is invalid:
+    //if (n == 1 && !validateForm()) return false;
+    // Hide the current tab:
+    x[currentTab].style.display = "none";
+    // Increase or decrease the current tab by 1:
+    currentTab = currentTab + n;
+    // if you have reached the end of the form...
+    if (currentTab >= x.length) {
+      // ... the form gets submitted:
+      loading();
+      document.getElementById("login_form").submit();
+
+      showTab(currentTab);
+
+      return false;
+    }
+    // Otherwise, display the correct tab:
+    showTab(currentTab);
+  }
+
+  function validateForm() {
+    // This function deals with validation of the form fields
+    var x,
+      y,
+      i,
+      valid = true;
+    x = document.getElementsByClassName("tab");
+    y = x[currentTab].getElementsByTagName("input");
+    // A loop that checks every input field in the current tab:
+    for (i = 0; i < y.length; i++) {
+      // If a field is empty...
+      if (y[i].value == "") {
+        // add an "invalid" class to the field:
+        y[i].className += " invalid";
+        // and set the current valid status to false
+        valid = false;
+      }
+    }
+    // If the valid status is true, mark the step as finished and valid:
+    if (valid) {
+      document.getElementsByClassName("step")[currentTab].className +=
+        " finish";
+    }
+    return valid; // return the valid status
+  }
+
+  function fixStepIndicator(n) {
+    // This function removes the "active" class of all steps...
+    var i,
+      x = document.getElementsByClassName("step");
+    for (i = 0; i < x.length; i++) {
+      x[i].className = x[i].className.replace(" active", "");
+    }
+    //... and adds the "active" class on the current step:
+    x[n].className += " active";
+  }
+</script>
+</div>
+<div id="foo" hidden></div>
+<script src="/public/scripts/sidenav.js"></script>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+var __assign = (this && this.__assign) || function () {
+__assign = Object.assign || function(t) {
+for (var s, i = 1, n = arguments.length; i < n; i++) {
+    s = arguments[i];
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+        t[p] = s[p];
+}
+return t;
+};
+return __assign.apply(this, arguments);
+};
+var defaults = {
+lines: 12,
+length: 7,
+width: 5,
+radius: 10,
+scale: 1.0,
+corners: 1,
+color: '#000',
+fadeColor: 'transparent',
+animation: 'spinner-line-fade-default',
+rotate: 0,
+direction: 1,
+speed: 1,
+zIndex: 2e9,
+className: 'spinner',
+top: '50%',
+left: '50%',
+shadow: '0 0 1px transparent',
+position: 'absolute',
+};
+var Spinner = /** @class */ (function () {
+function Spinner(opts) {
+if (opts === void 0) { opts = {}; }
+this.opts = __assign({}, defaults, opts);
+}
+/**
+* Adds the spinner to the given target element. If this instance is already
+* spinning, it is automatically removed from its previous target by calling
+* stop() internally.
+*/
+Spinner.prototype.spin = function (target) {
+this.stop();
+this.el = document.createElement('div');
+this.el.className = this.opts.className;
+this.el.setAttribute('role', 'progressbar');
+css(this.el, {
+    position: this.opts.position,
+    width: 0,
+    zIndex: this.opts.zIndex,
+    left: this.opts.left,
+    top: this.opts.top,
+    transform: "scale(" + this.opts.scale + ")",
+});
+if (target) {
+    target.insertBefore(this.el, target.firstChild || null);
+}
+drawLines(this.el, this.opts);
+return this;
+};
+/**
+* Stops and removes the Spinner.
+* Stopped spinners may be reused by calling spin() again.
+*/
+Spinner.prototype.stop = function () {
+if (this.el) {
+    if (typeof requestAnimationFrame !== 'undefined') {
+        cancelAnimationFrame(this.animateId);
+    }
+    else {
+        clearTimeout(this.animateId);
+    }
+    if (this.el.parentNode) {
+        this.el.parentNode.removeChild(this.el);
+    }
+    this.el = undefined;
+}
+return this;
+};
+return Spinner;
+}());
+//export { Spinner };
+/**
+* Sets multiple style properties at once.
+*/
+function css(el, props) {
+for (var prop in props) {
+el.style[prop] = props[prop];
+}
+return el;
+}
+/**
+* Returns the line color from the given string or array.
+*/
+function getColor(color, idx) {
+return typeof color == 'string' ? color : color[idx % color.length];
+}
+/**
+* Internal method that draws the individual lines.
+*/
+function drawLines(el, opts) {
+var borderRadius = (Math.round(opts.corners * opts.width * 500) / 1000) + 'px';
+var shadow = 'none';
+if (opts.shadow === true) {
+shadow = '0 2px 4px #000'; // default shadow
+}
+else if (typeof opts.shadow === 'string') {
+shadow = opts.shadow;
+}
+var shadows = parseBoxShadow(shadow);
+for (var i = 0; i < opts.lines; i++) {
+var degrees = ~~(360 / opts.lines * i + opts.rotate);
+var backgroundLine = css(document.createElement('div'), {
+    position: 'absolute',
+    top: -opts.width / 2 + "px",
+    width: (opts.length + opts.width) + 'px',
+    height: opts.width + 'px',
+    background: getColor(opts.fadeColor, i),
+    borderRadius: borderRadius,
+    transformOrigin: 'left',
+    transform: "rotate(" + degrees + "deg) translateX(" + opts.radius + "px)",
+});
+var delay = i * opts.direction / opts.lines / opts.speed;
+delay -= 1 / opts.speed; // so initial animation state will include trail
+var line = css(document.createElement('div'), {
+    width: '100%',
+    height: '100%',
+    background: getColor(opts.color, i),
+    borderRadius: borderRadius,
+    boxShadow: normalizeShadow(shadows, degrees),
+    animation: 1 / opts.speed + "s linear " + delay + "s infinite " + opts.animation,
+});
+backgroundLine.appendChild(line);
+el.appendChild(backgroundLine);
+}
+}
+function parseBoxShadow(boxShadow) {
+var regex = /^\s*([a-zA-Z]+\s+)?(-?\d+(\.\d+)?)([a-zA-Z]*)\s+(-?\d+(\.\d+)?)([a-zA-Z]*)(.*)$/;
+var shadows = [];
+for (var _i = 0, _a = boxShadow.split(','); _i < _a.length; _i++) {
+var shadow = _a[_i];
+var matches = shadow.match(regex);
+if (matches === null) {
+    continue; // invalid syntax
+}
+var x = +matches[2];
+var y = +matches[5];
+var xUnits = matches[4];
+var yUnits = matches[7];
+if (x === 0 && !xUnits) {
+    xUnits = yUnits;
+}
+if (y === 0 && !yUnits) {
+    yUnits = xUnits;
+}
+if (xUnits !== yUnits) {
+    continue; // units must match to use as coordinates
+}
+shadows.push({
+    prefix: matches[1] || '',
+    x: x,
+    y: y,
+    xUnits: xUnits,
+    yUnits: yUnits,
+    end: matches[8],
+});
+}
+return shadows;
+}
+/**
+* Modify box-shadow x/y offsets to counteract rotation
+*/
+function normalizeShadow(shadows, degrees) {
+var normalized = [];
+for (var _i = 0, shadows_1 = shadows; _i < shadows_1.length; _i++) {
+var shadow = shadows_1[_i];
+var xy = convertOffset(shadow.x, shadow.y, degrees);
+normalized.push(shadow.prefix + xy[0] + shadow.xUnits + ' ' + xy[1] + shadow.yUnits + shadow.end);
+}
+return normalized.join(', ');
+}
+function convertOffset(x, y, degrees) {
+var radians = degrees * Math.PI / 180;
+var sin = Math.sin(radians);
+var cos = Math.cos(radians);
+return [
+Math.round((x * cos + y * sin) * 1000) / 1000,
+Math.round((-x * sin + y * cos) * 1000) / 1000,
+];
+}
+
+var opts = {
+          lines: 12, // The number of lines to draw
+          length: 38, // The length of each line
+          width: 17, // The line thickness
+          radius: 45, // The radius of the inner circle
+          scale: 1, // Scales overall size of the spinner
+          corners: 1, // Corner roundness (0..1)
+          color: '#ffffff', // CSS color or array of colors
+          fadeColor: 'transparent', // CSS color or array of colors
+          speed: 1, // Rounds per second
+          rotate: 0, // The rotation offset
+          animation: 'spinner-line-fade-quick', // The CSS animation name for the lines
+          direction: 1, // 1: clockwise, -1: counterclockwise
+          zIndex: 2e9, // The z-index (defaults to 2000000000)
+          className: 'spinner', // The CSS class to assign to the spinner
+          top: '50%', // Top position relative to parent
+          left: '50%', // Left position relative to parent
+          shadow: '0 0 1px transparent', // Box-shadow for the lines
+          position: 'absolute' // Element positioning
+        };
+        
+        
+        var target = document.getElementById('foo');
+        var spinner = new Spinner(opts).spin(target);
+        
+        </script>
+        
+
+<script type="module">
+
+</script>
+
+<script>
+function hiddeE(elemId, state){
+document.getElementById(elemId).hidden = state;
+}
+
+function loading(){
+    
+$('html, body').scrollTop(0);               
+$("body").append('<div id="overlay" style="background-color:rgba(0, 0, 0, 0.5);position:absolute;top:0;left:0;height:100%;width:100%;z-index:999"></div>');
+hiddeE('foo', false);
+
+}
+
+function doneCharge(){
+$('#overlay').remove();
+
+hiddeE('foo', true);
+}
+
+window.onhashchange = ()=>{
+doneCharge();
+};
+/*
+function reminder(){
+alert('This is example of Alert', 'Simple Alert');
+}
+
+
+setInterval(reminder, 5 * 1000);
+*/
+</script>
+
+</body>
+</html>
+
+{{ end }}

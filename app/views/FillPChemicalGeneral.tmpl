@@ -1,0 +1,150 @@
+{{define "FillPChemicalGeneral"}}
+{{ template "Header" }}
+ 
+{{if .User.HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{end}}
+
+  {{ template "Nav_report"}}
+
+
+ <input id="idHeader" type="number" value={{ .SubHeader.Header}} hidden>
+
+
+ <div class="card">
+    <table class="table table-responsive table-bordered">
+      <tbody id="HeaderBody" style="font-size: medium">
+      </tbody>
+    </table>
+  </div>
+
+<br><br>
+
+  <div class="card">
+      <table class="table table-responsive table-bordered">
+        <tbody style="font-size: medium">
+        <tr>
+          <td>Producto: {{.SubHeader.Product}} </td>
+          <td>Area: {{.SubHeader.Area}} </td>
+          <td>Boula/Fryma No: {{.SubHeader.Boula_fryma}} </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+<br><br>
+<div class="card">
+
+    <div class="card-body">
+
+      <form method="POST" action="/insertPChemicalGeneral">
+        <h3>Ingreso</h3>
+        <label for="vdate">Fecha | Hora</label>
+        <input type="datetime-local" name="vdate" class="form-control" required>
+        <br>
+        <label for="">Batche</label>
+        <input name="batch"  type="number" class="form-control" required>
+        <br>
+
+        <h3>Analisis Sensorial</h3>
+        <label for="">Aparencia</label>
+        <select name="appearance" id="appearance" class="form-control"></select>
+        <label for="">Color</label>
+        <select name="color" id="color" class="form-control"></select>
+        <label for="">Aroma</label>
+        <select name="aroma" id="aroma" class="form-control"></select>
+        <label for="">Sabor</label>
+        <select name="taste" id="taste" class="form-control"></select>
+
+        <br><br>
+        <h3>Analisis Fisico-Quimico</h3>
+        <label for="">% Acides</label>
+        <input name="ph" type="number" class="form-control" step="0.01" required>
+
+        <label for="">pH (PCC)</label>
+        <input name="ph_pcc" type="number" id="number" class="form-control" step="0.01" required>
+
+        <label for="">Cloruros</label>
+        <input name="chloride"  type="number" class="form-control" step="0.01" required>
+
+        <label for="">Brix</label>
+        <input  name="brix" type="number" class="form-control" required>
+
+        <label for="">Consistencia (cm/s) / PLUMMET</label>
+        <input name="plummet" type="number" class="form-control" required>
+
+        <label for="">Consistencia Homogenizador</label>
+        <input name="homogenizer" type="number" class="form-control" required>
+
+        <br><br>
+        <h3>Otros</h3>
+        <label for="">Presentacion / Densidad</label>
+        <input name="density" type="number" class="form-control" required>
+
+        <label for="">Olla / Tanque / Tacho</label>
+        <input name="tank" type="number" class="form-control" required>
+
+        <br>
+        <input name="head" type="number" value={{ .SubHeader.Id }} hidden>
+        <br>
+        <input type="submit" class="btn btn-primary btn-block" value="Listo" onsubmit="loading()">
+        <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+
+    </form>
+
+  </div>
+
+
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script>
+
+$(document).ready(function () {
+     
+       
+        $.getJSON("/getHeaderBy?id="+$("#idHeader").val(), function (data) {
+        $("#HeaderBody").empty();
+        
+          
+          
+            $("#HeaderBody").append("<tr>");
+            $("#HeaderBody").append(
+              "<td> <img src='/public/images/logo00.jpg' height='59' width='53'>  Unilever Planta Belen Costa Rica</td>"+
+              "<td>Codigo del Documento: "+data.Cod_doc+"</td>"+
+              "<td>Revision No "+data.Revision_no+"</td>"
+            );
+            $("#HeaderBody").append("</tr>");
+            $("#HeaderBody").append("<tr>");
+            $("#HeaderBody").append(
+              "<td>"+data.Name+"</td>"+
+              "<td>Fecha de Ultima Revision: "+data.Revision_date+"</td>"+
+              "<td>Fecha de Proxima Revision: "+data.Next_revision_date+"</td>"
+            );
+            $("#HeaderBody").append("</tr>");
+
+            
+        });
+
+        $.getJSON("/getSensorial_analysis_scale", data =>{
+          $("#appearance").empty();
+          $("#color").empty();
+          $("#aroma").empty();
+          $("#taste").empty();
+          $.each(data, function(index, row){
+            $("#appearance").append("<option value='"+row.Id+"'>"+row.Description+"</option>");
+            $("#color").append("<option value='"+row.Id+"'>"+row.Description+"</option>");
+            $("#aroma").append("<option value='"+row.Id+"'>"+row.Description+"</option>");
+            $("#taste").append("<option value='"+row.Id+"'>"+row.Description+"</option>");
+          });
+        });
+
+    });
+
+</script>
+
+  {{ template "Footer" }}
+{{end}}

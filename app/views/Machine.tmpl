@@ -1,0 +1,163 @@
+{{define "Machine"}}
+{{template "Header"}}
+{{template "Menu"}}
+{{template "NavAM"}}
+
+<center>
+  <div class="card" style="max-width:600px">
+    <div class="card-body">
+      <form class="form-inline md-form form-sm mt-0">
+        <i class="fa fa-search" aria-hidden="true"></i>
+        <input
+          id="searchbox"
+          class="form-control form-control-sm ml-3 w-75"
+          type="text"
+          placeholder="Buscar"
+          aria-label="Buscar"
+          style="font-size: 24px"
+        />
+      </form>
+    </div>
+  </div>
+</center>
+<br />
+
+<div class="container">
+  <h2 style="color: gold;">Grupo Maquina</h2>
+  <table
+    id="tableData"
+    class="table table-dark table-striped"
+    style="font-size:small"
+  >
+    <thead>
+      <tr>
+        <td>Numero</td>
+        <td>Nombre</td>
+        <td>
+          Accion |
+          <a href="/newMachine">
+            <button
+              type="button"
+              class="btn btn-success"
+              style="margin-left: 20px"
+            >
+              Agregar
+            </button>
+          </a>
+        </td>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range . }}
+      <tr>
+        <td>{{ .Id }}</td>
+        <td>{{ .Name }}</td>
+        <td>
+          <a onclick="editEquipment({{.Id}})">
+            <button type="button" class="btn btn-primary" 
+            data-toggle="modal"
+            data-target="#closeForm"
+            >Editar</button>
+          </a>
+          <a href="/deleteMachine?id={{.Id}}">
+            <button type="button"          data-toggle="modal"
+        data-target="#closeForm"class="btn btn-danger">Borrar</button>
+          </a>
+        </td>
+      </tr>
+      {{  end }}
+    </tbody>
+  </table>
+</div>
+
+<hr />
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="closeForm"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="closeFormLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Editar Maquina</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="closeFormSet" method="POST" action="updateMachine">
+        <div class="modal-body">
+          <label>Nombre</label>
+          <input
+            name="pname"
+            class="form-control"
+            form="closeFormSet"
+            id="pname"
+          ></input>
+          <br />
+          <input type="number" name="pid" id="pid" hidden>       
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+          >
+            Actualizar
+          </button>
+        </div>
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  var $rows = $("#tableData tr");
+  $("#searchbox").keyup(function() {
+    var val = $.trim($(this).val())
+      .replace(/ +/g, " ")
+      .toLowerCase();
+
+    $rows
+      .show()
+      .filter(function() {
+        var text = $(this)
+          .text()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+        return !~text.indexOf(val);
+      })
+      .hide();
+  });
+
+  function editEquipment(i) {
+    
+    $.getJSON("/getMachine?id="+i, row =>{
+      $('input[name="pid"]').val(row.Id);
+      $('input[name="pname"]').val(row.Name);
+    });
+  }
+</script>
+
+{{ template "Footer" }}
+
+{{ end }}

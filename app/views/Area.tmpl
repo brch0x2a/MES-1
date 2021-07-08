@@ -1,0 +1,44 @@
+{{define "Area"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{ template "Nav_sectors"}}
+<div class="container">
+    <table class="table table-responsive table-dark table-striped">
+
+        <thead>
+            <tr>
+                <td>Fabrica</td>
+                <td>Area</td>
+                <td>
+                    Accion |
+                    <a href="newArea" onclick="loading()">
+                        <button type="button" class="btn btn-success" style="margin-left: 20px">Agregar</button>
+                    </a>
+                </td>
+
+            </tr>
+        </thead>
+        <tbody>
+            {{ range . }}
+            <tr>
+                <td>{{ .Factory_name }} </td>
+                <td>{{ .Name }}</td>
+
+                <td>
+                    <a href="/editArea?id={{.Id}}" onclick="loading()">
+                        <button type="button" class="btn btn-primary">Editar</button>
+                    </a>
+                    <a href="/deleteArea?id={{.Id}}" onclick="loading()">
+                        <button type="button" class="btn btn-danger">Borrar</button>
+                    </a>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
+
+
+
+{{ template "Footer" }}
+{{ end }}

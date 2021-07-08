@@ -1,0 +1,31 @@
+{{ define "Nav_report" }}
+   <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor03" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarColor03">
+          <ul class="navbar-nav mr-auto nav-tabs">
+            <li id="reportEvent" >
+              <a class="nav-link" href="/specificDashBoard" onclick="loading()">General</a>
+            </li>
+            <li id="reportEvent" >
+              <a class="nav-link" href="/selectRegisterWCM" onclick="loading()">WCM</a>
+            </li>
+
+              <a class="nav-link" href="/selectRegister" onclick="loading()">Calidad</a>
+            </li>
+            <li id="bodega" >
+              <a class="nav-link" href="/selectRegisterBodega" onclick="loading()">Bodega</a>
+            </li>
+            <li id="bodega" >
+              <a class="nav-link" href="/selectRegisterTag" onclick="loading()">Boletas</a>
+            </li>
+            <li id="mante" >
+              <a class="nav-link" href="/mantenimiento" onclick="loading()">Mantenimiento</a>
+            </li>
+          </ul>
+        </div>
+    </nav>
+<br>
+{{end}}

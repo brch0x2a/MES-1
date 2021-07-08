@@ -1,0 +1,354 @@
+{{define "GreenTag"}}
+{{ template "Header" }}
+
+{{if .User.HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+<center>
+  <div class="card" style="max-width:675px; color: #185313;">
+    <img
+      class="card-img-top"
+      src="/public/images/greenTag.jpg"
+      alt="Card image cap"
+    />
+    <div class="card-header">Etiqueta de riesgo | Verde</div>
+    <div class="card-body">
+      <form method="POST" action="insertGreenTag" id="redTagForm">
+        <br />
+        <h4>Prioridad</h4>
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr style="color: black" required>
+              <td id="p1" onclick="currentPriority(1)">A</td>
+              <td id="p2" onclick="currentPriority(2)">B</td>
+              <td id="p3" onclick="currentPriority(3)">C</td>
+              <td id="p4" onclick="currentPriority(4)">D</td>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <td id="pDescripcion"></td>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <input type="number" name="priority" hidden />
+        <br /><br />
+        <h3 id="lostTitle">Equipo</h3>
+        <br />
+
+        <div class="form-group row" style="padding-left: 10px">
+          <input
+            id="searchbox"
+            class="form-control form-control-sm ml-3 w-75"
+            type="text"
+            placeholder="Buscar"
+            aria-label="Buscar"
+            style="font-size: 24px"
+          />
+          <i class="fa fa-search" aria-hidden="true"></i>
+        </div>
+
+        <div id="table-wrapper">
+          <div id="table-scroll">
+            <table class="table table-responsive table-bordered table-striped">
+              <thead>
+                <tr style="color: black">
+                  <td>ID</td>
+                  <td>Nombre</td>
+                </tr>
+              </thead>
+              <tbody id="tableData">
+                {{    range.Equipo }}
+                <tr onclick="currentEvent({{ .Id}})">
+                  <td>{{ .Id}}</td>
+                  <td>{{ .Name}}</td>
+                </tr>
+                {{ end }}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br />
+        <h4 id="currentStop">Equipo seleccionado</h4>
+        <p style="outline: 5px dotted #185313;" id="equipoActual"></p>
+        <input type="number" name="equipo" hidden />
+        <br />
+        <br />
+        <h3 id="lostTitle">Reporte de piramide de seguridad</h3>
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label for="">Clase de evento</label>
+              <select
+                name="class_event"
+                id="class_event"
+                class="form-control"
+              ></select>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <label for="">Causa del evento</label>
+              <select
+                name="event_cause"
+                id="event_cause"
+                class="form-control"
+              ></select>
+            </div>
+          </div>
+        </div>
+
+        <br /><br />
+        <label>Descripcion del EVENTO:</label>
+        <textarea
+          name="anomalia"
+          class="form-control"
+          form="redTagForm"
+          cols="30"
+          rows="5"
+        ></textarea>
+        <br />
+
+        <br /><br />
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label for="">Probabilidad de que se repita</label>
+              <select
+                name="frequency"
+                id="frequency"
+                class="form-control"
+              ></select>
+            </div>
+          </div>
+          <div class="col">
+            <h4>Requiere de investigacion</h4>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="investigation"
+                value="1"
+              />
+              <label class="form-check-label" for="inlineCheckbox1">Si</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                id="inlineCheckbox2"
+                name="investigation"
+                value="0"
+              />
+              <label class="form-check-label" for="inlineCheckbox2">No</label>
+            </div>
+          </div>
+        </div>
+        <br /><br />
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label for="">Nivel de severidad</label>
+              <select
+                name="severity"
+                id="severity"
+                class="form-control"
+              ></select>
+            </div>
+          </div>
+          <div class="col">
+            <h4>Fue ingresado a AIRSWEB</h4>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="inWeb"
+                value="1"
+              />
+              <label class="form-check-label" for="inlineCheckbox1">Si</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                id="inlineCheckbox2"
+                name="inWeb"
+                value="0"
+              />
+              <label class="form-check-label" for="inlineCheckbox2">No</label>
+            </div>
+          </div>
+        </div>
+        <br /><br />
+        <div class="row">
+          <div class="col">
+            <label>Acciones para que el evento no se repita:</label>
+            <textarea
+              style="background-color: #eafaea;"
+              name="correction_action"
+              class="form-control"
+              form="redTagForm"
+              cols="30"
+              rows="5"
+            ></textarea>
+            <br />
+          </div>
+          <div class="col">
+            <label>Sugerencias:</label>
+            <textarea
+              style="background-color: #eafaea;"
+              name="suggestion"
+              class="form-control"
+              form="redTagForm"
+              cols="30"
+              rows="5"
+            ></textarea>
+            <br />
+          </div>
+        </div>
+        <br /><br />
+        <div class="row">
+          <div class="col">
+            <label>Lesion causada describalo:</label>
+            <textarea
+              style="background-color: #eafaea;"
+              name="lesion_description"
+              class="form-control"
+              form="redTagForm"
+              cols="30"
+              rows="5"
+            ></textarea>
+            <br />
+          </div>
+          <div class="col">
+            <label>Propiedad y/o daño ambiental describalo:</label>
+            <textarea
+              style="background-color: #eafaea;"
+              name="damage_description"
+              class="form-control"
+              form="redTagForm"
+              cols="30"
+              rows="5"
+            ></textarea>
+            <br />
+          </div>
+        </div>
+        <br /><br />
+        <div class="form-group">
+          <label for="">Estandar de SHE</label>
+          <select name="standard" id="standard" class="form-control"></select>
+        </div>
+        <br /><br />
+        <input class="btn btn-block" type="submit" value="Enviar" />
+        <br />
+        <img
+          class="card-img-bottom"
+          src="/public/images/visual_ul02.jpg"
+          height="184"
+          width="100%"
+        />
+      </form>
+    </div>
+  </div>
+</center>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script>
+  var $rows = $("#tableData tr");
+
+  $("#searchbox").keyup(function() {
+    var val = $.trim($(this).val())
+      .replace(/ +/g, " ")
+      .toLowerCase();
+
+    $rows
+      .show()
+      .filter(function() {
+        var text = $(this)
+          .text()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+
+        return !~text.indexOf(val);
+      })
+      .hide();
+  });
+
+  function currentPriority(j) {
+    for (let index = 1; index <= 4; index++) {
+      const e = document.getElementById("p" + index);
+      e.style.backgroundColor = "white";
+      e.style.color = "black";
+      e.style.borderColor = "gray";
+    }
+
+    const e = document.getElementById("p" + j);
+    const a = document.getElementById("pDescripcion");
+
+    e.style.backgroundColor = "#185313";
+    a.style.backgroundColor = "#185313";
+
+    e.style.color = "white";
+    a.style.color = "white";
+
+    e.style.borderColor = "gray";
+    a.style.borderColor = "gray";
+
+    $.getJSON("/getPriorityBy?id=" + j, data => {
+      $.each(data, (index, row) => {
+        a.innerHTML = row.Description;
+      });
+    });
+
+    $('input[name="priority"]').val(j);
+  }
+
+  function currentEvent(i) {
+    $.getJSON("/getEquipmentBy?id=" + i, function(data) {
+     
+        document.getElementById("equipoActual").innerHTML = data.Name;
+        $("#equipoActual").css("outline-style", "dotted");
+        $('input[name="equipo"]').val(data.Id);
+    
+    });
+  }
+
+  $(document).ready(() => {
+    //-----------------------------------------------
+    api = [
+      "getClass_of_event",
+      "getEvent_cause",
+      "getFrequency_catalog",
+      "getSeverity_catalog",
+      "getSHE_standard_catalog"
+    ];
+
+    combo = ["class_event", "event_cause", "frequency", "severity", "standard"];
+
+    for (let index = 0; index < 5; index++) {
+      //-----------------------------
+      $.getJSON(api[index], function(data) {
+        $("#" + combo[index]).empty();
+        $.each(data, function(i, row) {
+          $("#" + combo[index]).append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+      //-----------------------------
+    }
+
+    //-----------------------------
+  });
+</script>
+
+{{ template "Footer" }}
+{{ end }}

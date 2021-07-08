@@ -1,0 +1,576 @@
+{{define "LossTree"}}
+
+{{ template "Header" }}
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+{{template "Nav_validation"}}
+<br /><br />
+<center>
+  <h2 style="color: gold;">Arbol de Perdidas</h2>
+</center>
+<div class="card">
+  <div class="card-body">
+    <form action="#">
+      <div class="form-row align-items-center">
+        <div class="col-md-2 col-md-offset-3">
+          <label for="">Area</label>
+          <select name="area" id="area" class="form-control"></select>
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <label> Fecha inicio </label>
+          <input
+            type="date"
+            id="idate"
+            name="idate"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-4 col-md-offset-3">
+          <label> Fecha final </label>
+          <input
+            type="date"
+            id="fdate"
+            name="fdate"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <input
+            type="button"
+            class="btn btn-primary btn-block"
+            value="Filtrar"
+            onclick="getLossTree()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br /><br /><br />
+<div class="container">
+  <div class="table-responsive-xl">
+    <table class="table table-dark table-bordered text-light">
+      <tbody id="data_p"></tbody>
+    </table>
+  </div>
+</div>
+<br />
+<center><h2 style="color: gold;">Total Area</h2></center>
+<hr style="background-color: gold;"/>
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <canvas id="myChart" width="400" height="400"></canvas>
+    </div>
+    <div class="col-sm">
+      <canvas id="ctxPie" width="400" height="400"></canvas>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="specific"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="closeFormLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog  modal-lg" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="subHeaderTitle"></h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+        <div class="modal-body bg-dark text-light">
+          <div class="container">
+            <div class="">
+             <div class="row">
+                <canvas id="myChart2" width="500" height="300"></canvas>
+              </div>
+              <div class="row">
+                <canvas id="ctxPie2" width="500" height="300"></canvas>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer " >
+          <div class="modal-footer bg-dark text-light" >
+            <h4 id="lineFooterTitle"></h4>
+          
+   
+        </div>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<script src="/public/scripts/Chart.bundle.min.js"></script>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+
+
+  });
+
+  Chart.defaults.global.defaultFontColor = "white";
+
+  var ctx = document.getElementById("myChart").getContext("2d");
+  var myChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: "Paros",
+          data: [],
+          backgroundColor: [],
+          borderColor: ["rgba(0, 0, 255, 1)"],
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+            },
+          },
+        ],
+      },
+      animation: {
+        duration: 3000,
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+    },
+  });
+
+  var ctxPie = document.getElementById("ctxPie").getContext("2d");
+  var myPieChart = new Chart(ctxPie, {
+    type: "pie",
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: "Paros",
+          data: [],
+          backgroundColor: [],
+          borderColor: ["rgba(0, 0, 255, 1)"],
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+            },
+          },
+        ],
+      },
+      animation: {
+        duration: 3000,
+      },
+      responsive: true,
+      maintainAspectRatio: false,    
+    },
+  });
+
+
+  var ctx2 = document.getElementById("myChart2").getContext("2d");
+  var myChart2 = new Chart(ctx2, {
+    type: "bar",
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: "Paros",
+          data: [],
+          backgroundColor: [],
+          borderColor: ["rgba(0, 0, 255, 1)"],
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+            },
+          },
+        ],
+      },
+      animation: {
+        duration: 3000,
+      },
+      responsive: false,
+      maintainAspectRatio: false,
+    },
+  });
+
+  var ctxPie2 = document.getElementById("ctxPie2").getContext("2d");
+  var myPieChart2 = new Chart(ctxPie2, {
+    type: "pie",
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: "Paros",
+          data: [],
+          backgroundColor: [],
+          borderColor: ["rgba(0, 0, 255, 1)"],
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+            },
+          },
+        ],
+      },
+      animation: {
+        duration: 3000,
+      },
+      responsive: false,
+      maintainAspectRatio: false,    
+    },
+  });
+
+
+  function addData(chart, label, data, color) {
+    chart.data.labels.push(label);
+    chart.data.datasets.forEach((dataset) => {
+      dataset.data.push(data);
+      dataset.backgroundColor.push(color);
+    });
+    chart.update();
+  }
+
+  function removeData(chart) {
+    chart.data.labels.pop();
+    chart.data.datasets.forEach((dataset) => {
+      dataset.data.pop();
+      dataset.backgroundColor.pop();
+    });
+    chart.update();
+  }
+
+
+  function getByLineLossTreeByFancy(line){
+
+
+  document.getElementById("lineFooterTitle").innerHTML = "General";
+
+
+$.getJSON("/getLineE?line="+line,
+function (data) {
+  document.getElementById("subHeaderTitle").innerHTML = data.Name;
+});
+
+for (let i = 0; i < 20; i++) {
+    removeData(myChart2);
+    removeData(myPieChart2);
+}
+
+$.getJSON("/getByLineLossTreeDataGridBy?"+
+"line="+line+
+"&startDate=" +$("#idate").val() +
+ "&endDate=" + $("#fdate").val(), 
+  function (data) {
+
+  let sumLosses = 0;
+
+    for (let i = 0; i < data.length; i++) {
+      const element = data[i];
+      sumLosses += element.TotalMinutes;
+    }
+
+
+    for (let j = 0; j < data.length; j++) {
+      const element = data[j];
+      addData(
+        myPieChart2,
+        element.SubCategoryName,
+        (element.TotalMinutes / sumLosses) * 100,
+        element.Color
+      );
+
+      addData(
+        myChart2,
+        element.SubCategoryName,
+        element.TotalMinutes,
+        element.Color
+      );
+    }
+
+  });
+
+}
+
+
+
+  function getLossTreeByFancy(line, sub){
+
+    $.getJSON("/getSubE?id="+sub,
+      function (data) {
+        //console.log(data);
+        document.getElementById("lineFooterTitle").innerHTML = data[0].Description;
+      });
+
+    $.getJSON("/getLineE?line="+line,
+    function (data) {
+      document.getElementById("subHeaderTitle").innerHTML = data.Name;
+    });
+
+    for (let i = 0; i < 20; i++) {
+        removeData(myChart2);
+        removeData(myPieChart2);
+    }
+
+    $.getJSON("/getLossTreeDataGridBy?"+
+    "line="+line+
+    "&sub="+sub+
+    "&startDate=" +$("#idate").val() +
+     "&endDate=" + $("#fdate").val(), 
+      function (data) {
+
+     
+
+      let sumLosses = 0;
+
+        for (let i = 0; i < data.length; i++) {
+          const element = data[i];
+          sumLosses += element.TotalMinutes;
+        }
+
+
+        for (let j = 0; j < data.length; j++) {
+          const element = data[j];
+          addData(
+            myPieChart2,
+            element.SubCategoryName,
+            (element.TotalMinutes / sumLosses) * 100,
+            element.Color
+          );
+
+          addData(
+            myChart2,
+            element.SubCategoryName,
+            element.TotalMinutes,
+            element.Color
+          );
+        }
+
+      });
+
+  }
+
+
+  function getLossTreeBy(){
+    for (let i = 0; i < 20; i++) {
+        removeData(myChart2);
+        removeData(myPieChart2);
+    }
+
+    $.getJSON("/getLossTreeDataGridBy?"+
+    "line="+$("#line").val()+
+    "&sub="+$("#sub").val()+
+    "&startDate=" +$("#idate").val() +
+     "&endDate=" + $("#fdate").val(), 
+      function (data) {
+      let sumLosses = 0;
+
+        for (let i = 0; i < data.length; i++) {
+          const element = data[i];
+          sumLosses += element.TotalMinutes;
+        }
+
+
+        for (let j = 0; j < data.length; j++) {
+          const element = data[j];
+          addData(
+            myPieChart2,
+            element.SubCategoryName,
+            (element.TotalMinutes / sumLosses) * 100,
+            element.Color
+          );
+
+          addData(
+            myChart2,
+            element.SubCategoryName,
+            element.TotalMinutes,
+            element.Color
+          );
+        }
+
+
+
+      });
+
+
+  }
+
+  function getLossTree() {
+    console.log("DataSetLength: " + myChart.data.datasets[0].data.length);
+    for (let i = 0; i < 20; i++) {
+      removeData(myChart);
+      removeData(myPieChart);
+    }
+
+    $.getJSON("/getLossTreeDataGrid?area="+$("#area").val() +
+        "&startDate=" +$("#idate").val() +
+        "&endDate=" + $("#fdate").val(), function (data) {
+
+
+      $("#data_p").empty();
+      $("#data_p").append("<tr>");
+      $("#data_p").append("<td style='background-color:black; color:gold;'>" +"Clasificacion | Lineas"+ "</td>");
+
+      for (let i = 0; i < data[0].T.length; i++) {
+        const e = data[0].T[i];
+        
+        $("#data_p").append("<td style='background-color:black; color:gold;' data-toggle='modal' data-target='#specific' onclick='getByLineLossTreeByFancy("+e.LineId+")'>" +e.Line+ "</td>");
+
+      }
+
+      $("#data_p").append("</tr>");
+      
+
+
+      $.each(data, function (index, row) {
+        $("#data_p").append("<tr>");
+ 
+        $("#sub").append("<option value='" + row.S.Id + "'>" + row.S.Description + "</option>");
+        
+        $("#data_p").append("<td style='background-color:"+ row.S.Color +"'>"+row.S.Description+ "</td>");
+        for (let i = 0; i < row.T.length; i++) {
+          const e = row.T[i];
+         
+          $("#data_p").append("<td style='background-color:"+
+           e.Color +"' data-toggle='modal' data-target='#specific' onclick='getLossTreeByFancy("+e.LineId+", "+row.S.Id +")'>" +e.TotalMinutes+ "</td>");   
+
+      
+        }  
+       
+        $("#data_p").append("</tr>");
+
+      });
+    });
+
+
+
+
+
+    var request = new XMLHttpRequest();
+    request.open(
+      "GET",
+      "/getLossTreeData?area=" +
+        $("#area").val() +
+        "&startDate=" +
+        $("#idate").val() +
+        "&endDate=" +
+        $("#fdate").val(),
+      true
+    );
+
+    request.onload = function () {
+      if (request.status >= 200 && request.status < 400) {
+        // Success!
+
+        var data = JSON.parse(request.responseText);
+        var sumLosses = 0;
+
+        data.Losses.forEach((element) => {
+          sumLosses += element.TotalMinutes;
+          removeData(myPieChart);
+          removeData(myChart);
+        });
+
+        data.Losses.forEach((element) => {
+          var proportion = 0;
+
+          addData(
+            myPieChart,
+            element.SubCategoryName,
+            (element.TotalMinutes / sumLosses) * 100,
+            element.Color
+          );
+
+          addData(
+            myChart,
+            element.SubCategoryName,
+            element.TotalMinutes,
+            element.Color
+          );
+        });
+      } else {
+        // We reached our target server, but it returned an error
+      }
+    };
+
+    request.onerror = function () {
+      // There was a connection error of some sort
+    };
+    request.send();
+  }
+</script>
+
+{{template "Footer"}}
+{{ end }}

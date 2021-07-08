@@ -1,0 +1,14 @@
+{{define "DFOS"}}
+{{ template "Header" }}
+
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+<iframe src="https://dfos-ppd.unilever.com/" frameborder="0" width="100%" height="600"></iframe>
+
+{{ template "Footer" }}
+{{ end }}

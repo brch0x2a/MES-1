@@ -1,0 +1,330 @@
+{{ define "FillTemperatureControl"}}
+
+{{template "Header"}}
+{{if .User.HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{end}}
+
+
+  {{ template "Nav_report"}}
+
+  <input id="idHeader" type="number" value={{ .SubHeader.Header}} hidden>
+  <input id="pvalue" type="number" value={{ .SubHeader.Pvalue}} hidden>
+  <input id="pline" type="text" value={{ .SubHeader.Line}} hidden>
+  <input id="metaPresentation" type="number" value={{ .User.Presentation}} hidden>
+  
+  <div class="card">
+     <table class="table table-responsive table-bordered">
+       <tbody id="HeaderBody" style="font-size: medium">
+       </tbody>
+     </table>
+   </div>
+ 
+ <br>
+   
+ <br>
+
+ <div class="card">
+  <table class="table table-responsive table-bordered">
+    <tbody style="font-size: medium">
+    <tr>
+      <td><strong>Linea:</strong>  {{.SubHeader.Line}} </td>
+      <td><strong>Coordinador:</strong>  {{.SubHeader.Coordinator}} </td>
+      <td><strong>Operador:</strong>  {{.SubHeader.Operator}} </td>
+      <td><strong>Producto:</strong>  {{.SubHeader.Presentation}}  {{.SubHeader.Pvalue}}  {{.SubHeader.Punit}}</td>
+      <td><strong>Fecha:</strong>  {{.SubHeader.Date}}</td>
+      <td><strong>Turno:</strong>  {{.SubHeader.Turn}}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<br><br>  
+<div id="muestreo" class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col">
+      Control de temperaturas de(intercambiador, tolva de llenado y boquillas)
+    </div>
+    <div class="col">
+      <button class="btn-primary btn-block" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+    </div>
+  </div>
+   
+    </div>
+    <div class="card-body">
+
+      <div  class="d-flex align-items-center flex-column justify-content-center">
+        <img style="object-fit: scale-down;" width='400' height='400' id="" src="/public/images/proceso.png" alt="user">
+      </div>
+      <hr>
+      <div  class="d-flex align-items-center flex-column justify-content-center">
+        <img style="object-fit: scale-down;" width='400' height='400' id="" src="/public/images/pccHorix.png" alt="user">
+      </div>
+      <hr>
+      <div  class="d-flex align-items-center flex-column justify-content-center">
+        <img style="object-fit: scale-down;" width='400' height='400' id="" src="/public/images/pccM2.png" alt="user">
+      </div>
+      <br>
+
+
+        <form action="insertTemperatureControl" method="POST" id="temperature">
+            <input name="unit" type="text" value={{ .SubHeader.Punit}} hidden>
+            <input name="sub" type="number" value={{ .SubHeader.Id}} hidden>
+            <input id="prate" type="number" value={{ .SubHeader.Perror}} hidden>
+
+            <div class="form-group row">
+                <label id="lbbatch" for="batch" class="col col-form-label">N° Batche</label>
+                <div  class="col-8">
+                  <input name="batch" id="batch" type="number" class="form-control"   required>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label id="lbbatch" for="batch" class="col col-form-label">Presion de tolva(psi)</label>
+                <div  class="col-8">
+                  <input name="psi" id="psi" onfocusout="evalCase('psi', 1)"  type="number" class="form-control"  step="0.1"  required>
+                  <div id="v1Danger"  class="alert alert-danger" role="alert"  hidden></div>
+                  <div id="v1Success" class="alert alert-success" role="alert" hidden></div>
+              
+                </div>
+            </div>
+            <div class="form-group row">
+                <label id="lbbatch" for="batch" class="col col-form-label">Temperatura del intercambiador(°C)</label>
+                <div  class="col-8">
+                  <input name="exchange_temperature" onfocusout="evalCase('interchange', 2)"  id="exchange_temperature" type="number" class="form-control"  step="0.1"  required>
+                  <div id="v2Danger"  class="alert alert-danger" role="alert"  hidden></div>
+                  <div id="v2Success" class="alert alert-success" role="alert" hidden></div>
+              
+                </div>
+            </div>
+            <div class="form-group row">
+                <label id="lbbatch" for="batch" class="col col-form-label">Temperatura del tolva(°C)</label>
+                <div  class="col-8">
+                  <input name="hopper_temperature" onfocusout="evalCase('hopper', 3)" id="hopper_temperature" type="number" class="form-control"  step="0.1"  required>
+                  <div id="v3Danger"  class="alert alert-danger" role="alert"  hidden></div>
+                  <div id="v3Success" class="alert alert-success" role="alert" hidden></div>
+              
+                </div>
+            </div>
+            <div class="form-group row">
+                <label id="lbbatch" for="batch" class="col col-form-label">Temperatura del llenado(°C)</label>
+                <div  class="col-8">
+                  <input name="fill_temperature" onfocusout="evalCase('fill', 4)" id="fill_temperature" type="number" class="form-control"  step="0.1"  required>
+                  <div id="v4Danger"  class="alert alert-danger" role="alert"  hidden></div>
+                  <div id="v4Success" class="alert alert-success" role="alert" hidden></div>
+              
+                </div>
+            </div>
+            <br>
+            <hr>
+            <br>
+
+          <label> Observaciones</label>
+          <textarea
+            name="observation"
+            class="form-control"
+            form="temperature"
+            cols="30"
+            rows="5"
+          ></textarea>
+            
+          <br><br>
+          <input type="submit" class="btn btn-primary btn-block" value="Listo" onsubmit="loading()">
+          <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+  
+        </form>
+    </div>
+</div>     
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/controlTemperatura.mp4" type="video/mp4">
+        <source src="/public/videos/controlTemperatura.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/controlTemperatura.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script> 
+
+function evalCase(option, pos){
+
+  $.getJSON("/getPresentationBy?id="+$("#metaPresentation").val(), function (presentation) {
+    $.getJSON("/getProductBy?id="+presentation.Id_product, function (data) {
+
+      let resultCase = {holder:"", message : "", success:false, danger:false};
+
+      switch (option) {
+        case 'psi':
+          let psi = document.forms["temperature"]["psi"].value;
+
+          if(psi == ""){
+            resultCase.holder = "v"+pos+"Danger";
+            resultCase.message = "No debe dejar campos vacios! ):";
+            resultCase.success = true;
+            resultCase.danger = false;
+          }else if( psi < data.PSI_bottom || psi > data.PSI_top){
+            resultCase.holder = "v"+pos+"Danger";
+            resultCase.message = "Se detecto una desviacion! ):";
+            resultCase.success = true;
+            resultCase.danger = false;
+          }else{
+            resultCase.holder = "v"+pos+"Success";
+            resultCase.message =  "Rango aceptado (:";
+            resultCase.success = false;
+            resultCase.danger = true;
+          }
+        
+          break;
+        case 'interchange':
+          let interchange = document.forms["temperature"]["exchange_temperature"].value;
+
+          if(interchange == ""){
+            resultCase.holder = "v"+pos+"Danger";
+            resultCase.message = "No debe dejar campos vacios! ):";
+            resultCase.success = true;
+            resultCase.danger = false;
+          }else if( interchange < data.Interchange_bottom || interchange > data.Interchange_top){
+            resultCase.holder = "v"+pos+"Danger";
+            resultCase.message = "Se detecto una desviacion! ):";
+            resultCase.success = true;
+            resultCase.danger = false;
+          }else{
+            resultCase.holder = "v"+pos+"Success";
+            resultCase.message =  "Rango aceptado (:";
+            resultCase.success = false;
+            resultCase.danger = true;
+          }
+        
+          break;
+        case 'hopper':
+          let hopper = document.forms["temperature"]["hopper_temperature"].value;
+
+          if(hopper == ""){
+            resultCase.holder = "v"+pos+"Danger";
+            resultCase.message = "No debe dejar campos vacios! ):";
+            resultCase.success = true;
+            resultCase.danger = false;
+          }else if( hopper < data.Hopper_bottom || hopper > data.Hopper_top){
+            resultCase.holder = "v"+pos+"Danger";
+            resultCase.message = "Se detecto una desviacion! ):";
+            resultCase.success = true;
+            resultCase.danger = false;
+          }else{
+            resultCase.holder = "v"+pos+"Success";
+            resultCase.message =  "Rango aceptado (:";
+            resultCase.success = false;
+            resultCase.danger = true;
+          }
+        
+          break;
+        
+        case 'fill':
+          let fill = document.forms["temperature"]["fill_temperature"].value;
+
+          if(fill == ""){
+            resultCase.holder = "v"+pos+"Danger";
+            resultCase.message = "No debe dejar campos vacios! ):";
+            resultCase.success = true;
+            resultCase.danger = false;
+          }else if( fill < data.Fill_bottom || fill > data.Fill_top){
+            resultCase.holder = "v"+pos+"Danger";
+            resultCase.message = "Se detecto una desviacion! ):";
+            resultCase.success = true;
+            resultCase.danger = false;
+          }else{
+            resultCase.holder = "v"+pos+"Success";
+            resultCase.message =  "Rango aceptado (:";
+            resultCase.success = false;
+            resultCase.danger = true;
+          }
+        
+          break;
+
+        
+        default:
+          break;
+      }
+
+      hiddeE("v"+pos+"Success", resultCase.success);
+      hiddeE("v"+pos+"Danger", resultCase.danger);
+      printE(resultCase.holder, resultCase.message);
+
+    });
+  });
+
+
+}
+
+
+
+function printE(elemId, hint){
+  document.getElementById(elemId).innerHTML = hint;
+ }
+ function hiddeE(elemId, state){
+  document.getElementById(elemId).hidden = state;
+ }
+
+
+$(document).ready(function () {
+       
+     $.getJSON("/getHeaderBy?id="+$("#idHeader").val(), function (data) {
+     $("#HeaderBody").empty();
+         $("#HeaderBody").append("<tr>");
+         $("#HeaderBody").append(
+           "<td> <img src='/public/images/logo00.jpg' height='59' width='53'>  Unilever Planta Belen Costa Rica</td>"+
+           "<td>Codigo del Documento: "+data.Cod_doc+"</td>"+
+           "<td>Revision No "+data.Revision_no+"</td>"
+         );
+         $("#HeaderBody").append("</tr>");
+         $("#HeaderBody").append("<tr>");
+         $("#HeaderBody").append(
+           "<td>"+data.Name+"</td>"+
+           "<td>Fecha de Ultima Revision: "+data.Revision_date+"</td>"+
+           "<td>Fecha de Proxima Revision: "+data.Next_revision_date+"</td>"
+         );
+         $("#HeaderBody").append("</tr>");
+     });
+
+ });
+</script>
+
+{{ template "Footer" }}
+{{end}}

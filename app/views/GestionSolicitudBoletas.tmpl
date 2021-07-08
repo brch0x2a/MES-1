@@ -1,0 +1,629 @@
+{{define "GestionSolicitudBoletas"}}
+{{template "Header"}}
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+{{ template "NavGestionMante"}}
+
+<br />
+<center><h2 style="color: gold;">Boletas</h2></center>
+<div class="card">
+  <div class="card-body">
+    <form action="#">
+      <div class="form-row  align-items-center">
+        <div class="col-md-2 col-md-offset-3">
+          <label> Fecha inicio </label>
+          <input
+            type="date"
+            id="idate"
+            name="dinit"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-4 col-md-offset-3">
+          <label> Fecha final </label>
+          <input
+            type="date"
+            id="fdate"
+            name="dfinal"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <input
+            type="button"
+            class="btn btn-primary btn-block"
+            value="Filtrar"
+            onclick="filterBoletas()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br /><br /><br />
+<center><h2 style="color: gold;">Solicitudes</h2></center>
+<a id="dlink" style="display:none;"></a>
+
+<input
+  id="exportButton"
+  class="btn btn-block btn-success"
+  type="button"
+  onclick="tableToExcel('data_table', 'name', 'reporteSolicitudesBoletasMante.xls')"
+  value="Exportar a Excel"
+  hidden="true"
+/>
+<br />
+
+<table
+  id="data_table"
+  class="table table-responsive table-dark table-striped"
+  style="font-size:small"
+>
+  <thead>
+    <tr>
+      <td>#Transaccion</td>
+      <td>Linea</td>
+      <td>Usuario</td>
+      <td>Nombre</td>
+      <td>Apellido</td>
+      <td>Fecha solicitud</td>
+      <td>Fecha de resolucion</td>
+      <td>Tipo</td>
+      <td>Prioridad</td>
+      <td>Equipo</td>
+      <td>Descripcion anomalia</td>
+      <td>Calidad</td>
+      <td>Costo</td>
+      <td>Productividad</td>
+      <td>Mortal</td>
+      <td>Entrega</td>
+      <td>Seguridad</td>
+      <td>Afecta area</td>
+      <td>Antes</td>
+      <td>Autor Usuario</td>
+      <td>Autor Nombre</td>
+      <td>Autor Apellido</td>
+      <td>Descripcion mejora</td>
+      <td>Estado</td>
+    </tr>
+  </thead>
+  <tbody id="data_p" style="color: white;"></tbody>
+</table>
+<br />
+<div id="setRequest">
+  <center><h2 style="color: gold;">Solicitud Actual</h2></center>
+  <div class="card">
+    <div class="card-body">
+      <form>
+        <div class="form-row">
+          <div class="col">
+            <input
+              id="uid"
+              type="number"
+              class="form-control"
+              placeholder="#Transaccion"
+            />
+          </div>
+          <div class="col">
+            <input
+              type="button"
+              class="btn btn-primary btn-block"
+              value="Obtener"
+              onclick="currentRequest()"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <br />
+
+  <table
+    id="tableCurrentRequest"
+    class="table table-hover table-bordered table-striped text-light table-responsive"
+    style="font-size:small; color:white"
+  >
+    <thead>
+      <tr>
+        <td>#Transaccion</td>
+        <td>Linea</td>
+        <td>Usuario</td>
+        <td>Nombre</td>
+        <td>Apellido</td>
+        <td>Fecha solicitud</td>
+        <td>Fecha de resolucion</td>
+        <td>Tipo</td>
+        <td>Prioridad</td>
+        <td>Equipo</td>
+        <td>Descripcion anomalia</td>
+        <td>Calidad</td>
+        <td>Costo</td>
+        <td>Productividad</td>
+        <td>Mortal</td>
+        <td>Entrega</td>
+        <td>Seguridad</td>
+        <td>Afecta area</td>
+        <td>Antes</td>
+        <td>Autor Usuario</td>
+        <td>Autor Nombre</td>
+        <td>Autor Apellido</td>
+        <td>Descripcion mejora</td>
+        <td>Estado</td>
+      </tr>
+    </thead>
+    <tbody id="dataCurrent_p"></tbody>
+  </table>
+
+  <form>
+    <div class="form-row">
+      <div class="col">
+        <input
+          type="button"
+          class="btn btn-warning btn-block"
+          value="Abrir"
+          onclick="currentState(1)"
+        />
+      </div>
+      <div class="col">
+        <input
+          type="button"
+          class="btn btn-primary btn-block"
+          value="Procesar"
+          onclick="currentState(2)"
+        />
+      </div>
+      <div class="col">
+        <!-- Button trigger modal -->
+        <button
+          type="button"
+          id="cerrar"
+          class="btn btn-secondary btn-block"
+          data-toggle="modal"
+          data-target="#closeForm"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="closeForm"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="closeFormLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <img
+        id="tagImage"
+        class="card-img-top"
+        src="/public/images/blueTag.jpg"
+        alt="Card image cap"
+      />
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Formulario de cierre</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="closeFormSet">
+        <div class="modal-body">
+          <label>Descripcion de la mejora</label>
+          <textarea
+            name="mejora"
+            class="form-control"
+            form="closeFormSet"
+            id="mejora"
+            cols="30"
+            rows="5"
+          ></textarea>
+          <br />
+          <div class="form-group">
+            <label for="">Autor de la Mejora</label>
+            <select name="autor" id="autor" class="form-control"></select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onclick="currentState(3)"
+            class="btn btn-primary"
+          >
+            Guardar cambios
+          </button>
+        </div>
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  $(document).ready(() => {
+    hiddeE("setRequest", true);
+  });
+
+  function getCallOffE(uid) {
+    $("#dataCurrent_p").empty();
+    $.getJSON("/getTagEV00?id=" + uid, row => {
+      $("#dataCurrent_p").append("<tr>");
+      $("#dataCurrent_p").append(
+        "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Id +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Line +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.User +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Fname +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Lname +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.RequestDate +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.CloseDate.String +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Type +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Priority +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Equipment +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Anomaly +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Qa +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Cost +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Product +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Mortal +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Deliver +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Safety +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Affect +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Before +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.AUser +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.AFname +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.ALname +
+          "</td>" +
+          "<td style='background-color:" +
+          row.Color +
+          "'>" +
+          row.Improvement +
+          "</td>" +
+          "<td style='color:black; background-color:" +
+          row.SColor +
+          "'>" +
+          row.State +
+          "</td>"
+      );
+      $("#dataCurrent_p").append("</tr>");
+
+      chargeModalTransition(row.Type);
+    });
+  }
+
+  function chargeModalTransition(type) {
+    let tagImage = document.getElementById("tagImage");
+    //dependiendo la transaccion seleccionada setea una imagen de tag
+    switch (type) {
+      case "Roja":
+        tagImage.src = "/public/images/redTag.jpg";
+        break;
+
+      case "Azul":
+        tagImage.src = "/public/images/blueTag.jpg";
+        break;
+    }
+    //carga los usuarios para el formulario de cierre
+    $.getJSON("/getUsers", function(data) {
+      $("#autor").empty();
+      $.each(data, function(index, row) {
+        $("#autor").append(
+          "<option value='" +
+            row.Id +
+            "' >" +
+            row.Fname +
+            " " +
+            row.Lname +
+            "</option>"
+        );
+      });
+    });
+  }
+
+  function currentRequest() {
+    let uid = $("#uid").val();
+
+    getCallOffE(uid);
+  }
+
+  function currentState(i) {
+    loading();
+    let id = $("#uid").val();
+
+    if (i == 3) {
+      let pmejora = $("#mejora").val();
+      let pautor = $("#autor").val();
+
+      $.post("/closeTag", {
+        uid: id,
+        state: i,
+        mejora: pmejora,
+        autor: pautor
+      });
+
+      filterBoletas();
+      currentRequest();
+      doneCharge();
+
+      document.getElementById("cerrar").click();
+    } else {
+      $.post("/updateTag", {
+        uid: id,
+        state: i
+      });
+
+      filterBoletas();
+      currentRequest();
+      doneCharge();
+    }
+  }
+  function filterBoletas() {
+    var idate = $("#idate").val();
+    var fdate = $("#fdate").val();
+
+    $.getJSON("/getTagsV00?idate=" + idate + "&fdate=" + fdate, data => {
+      $("#data_p").empty();
+      $.each(data, function(index, row) {
+        hiddeE("setRequest", false);
+        $("#data_p").append("<tr style='color:white'>");
+        $("#data_p").append(
+          "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Id +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Line +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.User +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Fname +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Lname +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.RequestDate +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.CloseDate.String +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Type +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Priority +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Equipment +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Anomaly +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Qa +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Cost +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Product +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Mortal +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Deliver +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Safety +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Affect +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Before +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.AUser +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.AFname +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.ALname +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Improvement +
+            "</td>" +
+            "<td style='color:black; background-color:" +
+            row.SColor +
+            "'>" +
+            row.State +
+            "</td>"
+        );
+        $("#data_p").append("</tr>");
+      });
+    });
+    hiddeE("exportButton", false);
+  }
+
+  var tableToExcel = (function() {
+    var uri = "data:application/vnd.ms-excel;base64,",
+      template =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+      base64 = function(s) {
+        return window.btoa(unescape(encodeURIComponent(s)));
+      },
+      format = function(s, c) {
+        return s.replace(/{(\w+)}/g, function(m, p) {
+          return c[p];
+        });
+      };
+    return function(table, name, filename) {
+      if (!table.nodeType) table = document.getElementById(table);
+      var ctx = { worksheet: name || "Worksheet", table: table.innerHTML };
+
+      document.getElementById("dlink").href =
+        uri + base64(format(template, ctx));
+      document.getElementById("dlink").download = filename;
+      document.getElementById("dlink").click();
+    };
+  })();
+</script>
+{{ template "Footer" }}
+{{ end }}

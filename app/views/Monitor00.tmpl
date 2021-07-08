@@ -1,0 +1,427 @@
+{{define "Monitor00"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{template "Nav_oee"}}
+<br>
+
+<iframe width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=a113b856-cc1f-4436-8f92-f098df506596&autoAuth=true&ctid=f66fae02-5d36-495b-bfe0-78a6ff9f8e6e&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLW5vcnRoLWV1cm9wZS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldC8ifQ%3D%3D" frameborder="0" allowFullScreen="true"></iframe>
+
+<hr style="color: gold;">
+<br>
+<div class="card">
+  <div class="card-body">
+    <form class="form-row align-items-center">
+      <div class="form-group col-md-2">
+        <label for="area">Area</label>
+        <select name="area" id="area" class="form-control"></select>
+      </div>
+      <div class="form-group col-md-2">
+        <label for="line">Linea</label>
+        <select name="line" id="line" class="form-control"></select>
+      </div>
+      <div class="form-group col-md-2">
+        <label for="date">Fecha</label>
+        <input type="date" name="date" id="date" class="form-control" />
+      </div>
+      <div class="form-group col-md-2">
+        <label for="turn">Turno</label>
+        <select name="turn" id="turn" class="form-control">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+
+      <button
+        type="button"
+        id="startBtn"
+        class="btn btn-success"
+        onclick="startMonitor()"
+      >
+        Iniciar
+      </button>
+      <button
+        type="button"
+        id="stopBtn"
+        class="btn btn-danger"
+        onclick="handleDone()"
+        hidden
+      >
+        Detener
+      </button>
+    </form>
+  </div>
+</div>
+
+<br />
+
+<center>
+  <br /><br />
+  <section>
+    <div class="row">
+      <div class="col-md-2">
+        <div id="gauge"></div>
+      </div>
+      <div class="col-md-5">
+        <canvas id="realtimeChart" width="400" height="200"></canvas>
+      </div>
+      <div class="col-md-5">
+        <div id="table-wrapper">
+          <div id="table-scroll">
+            <table
+              id="tableData"
+              class="table table-hover table-bordered table-striped  text-light"
+              style="font-size:small"
+            >
+              <thead>
+                <tr>
+                  <th>Fecha | Hora</th>
+                  <th>Sub clasificacion</th>
+                  <th>Rama</th>
+
+                  <th>Evento</th>
+                  <th>Minutos</th>
+                  <th>Nota</th>
+                </tr>
+              </thead>
+              <tbody id="data_p"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</center>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script src="/public/scripts/d3.v5.min.js"></script>
+
+<script src="/public/scripts/Chart.bundle.js"></script>
+<script>
+  function hiddeE(elemId, state) {
+    document.getElementById(elemId).hidden = state;
+  }
+
+  $(document).ready(() => {
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+    $("#area").change(() => {
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+  });
+
+  Chart.defaults.global.defaultFontColor = "white";
+
+  var ctx = document.getElementById("realtimeChart").getContext("2d");
+  var myChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: ["Line"],
+      datasets: [
+        {
+          label: "OEE X Line X Turn",
+          data: [],
+          backgroundColor: ["rgba(255, 255, 255, 0.2)"],
+          borderColor: ["rgba(0, 0, 255, 1)"],
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true
+            }
+          }
+        ]
+      },
+      animation: {
+        duration: 3000
+      },
+      responsive: false,
+      maintainAspectRatio: false
+    }
+  });
+  function addData(chart, label, data) {
+    chart.data.labels.push(label);
+    chart.data.datasets.forEach(dataset => {
+      dataset.data.push(data);
+    });
+
+    if (chart.data.labels.length > 8) {
+      chart.data.labels.shift();
+      chart.data.datasets[0].data.shift();
+    }
+    chart.update();
+  }
+
+  function removeData(chart) {
+    chart.data.labels.pop();
+    chart.data.datasets.forEach(dataset => {
+      dataset.data.pop();
+    });
+    chart.update();
+  }
+
+  let socket;
+  let socketEvent;
+
+  function startMonitor() {
+    hiddeE("startBtn", true);
+    hiddeE("stopBtn", false);
+
+    loading();
+    var line = document.getElementById("line").value;
+    var date = document.getElementById("date").value;
+    var turn = document.getElementById("turn").value;
+    var url = "10.0.1.158:3000";
+
+    getOEE(url, line, date, turn);
+    getEvents(url, line, date, turn);
+    doneCharge();
+  }
+
+  function getEvents(url, line, date, turn) {
+    socketEvent = new WebSocket("ws://" + url + "/wsEvent");
+    console.log("Attempting connection...");
+
+    socketEvent.onopen = () => {
+      console.log("Successfully connected");
+      socketEvent.send(turn + "_" + date + "_" + line);
+    };
+
+    socketEvent.onclose = event => {
+      console.log("Socket closed connection: ", event);
+    };
+
+    socketEvent.onmessage = event => {
+      //console.log(event.data);
+      $("#data_p").empty();
+      try {
+        var data = JSON.parse(event.data);
+        $.each(data, (index, row) => {
+          $("#data_p").append("<tr>");
+          $("#data_p").append(
+            "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Date_event +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Sub +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Branch +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Event +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Minutes +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Note +
+              "</td>"
+          );
+          $("#data_p").append("</tr>");
+        });
+      } catch (e) {
+        console.log("invalid json");
+      }
+
+      setTimeout(() => {
+        socketEvent.send("on");
+      }, 500);
+    };
+
+    socketEvent.onerror = error => {
+      console.log("Sokcet Error: ", error);
+    };
+  }
+
+  function getOEE(url, line, date, turn) {
+    socket = new WebSocket("ws://" + url + "/ws"); //10.0.1.234
+    console.log("Attempting connection...");
+
+    socket.onopen = () => {
+      console.log("Successfully connected");
+      socket.send(turn + "_" + date + "_" + line);
+    };
+
+    socket.onclose = event => {
+      console.log("Socket closed connection: ", event);
+    };
+
+    socket.onmessage = event => {
+      let oee = parseFloat(event.data).toFixed(2);
+      //oee += Math.floor((Math.random() * 2) + 1);
+
+      setTimeout(() => {
+        socket.send("on");
+      }, 500);
+
+      addData(myChart, "line", oee);
+      render((data_oee = [{ unit: "seconds", numeric: oee }]));
+    };
+
+    socket.onerror = error => {
+      console.log("Sokcet Error: ", error);
+    };
+  }
+
+  function handleDone() {
+    hiddeE("stopBtn", true);
+    hiddeE("startBtn", false);
+    socket.close();
+    socketEvent.close();
+  }
+
+  var width, height, offSetX, offSetY, pi, scaleSecs, scaleHours;
+  width = 400;
+  height = 200;
+  offSetX = 150;
+  offSetY = 100;
+
+  pi = Math.PI;
+  scaleSecs = d3
+    .scaleLinear()
+    .domain([0, 100])
+    .range([pi + pi / 2, 2 * pi + pi / 2]);
+
+  var vis, clockGroup;
+
+  vis = d3
+    .select("#gauge")
+    .append("svg:svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  clockGroup = vis
+    .append("svg:g")
+    .attr("transform", "translate(" + offSetX + "," + offSetY + ")");
+
+  clockGroup
+    .append("svg:circle")
+    .attr("r", 80)
+    .attr("fill", "white")
+    .attr("fill-opacity", 0.4)
+    .attr("class", "clock outercircle")
+    .attr("stroke", "white")
+    .attr("stroke-width", 2);
+
+  clockGroup
+    .append("svg:circle")
+    .attr("r", 4)
+    .attr("fill", "white")
+    .attr("class", "clock innercircle");
+
+  var render;
+
+  render = function(data) {
+    var hourArc, minuteArc, secondArc;
+
+    clockGroup.selectAll(".clockhand").remove();
+    clockGroup.selectAll("text").remove();
+
+    secondArc = d3
+      .arc()
+      .innerRadius(0)
+      .outerRadius(70)
+      .startAngle(function(d) {
+        return scaleSecs(d.numeric);
+      })
+      .endAngle(function(d) {
+        return scaleSecs(d.numeric);
+      });
+
+    clockGroup
+      .selectAll(".clockhand")
+      .data(data)
+      .enter()
+      .append("svg:path")
+      .attr("d", function(d) {
+        if (d.unit === "seconds") {
+          return secondArc(d);
+        }
+      })
+      .attr("class", "clockhand")
+      .attr("stroke", "white")
+      .attr("stroke-width", function(d) {
+        if (d.unit === "seconds") {
+          clockGroup
+            .append("text")
+            .style("fill", "white")
+            .style("font-size", "26px")
+            .attr("x", -12)
+            .attr("dy", ".35em")
+            .attr("y", 35)
+            .text(d.numeric);
+
+          if (d.numeric < 50) {
+            clockGroup.selectAll("text").style("fill", "red");
+
+            clockGroup.selectAll(".clockhand").attr("stroke", "red");
+          } else if (49 < d.numeric && d.numeric < 75) {
+            clockGroup.selectAll("text").style("fill", "#d25403");
+
+            clockGroup.selectAll(".clockhand").attr("stroke", "#d25403");
+          } else if (74 < d.numeric && d.numeric < 101) {
+            clockGroup.selectAll("text").style("fill", "#045206");
+
+            clockGroup.selectAll(".clockhand").attr("stroke", "#045206");
+          } else if (100 < d.numeric) {
+            clockGroup.selectAll("text").style("fill", "blue");
+
+            clockGroup.selectAll(".clockhand").attr("stroke", "blue");
+          }
+
+          clockGroup
+            .append("text")
+            .style("fill", "gold")
+            .style("font-size", "14px")
+            .attr("x", -28)
+            .attr("dy", ".35em")
+            .attr("y", 95)
+            .text("OEE / 100");
+
+          return 4;
+        }
+      })
+      .attr("fill", "none");
+  };
+</script>
+
+{{ template "Footer" }}
+{{ end }}

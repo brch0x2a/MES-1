@@ -1,0 +1,256 @@
+{{define "ConsolidatedSHETags"}}
+{{template "Header"}}
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+<br />
+<center><h2 style="color: gold;">Boleta</h2></center>
+<div class="card">
+  <div class="card-body">
+    <form action="#">
+      <div class="form-row  align-items-center">
+        <div class="col-md-2 col-md-offset-3">
+          <label> Fecha inicio </label>
+          <input
+            type="date"
+            id="idate"
+            name="dinit"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-4 col-md-offset-3">
+          <label> Fecha final </label>
+          <input
+            type="date"
+            id="fdate"
+            name="dfinal"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <input
+            type="button"
+            class="btn btn-primary btn-block"
+            value="Filtrar"
+            onclick="filterBoletas()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br /><br /><br />
+<center><h2 style="color: gold;">Solicitudes</h2></center>
+<a id="dlink" style="display:none;"></a>
+
+<input
+  id="exportButton"
+  class="btn btn-block btn-success"
+  type="button"
+  onclick="tableToExcel('data_table', 'name', 'reporteSolicitudesBoletasMante.xls')"
+  value="Exportar a Excel"
+  hidden="true"
+/>
+<br />
+
+<table
+  id="data_table"
+  class="table table-responsive table-dark table-striped"
+  style="font-size:small"
+>
+  <thead>
+    <tr>
+      <td>#Transaccion</td>
+      <td>Linea</td>
+      <td>Usuario</td>
+      <td>Nombre</td>
+      <td>Apellido</td>
+      <td>Fecha solicitud</td>
+      <td>Fecha de resolucion</td>
+      <td>Tipo</td>
+      <td>Prioridad</td>
+      <td>Equipo</td>
+      <td>Clase de evento</td>
+      <td>Causa de evento</td>
+      <td>Descripcion anomalia</td>
+      <td>Frequencia</td>
+      <td>Investigacion</td>
+      <td>Severidad</td>
+      <td>En AIRSWEB</td>
+      <td>Accion correctiva</td>
+      <td>Sugerencia</td>
+      <td>Lesion</td>
+      <td>Daño</td>
+      <td>Estandar de SHE</td>
+      <td>Estado</td>
+    </tr>
+  </thead>
+  <tbody id="data_p" style="color: white;"></tbody>
+</table>
+<br />
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  $(document).ready(() => {});
+
+  function filterBoletas() {
+    var idate = $("#idate").val();
+    var fdate = $("#fdate").val();
+
+    $.getJSON("/getSHETagsV00?idate=" + idate + "&fdate=" + fdate, data => {
+      $("#data_p").empty();
+      $.each(data, function(index, row) {
+        $("#data_p").append("<tr style='color:white'>");
+        $("#data_p").append(
+          "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Id +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Line +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.User +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Fname +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Lname +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.RequestDate +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.CloseDate.String +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Type +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Priority +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Equipment +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Class_of_event +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Event_cause +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Anomaly +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Frequency_catalog +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Investigation +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Severity_catalog +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.InWeb +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Correction_action +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Suggestion +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Lesion_description +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.Damage_description +
+            "</td>" +
+            "<td style='background-color:" +
+            row.Color +
+            "'>" +
+            row.SHE_standard_catalog +
+            "</td>" +
+            "<td style='color:black; background-color:" +
+            row.SColor +
+            "'>" +
+            row.State +
+            "</td>"
+        );
+        $("#data_p").append("</tr>");
+      });
+    });
+    hiddeE("exportButton", false);
+  }
+
+  var tableToExcel = (function() {
+    var uri = "data:application/vnd.ms-excel;base64,",
+      template =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+      base64 = function(s) {
+        return window.btoa(unescape(encodeURIComponent(s)));
+      },
+      format = function(s, c) {
+        return s.replace(/{(\w+)}/g, function(m, p) {
+          return c[p];
+        });
+      };
+    return function(table, name, filename) {
+      if (!table.nodeType) table = document.getElementById(table);
+      var ctx = { worksheet: name || "Worksheet", table: table.innerHTML };
+
+      document.getElementById("dlink").href =
+        uri + base64(format(template, ctx));
+      document.getElementById("dlink").download = filename;
+      document.getElementById("dlink").click();
+    };
+  })();
+</script>
+{{ template "Footer" }}
+{{ end }}

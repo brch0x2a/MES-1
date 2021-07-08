@@ -1,0 +1,155 @@
+{{define "MonitorSetup"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{template "Nav_oee"}}
+
+
+<div class="card">
+    <div class="card-body">
+        <form class="form-row align-items-center">
+
+            <div class="form-group col-md-4">
+                <label for="date">Date</label>
+                <input type="date" name="date" id="date" class="form-control">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="turn">Turn</label>
+                <select name="turn" id="turn" class="form-control">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+
+            <button type="submit" id="btnOEE" class="btn btn-primary" onclick="getOEE()">Go</button>
+        </form>
+    </div>
+</div>
+
+<br><br>
+<div id="panel"></div>
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script src="/public/scripts/d3.v5.min.js"></script>
+
+<script src="/public/scripts/Chart.bundle.js"></script>
+<script>
+
+Chart.defaults.global.defaultFontColor = 'white';
+
+function addData(chart, label, data) {
+        chart.data.labels.push(label);
+        chart.data.datasets.forEach((dataset) => {
+
+            dataset.data.push(data);
+        });
+
+        if (chart.data.labels.length > 8) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+        }
+        chart.update();
+    }
+
+function removeData(chart) {
+    chart.data.labels.pop();
+    chart.data.datasets.forEach((dataset) => {
+        dataset.data.pop();
+    });
+    chart.update();
+}
+
+function newChart(ctx){
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Line'],
+            datasets: [{
+                label: 'OEE X Line X Turn',
+                data: [],
+                backgroundColor: [
+                    'rgba(255, 255, 255, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(0, 0, 255, 1)',
+                ],
+                borderWidth: 1
+            },
+            ]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            animation: {
+                duration: 3000
+            },
+            responsive: false,
+            maintainAspectRatio: false
+
+        }
+    });
+}
+let charts = [];
+
+for (let index = 1; index < 10; index++) {
+    $("#panel").append("<div class='row'>");
+    $("#panel").append("<div class='col-md-4'>");
+    $("#panel").append("<canvas id='chartS"+index+"' width='400' height='200'></canvas>");
+    $("#panel").append("</div>");
+    $("#panel").append("</div>");
+    charts[index-1] = newChart(document.getElementById('chartS'+index).getContext('2d'));
+}
+
+
+function getOEE(){
+    let i = 0;
+    $.getJSON("/getLineBy?id=1", function (data) {
+
+                $.each(data, function (index, row) {
+                    let socket = new WebSocket("ws://10.0.1.91:3000/ws");//10.0.1.234
+                    console.log("Attempting connection...");
+
+
+                    socket.onopen = () => {
+                        console.log("Successfully connected");
+
+                        var line = row.Id;
+                        var date = document.getElementById('date').value;
+                        var turn = document.getElementById('turn').value;
+
+                        socket.send(turn+"_"+date+"_"+line);
+                    };
+
+                    socket.onclose = event => {
+                        console.log("Socket closed connection: ", event);
+                    };
+
+                    socket.onmessage = event => {
+                        console.log("Server says: ", event.data)
+
+                        //addData(charts[i], "line", event.data);
+                        //render(data_oee = [{ "unit": "seconds", "numeric": event.data }]);
+                    }
+
+                    socket.onerror = error => {
+                        console.log("Sokcet Error: ", error);
+                    };
+                    i++;
+        });
+     });
+}
+
+
+
+
+</script>
+
+
+
+{{end}}

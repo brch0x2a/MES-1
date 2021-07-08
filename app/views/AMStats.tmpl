@@ -1,0 +1,220 @@
+{{define "AMStats"}}
+{{template "Header"}}
+{{ template "Menu" }}
+{{ template "Nav_AM"}}
+
+	
+<div class="container">
+	<div class="row">
+		<div class="col">
+			<div class="card bg-dark text-light">
+				<div class="card-header">
+					<div class="row">
+
+						<div class="col">
+							<input type="date"  id="init" class="form-control bg-dark text-light">
+						</div>
+						<div class="col">
+							<input type="date"  id="end" class="form-control bg-dark text-light">
+						</div>
+						<div class="col">
+							<button class="btn-primary btn-block" onclick="filterAM()">Filtrar</button>
+						</div>
+					</div>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col">
+							<table
+							class="table table-responsive table-dark table-striped"
+							style="font-size: small"
+							id="data_table"
+							>
+							<thead>
+								<tr>
+
+								<th>Linea</th>
+								<th>Totales</th>
+								<th>Abiertos</th>
+								<th>En curso</th>
+								<th>Cerrados</th>
+
+								</tr>
+							</thead>
+
+							<tbody id="data_p">
+							</tbody>
+
+							</table>
+						</div>
+						<div class="col">
+							<canvas id="qaDocs" width="300" height="500"></canvas>
+
+
+						</div>
+					</div>
+				</div>	
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script src="/public/scripts/Chart.bundle.js"></script>
+
+<script>
+
+
+Chart.defaults.global.defaultFontColor = "white";
+
+
+var qaDocsCtx = document.getElementById("qaDocs").getContext("2d");
+var qaDocs = new Chart(qaDocsCtx, {
+  type: "horizontalBar",
+  data: {
+	labels : [],
+   datasets: [
+      {
+        label: "",
+        data: [],
+        backgroundColor: [],
+        borderWidth: 1,
+      },
+    ],
+  },
+  options: {
+    scales: {
+      xAxes: [{ 
+                gridLines: {
+
+                    color: ' rgba(255, 255, 255, 0.5)' ,
+                },
+            }],
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+         
+                gridLines: {
+                  color: ' rgba(255, 255, 255, 0.5)' ,
+                },
+        },
+      ],
+    },
+    animation: {
+      duration: 3000,
+    },
+    responsive: false,
+    maintainAspectRatio: false,
+  },
+});
+
+
+
+
+
+	function filterAM(){
+		let init = $("#init").val().split("-");
+		init = init[0] + init[1] + init[2];
+ 
+
+		let end = $("#end").val().split("-");
+		end = end[0] + end[1] + end[2];
+
+
+		removeDataset(qaDocs);
+		removeDataset(qaDocs);
+		removeDataset(qaDocs);
+	
+		let Line = [];
+
+		let Open = [];
+		let Obg = [];
+
+		let Progress = [];
+		let Pbg = [];
+
+		let Closed = [];
+		let Cbg = [];
+
+		$.getJSON("/getAM_Stats?init="+init+"&end="+end, function(data) {
+			$("#data_p").empty();
+			$.each(data, function (index, row) {
+				$("#data_p").append("<tr>");
+				$("#data_p").append(
+					"<td>"+row.Line+"</td>"+
+					"<td>"+row.TotalJobs+"</td>"+
+					"<td>"+row.OpenJobs+"</td>"+
+					"<td>"+row.InProgressJobs+"</td>"+
+					"<td>"+row.ClosedJobs+"</td>"
+				);
+
+
+				$("#data_p").append("</tr>");	
+
+				Line.push(row.Line);
+
+				Open.push(row.OpenJobs);
+				Obg.push("#ffd633");
+
+				Progress.push(row.InProgressJobs);
+				Pbg.push("#ff4dd2");
+
+				Closed.push(row.ClosedJobs);
+				Cbg.push("#ebebe0");
+
+			});
+			qaDocs.data.labels = Line;
+
+			addDataset(qaDocs, Open, Obg, "Abiertos");
+			addDataset(qaDocs, Progress, Pbg, "Progreso");
+			addDataset(qaDocs, Closed, Cbg, "Cerrado");
+		});
+	}
+
+function addData(chart, label, data, color) {
+	chart.data.labels.push(label);
+	chart.data.datasets.forEach((dataset) => {
+		dataset.data.push(data);
+		dataset.backgroundColor.push(color);
+	});
+	chart.update();
+}
+
+function removeData(chart) {
+  chart.data.labels.pop();
+  chart.data.datasets.forEach((dataset) => {
+    dataset.data.pop();
+    dataset.backgroundColor.pop();
+  });
+  chart.update();
+}
+
+
+function removeDataset(chart) {   
+    chart.data.datasets.shift();
+    chart.update();
+  }
+
+
+
+function addDataset(chart, pdata, pbackgroundColor, plabel) {
+			chart.data.datasets.push({
+				data: pdata,
+				backgroundColor: pbackgroundColor,
+				label : plabel,
+			});
+
+			chart.update();
+		}
+
+
+
+</script>
+
+{{ template "Footer" }}
+
+
+{{end}}

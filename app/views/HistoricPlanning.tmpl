@@ -1,0 +1,109 @@
+{{define "HistoricPlanning"}}
+{{template "Header"}}
+
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{end}}
+
+<div class="card">
+    <div class="card-body">
+        <form action="#">
+            <div class="form-row  align-items-center">
+                <div class="col-md-2 col-md-offset-3">
+                    <label for="">Area</label>
+                    <select name="area" id="area" class="form-control"></select>
+                </div>
+
+                <div class="col-md-2 col-md-offset-3">
+                    <label for="">Linea</label>
+                    <select name="line" id="line" class="form-control" required></select>
+                </div>
+                <div class="col-md-2 col-md-offset-3">
+                    <label> Fecha </label>
+                    <input type="date" id="dinit" name="dinit" class="form-control" required>
+                </div>
+
+                <div class="col-md-2 col-md-offset-3">
+                    <input type="button" class="btn btn-primary" value="Filtrar" onclick="filterPlanning()">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<br><br><br>
+
+
+<div class="container">
+    <table class="table table-responsive table-dark table-striped">
+
+        <thead>
+            <tr>
+                <td>Linea</td>
+                <td>Turno</td>
+                <td>Presentacion</td>
+                <td>Version</td>
+                <td>Velocidad nominal</td>
+                <td>Planeado</td>
+                <td>Producido</td>
+            </tr>
+        </thead>
+        <tbody id="data_p"></tbody>
+    </table>
+</div>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $.getJSON("/getArea", function (data) {
+            $("#area").empty();
+            $.each(data, function (index, row) {
+                $("#area").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+            });
+            $.getJSON("/getLineBy?id=" + $("#area").val(), function (data) {
+                $("#line").empty();
+                $.each(data, function (index, row) {
+                    $("#line").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+                });
+            });
+        });
+        $("#area").change(() => {
+            $.getJSON("/getLineBy?id=" + $("#area").val(), function (data) {
+                $("#line").empty();
+                $.each(data, function (index, row) {
+                    $("#line").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+                });
+            });
+        });
+
+
+    });
+
+    function filterPlanning() {
+        $.getJSON("/getHistoricPlanning?date=" + $("#dinit").val() + "&line=" + $("#line").val(), data => {
+
+            $("#data_p").empty();
+            $.each(data, function (index, row) {
+                $("#data_p").append("<tr>");
+                $("#data_p").append(
+                    "<td>" + row.Line + "</td>" +
+                    "<td>" + row.Turn + "</td>" +
+                    "<td>" + row.Presentation + "</td>" +
+                    "<td>" + row.Version + "</td>" +
+                    "<td>" + row.Nominal_speed + "</td>" +
+                    "<td>" + row.Planned + "</td>" +
+                    "<td>" + row.Produced + "</td>"
+                );
+
+                $("#data_p").append("</tr>");
+            });
+
+        });
+    }
+
+
+</script>
+{{ template "Footer" }}
+{{end}}

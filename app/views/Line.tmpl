@@ -1,0 +1,44 @@
+{{define "Line"}}
+  {{ template "Header" }}
+    {{ template "Menu" }}
+    {{ template "Nav_sectors"}}
+    <div class="container">
+            <table class="table table-responsive table-dark table-striped">
+
+                <thead>
+                <tr>
+                    <td>Fabrica</td>
+                    <td>Area</td>
+                    <td>Linea</td>
+                    <td>
+                        Accion | 
+                        <a href="/newLine">
+                            <button type="button" class="btn btn-success" style="margin-left: 20px" onclick="loading()">Agregar</button>
+                        </a>
+                    </td>
+    
+                </tr>
+                </thead>
+                <tbody>
+                {{ range . }}
+                <tr>
+                    <td>{{ .Factory_name }} </td>
+                    <td>{{ .Area_name }}</td>
+                    <td>{{ .Name}}</td>
+                    <td>
+                     <a href="/editLine?id={{.Id}}">  
+                      <button  type="button" class="btn btn-primary" onclick="loading()">Editar</button>
+                     </a>
+                     <a href="/deleteLine?id={{.Id}}">
+                      <button  type="button" class="btn btn-danger" onclick="loading()">Borrar</button>
+                    </a>
+                    </td>
+                </tr>
+                {{ end }}
+                </tbody>
+            </table>
+        </div>
+    
+
+  {{ template "Footer" }}
+{{ end }}

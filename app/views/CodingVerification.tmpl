@@ -1,0 +1,298 @@
+{{ define "CodingVerification"}}
+
+{{template "Header"}}
+
+<style>
+  .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+    
+    .switch input { 
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+    
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+    
+    input:focus + .slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+    
+    input:checked + .slider:before {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
+    }
+    
+    /* Rounded sliders */
+    .slider.round {
+      border-radius: 34px;
+    }
+    
+    .slider.round:before {
+      border-radius: 50%;
+    }
+  
+  
+  </style>
+  
+
+
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{end}}
+
+
+  {{ template "Nav_report"}}
+
+  
+  <div class="card">
+    <table class="table table-responsive table-bordered">
+      <tbody id="HeaderBody" style="font-size: medium">
+      </tbody>
+    </table>
+  </div>
+
+<br>
+
+<br>  
+<div id="muestreo" class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col">
+       Registro de verificación de codificación del Doy Pack y Corrugado	
+      </div>
+      <div class="col">
+        <button class="btn-primary btn-block" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+      </div>
+    </div>
+    </div>
+    <div class="card-body">
+
+        <form  enctype="multipart/form-data" action="insertCodingVerification" method="POST" id="cleanForm">
+
+          <div class="row">
+            <div class="col-8">
+              <h3 id="modeTitle">Tipo de codificacion</h3>
+            </div>
+            <div class="col-4">
+              <label class="switch">
+                <input  id='modeSwitch' type="checkbox" onclick="mode()">
+                <span class="slider round"></span>
+            </div>
+          </div>
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" name="capture_codification"  id="doypackImg" onchange="loadImage('canvas_doypack', 'doypackImg');" required>
+                <label  class="custom-file-label" style="outline: 5px double #CCCCCC;" for="customFile">
+                  <img src="/public/images/photo-camera.png" width="32px" height="32px"> 
+                  <p id="imgInputText"></p>
+                </label>
+              </div>
+              <br><hr>
+              <canvas id="canvas_doypack"></canvas>
+            <br>
+            <hr>
+            <br>
+            <label>Comentario / Observacion</label>
+            <textarea
+              name="comment"
+              class="form-control"
+              form="cleanForm"
+              cols="30"
+              rows="5"
+            ></textarea>
+
+            <input type="text" id="verification_type" name="verification_type" hidden>
+          <br><br>
+          <input type="submit" class="btn btn-primary btn-block" value="Listo" onsubmit="loading()">
+          <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+  
+        </form>
+
+
+
+    </div>
+</div>     
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/doypackCorrugado.mp4" type="video/mp4">
+        <source src="/public/videos/doypackCorrugado.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/doypackCorrugado.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+  <script  src="/public/scripts/jquery-3.3.1.min.js"></script>
+  <script  type="text/javascript"> 
+
+$(document).ready(function () {
+       
+       $.getJSON("/getHeaderBy?id="+$("#idHeader").val(), function (data) {
+       $("#HeaderBody").empty();
+           $("#HeaderBody").append("<tr>");
+           $("#HeaderBody").append(
+             "<td> <img src='/public/images/logo00.jpg' height='59' width='53'>  Unilever Planta Belen Costa Rica</td>"+
+             "<td>Codigo del Documento: ACJ-CALREG-RC-185</td>"+
+             "<td>Revision No 2</td>"
+           );
+           $("#HeaderBody").append("</tr>");
+           $("#HeaderBody").append("<tr>");
+           $("#HeaderBody").append(
+             "<td>Registro de verificación de codificación del Doy Pack y Corrugado </td>"+
+             "<td>Fecha de Ultima Revision: 06/08/2020</td>"+
+             "<td>Fecha de Proxima Revision: 06/08/2022</td>"
+           );
+           $("#HeaderBody").append("</tr>");
+       });
+
+    });
+
+    function loadImage(id_canvas, id_img) {
+          var input, file, fr, img;
+  
+          if (typeof window.FileReader !== 'function') {
+              write("The file API isn't supported on this browser yet.");
+              return;
+          }
+  
+          input = document.getElementById(id_img);
+          if (!input) {
+              write("Um, couldn't find the imgfile element.");
+          }
+          else if (!input.files) {
+              write("This browser doesn't seem to support the `files` property of file inputs.");
+          }
+          else if (!input.files[0]) {
+              write("Please select a file before clicking 'Load'");
+          }
+          else {
+              file = input.files[0];
+              fr = new FileReader();
+              fr.onload = createImage;
+              fr.readAsDataURL(file);
+          }
+  
+          function createImage() {
+              img = new Image();
+              img.onload = imageLoaded;
+              img.src = fr.result;
+          }
+  
+          function imageLoaded() {
+              var canvas = document.getElementById(id_canvas);
+              var ctx = canvas.getContext("2d");
+  
+              canvas.width = 500;
+              canvas.height = 500;
+  
+              var scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+              // get the top left position of the image
+              var x = (canvas.width / 2) - (img.width / 2) * scale;
+              var y = (canvas.height / 2) - (img.height / 2) * scale;
+              ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+          }
+  
+          function write(msg) {
+              var p = document.createElement('p');
+              p.innerHTML = msg;
+              document.body.appendChild(p);
+          }
+      }
+  
+      function mode(){
+        let state = document.getElementById('modeSwitch').checked;
+        let text = "";
+  
+        if(state){
+
+          document.getElementById('modeTitle').innerHTML = "Muestra de Doypack";
+          document.getElementById('modeTitle').style.color = "#000000";
+          
+          text = "codificación de un <b>Doy Pack</b> durante cada arranque, inicio de turno, cambio de producto y a media noche."
+
+          document.getElementById("verification_type").value = "doypack";
+
+          }else{
+
+          document.getElementById('modeTitle').innerHTML = "Muestreo Caja";
+          document.getElementById('modeTitle').style.color = "#000000";
+
+
+          text = "codificación de la <b>Caja</b> durante cada arranque, inicio de turno, cambio de producto y a media noche"
+          document.getElementById("verification_type").value = "caja";
+
+          }
+
+          document.getElementById("imgInputText").innerHTML = text;
+
+      }
+
+</script>
+
+  {{ template "Footer" }}
+{{end}}

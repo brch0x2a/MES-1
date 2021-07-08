@@ -1,0 +1,40 @@
+{{define "LineTimeClassification"}}
+  {{ template "Header" }}
+    {{ template "Menu" }}
+    {{ template "Nav_ltc"}}
+
+    <div class="container">
+        <table class="table  table-responsive  table-dark table-striped">
+
+            <thead>
+            <tr>
+                <td>Nombre</td>
+                <td>
+                    Accion | 
+                    <a href="/newLTC">
+                        <button type="button" class="btn btn-success" style="margin-left: 20px" onclick="loading()">Agregar</button>
+                    </a>
+                </td>
+
+            </tr>
+            </thead>
+            <tbody>
+            {{ range . }}
+            <tr>
+                <td>{{ .Description }} </td>
+                <td>
+                 <a href="/editLTC?id={{.Id}}">  
+                  <button  type="button" class="btn btn-primary" onclick="loading()">Editar</button>
+                 </a>
+                 <a href="/deleteLTC?id={{.Id}}">
+                  <button  type="button" class="btn btn-danger">Borrar</button>
+                </a>
+                </td>
+            </tr>
+            {{ end }}
+            </tbody>
+        </table>
+    </div>
+
+  {{ template "Footer" }}
+{{ end }}

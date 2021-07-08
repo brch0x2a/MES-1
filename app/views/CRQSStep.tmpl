@@ -1,0 +1,308 @@
+{{define "CRQSStep"}}
+
+{{template "Header"}}
+    {{if .User.HasPermission "Menu"}}
+    {{ template "Menu" }}
+  {{else}}
+    {{ template "Menu_lv1"}}
+  {{end}}
+  
+  
+    {{ template "Nav_report"}}
+  
+  
+    <input id="idHeader" type="number" value={{ .SubHeader.Header}} hidden>
+    <input id="pvalue" type="number" value={{ .SubHeader.Pvalue}} hidden>
+    <input id="pline" type="text" value={{ .SubHeader.Line}} hidden>
+  
+    <div class="card">
+       <table class="table table-bordered">
+         <tbody id="HeaderBody" style="font-size: medium">
+         </tbody>
+       </table>
+     </div>
+   
+   <br><br>
+  
+   <div class="card">
+    <table class="table table-bordered">
+      <tbody style="font-size: medium">
+      <tr>
+        <td><strong>Linea:</strong>  {{.SubHeader.Line}} </td>
+        <td><strong>Coordinador:</strong>  {{.SubHeader.Coordinator}} </td>
+        <td><strong>Operador:</strong>  {{.SubHeader.Operator}} </td>
+        <td><strong>Producto:</strong>  {{.SubHeader.Presentation}}  {{.SubHeader.Pvalue}}  {{.SubHeader.Punit}}</td>
+        <td><strong>Fecha:</strong>  {{.SubHeader.Date}}</td>
+        <td><strong>Turno:</strong>  {{.SubHeader.Turn}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <br><br>  
+  <div id="muestreo" class="card">
+      <div class="card-header">
+        <div class="row">
+          <div class="col">
+            Codificacion de cada muestra (CRQS)
+          </div>
+          <div class="col">
+            <button class="btn-primary btn-block" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+          </div>
+    </div>
+
+      
+      </div>
+      <div class="card-body">
+  
+    
+          <form enctype="multipart/form-data" action="insertCRQS" method="POST" id="crqs">
+              <input name="unit" type="text" value={{ .SubHeader.Punit}} hidden>
+              <input name="sub" type="number" value={{ .SubHeader.Id}} hidden>
+              <input id="prate" type="number" value={{ .SubHeader.Perror}} hidden>
+        
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" name="capture"  id="imgfile" onchange="loadImage();">
+                <label class="custom-file-label" style="outline: 5px double #CCCCCC;" for="customFile">
+                  <img src="/public/images/photo-camera.png" width="32px" height="32px"> 
+                  Capture codificacion
+                </label>
+              </div>
+<br><hr>
+              <canvas id="canvas"></canvas>
+  
+              <div class="form-group col-6">
+                  <label for="top">Codificacion en texto: <label>
+                  <input name="codText" id="codText" type="text" class="form-control" step="0.1">
+              </div>
+             <center><h4>CRQS</h4></center> 
+              <table class="table table-bordered table-striped">
+                <thead>
+                  <trrequired>
+                    <td  style="background-color: #33cc33"  id="p1" onclick="currentPriority(1)">V</td>
+                    <td  style="background-color: #FFBF00"  id="p2" onclick="currentPriority(2)">A</td>
+                    <td  style="background-color: red"      id="p3" onclick="currentPriority(3)">R</td>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <table class="table table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <td id="pDescripcion"></td>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <input name="level" id="level" type="text" placeholder="CRQS" hidden>
+  
+  
+              <br><hr>
+              <div class="row">
+                  <div class="form-group col-md-6">
+                      <label for="area">Categoria</label>
+                      <select name="cat" id="cat" class="form-control"></select>
+                  </div>
+                  <div class="form-group col-md-6">
+                      <label for="line">Sub categoria</label>
+                      <select name="subCRQS" id="subCRQS" class="form-control"></select>
+                  </div>
+              </div>        
+              <br><hr>
+
+                <label>Observaciones:</label>
+                <textarea
+                  name="observation"
+                  class="form-control"
+                  form="crqs"
+                  cols="30"
+                  rows="5"
+                ></textarea>
+            <br><br>
+            <input type="submit" class="btn btn-primary btn-block" value="Listo" onsubmit="loading()">
+            <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+    
+          </form>
+      </div>
+  </div>     
+  
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/crqs.mp4" type="video/mp4">
+        <source src="/public/videos/crqs.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/crqs.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+
+  <script src="/public/scripts/jquery-3.3.1.min.js"></script>
+  
+  <script> 
+  
+  
+  
+  $(document).ready(function () {
+         
+       $.getJSON("/getHeaderBy?id="+$("#idHeader").val(), function (data) {
+       $("#HeaderBody").empty();
+           $("#HeaderBody").append("<tr>");
+           $("#HeaderBody").append(
+             "<td> <img src='/public/images/logo00.jpg' height='59' width='53'>  Unilever Planta Belen Costa Rica</td>"+
+             "<td>Codigo del Documento: "+data.Cod_doc+"</td>"+
+             "<td>Revision No "+data.Revision_no+"</td>"
+           );
+           $("#HeaderBody").append("</tr>");
+           $("#HeaderBody").append("<tr>");
+           $("#HeaderBody").append(
+             "<td>"+data.Name+"</td>"+
+             "<td>Fecha de Ultima Revision: "+data.Revision_date+"</td>"+
+             "<td>Fecha de Proxima Revision: "+data.Next_revision_date+"</td>"
+           );
+           $("#HeaderBody").append("</tr>");
+       });
+
+      $.getJSON("/getCQRS_Category", data=>{
+        $("#cat").empty();
+
+        $.each(data, (index, row) =>{
+          $("#cat").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+        });
+        $.getJSON("/getCRQS_SubCategoryBy?id="+$("#cat").val(), function(data){
+            $("#subCRQS").empty();
+            $.each(data, function(index, row){
+                    $("#subCRQS").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+                });
+            });
+      });
+
+  
+   });
+   $("#cat").change(()=>{
+            $.getJSON("/getCRQS_SubCategoryBy?id="+$("#cat").val(), function(data){
+            $("#subCRQS").empty();
+            $.each(data, function(index, row){
+                    $("#subCRQS").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+                  });
+            });
+        });
+   
+
+        function currentPriority(j) {
+
+
+          const e = document.getElementById("p" + j);
+          const a = document.getElementById("pDescripcion");
+
+          switch (j) {
+            case 1:
+                a.innerHTML = "Verde";
+              break;
+
+            case 2:
+                a.innerHTML = "Ambar";
+              break;
+          
+            case 3:
+                a.innerHTML = "Rojo";
+              break;
+
+            default:
+              break;
+          }
+
+
+          a.style.backgroundColor = e.style.backgroundColor;
+
+
+          $('input[name="level"]').val(j);
+        }
+
+      function loadImage() {
+          var input, file, fr, img;
+  
+          if (typeof window.FileReader !== 'function') {
+              write("The file API isn't supported on this browser yet.");
+              return;
+          }
+  
+          input = document.getElementById('imgfile');
+          if (!input) {
+              write("Um, couldn't find the imgfile element.");
+          }
+          else if (!input.files) {
+              write("This browser doesn't seem to support the `files` property of file inputs.");
+          }
+          else if (!input.files[0]) {
+              write("Please select a file before clicking 'Load'");
+          }
+          else {
+              file = input.files[0];
+              fr = new FileReader();
+              fr.onload = createImage;
+              fr.readAsDataURL(file);
+          }
+  
+          function createImage() {
+              img = new Image();
+              img.onload = imageLoaded;
+              img.src = fr.result;
+          }
+  
+          function imageLoaded() {
+              var canvas = document.getElementById("canvas");
+              var ctx = canvas.getContext("2d");
+  
+              canvas.width = 500;
+              canvas.height = 500;
+  
+              var scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+              // get the top left position of the image
+              var x = (canvas.width / 2) - (img.width / 2) * scale;
+              var y = (canvas.height / 2) - (img.height / 2) * scale;
+              ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+          }
+  
+          function write(msg) {
+              var p = document.createElement('p');
+              p.innerHTML = msg;
+              document.body.appendChild(p);
+          }
+      }
+  
+  </script>
+</body>
+
+{{ template "Footer" }}
+{{ end }}

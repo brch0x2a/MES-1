@@ -1,0 +1,1059 @@
+{{define "ExecuteAM_instance"}}
+{{ template "Header" }}
+
+<style>
+
+input[type='checkbox'] {
+    -webkit-appearance:none;
+    width:80px;
+    height:80px;
+    background:white;
+    border-radius:5px;
+    border:2px solid #555;
+}
+input[type='checkbox']:checked {
+    background: #e0e0d1;
+}
+</style>
+
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+ 
+<div id="wocontainer">
+<div  class="d-flex align-items-center flex-column justify-content-center h-100">
+<div class="card" style="width: 100%;">
+<div id="card_header" class="card-header">
+  <div class="row">
+    <div class="col">
+      Calendario AM
+    </div>
+
+    <div class="col">
+        <label for="">Area</label>
+    </div>
+
+    <div class="col">    
+        <select name="area" id="area" class="form-control" required></select>
+    </div>
+
+    <div class="col">
+      <input type="date" name="date" id="date" class="form-control" required>
+    </div>
+    
+    <div class="col">
+      <button class="btn-dark btn-block" onclick="represent()">Obtener</button>
+    </div>
+  </div>
+
+ </div>
+   <div class="card-body">
+       <div  id="wo">
+
+      <br>
+
+          <div style="width: 100%;">
+          <div class="timetable"></div>
+          </div>
+      <br><br>
+      <div >
+    
+        <center>
+          <h1 id="listLineTitle"></h1>
+          <div class="row">
+
+            <div class="col">    
+              <label for="">Linea</label>
+                <select name="line" id="line" class="form-control" required>
+              </select>
+            </div>
+
+
+
+          <div class="col">    
+              <label for="">Turno</label>
+              <select name="turn" id="turn" class="form-control" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+          </div>
+
+          <div class="col">    
+            <label for="">Estado</label>
+            <select name="pstate" id="pstate" class="form-control" required>
+              <option value="1">Abierto</option>
+              <option value="4">Por aprobar</option>
+              <option value="3">Cerrado</option>
+            </select>
+        </div>
+
+        
+          </div>
+          <button class="btn-dark btn-block" onclick="filterJobLineList()">Filtrar</button>
+
+        </center>
+
+        <div id="table-wrapper">
+          <div id="table-scroll">
+          <table
+          class="table table-responsive table-dark"
+          style="font-size: small"
+          id="data_table"
+          >
+          <thead>
+            <tr>
+                <td>Perfil</td>
+                <td>#Transaccion</td>
+                <td>Linea</td>
+                <td>#Empleado</td>
+                <td>Nombre</td>
+                <td>Apellido</td>
+    
+                <td>Maquina</td>
+                <td>Componente</td>
+                <td>ComponenteImagen</td>
+                <td>EPP</td>
+                <td>EPPImagen</td>
+                <td>LILA</td>
+                <td>Descripcion </td>
+    
+                <td>InicioPlanificado</td>
+                <td>FinPlanificado</td>
+    
+                <td>InicioActual</td>
+                <td>FinActual</td>
+    
+                <td>MinutosParo</td>
+                <td>MinutosOperativos</td>
+                <td>Nota</td>
+                
+                <td>PerfilAprobador</td>
+                <td>#EmpleadoAprobador</td>
+                <td>NombreAprobador</td>
+                <td>ApellidoAprobador</td>
+    
+                <td>Estado</td>
+                <td>MinutosParo</td>
+                <td>Condicion</td>
+                <td>Listo</td>
+            </tr>
+          </thead>
+          <tbody id="job_dataList"></tbody>
+          </table>
+        </div>
+      </div>
+
+<br>
+
+
+      <div id="currentTransacctionHolder" hidden>
+      <center>
+        <h1 id="jobLineTitle">Trabajo actual</h1>
+      </center>
+
+      <div id="table-wrapper">
+        <div id="table-scroll">
+        <table
+        class="table table-responsive table-dark"
+        style="font-size: small"
+
+        >
+        <thead>
+          <tr>
+              <td>Perfil</td>
+              <td>#Transaccion</td>
+              <td>Linea</td>
+              <td>#Empleado</td>
+              <td>Nombre</td>
+              <td>Apellido</td>
+  
+              <td>Maquina</td>
+              <td>Componente</td>
+              <td>ComponenteImagen</td>
+              <td>EPP</td>
+              <td>EPPImagen</td>
+              <td>LILA</td>
+              <td>Descripcion </td>
+  
+              <td>InicioPlanificado</td>
+              <td>FinPlanificado</td>
+  
+              <td>InicioActual</td>
+              <td>FinActual</td>
+  
+              <td>MinutosParo</td>
+              <td>MinutosOperativos</td>
+
+              <td>Nota</td>
+              
+              <td>PerfilAprobador</td>
+              <td>#EmpleadoAprobador</td>
+              <td>NombreAprobador</td>
+              <td>ApellidoAprobador</td>
+  
+              <td>Estado</td>
+              <td>Accion</td>
+          </tr>
+        </thead>
+        <tbody id="job_data"></tbody>
+        </table>
+      </div>
+    </div>
+
+    </div>
+          
+    <br>
+
+<br>
+      <button type="button" id="a-timer" class="btn btn btn-success btn-arrow-right" data-toggle='modal' data-target='#timeSet' hidden>Tiempo Trabajando </button>
+      <button type="button" id="b-timer" class="btn btn btn-danger btn-arrow-right" data-toggle='modal' data-target='#timeSet' hidden>Tiempo de Aprobacion </button>
+
+<br>
+
+<div class="list-group">
+  <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">Limpieza</h5>
+      <small>#287</small>
+    </div>
+    <div class="row">
+        <div class="col">
+          <div class="card" style="width: 11rem;">
+            <!-- <img
+
+             width="180" height="180" style="object-fit: scale-down;" 
+
+              class="card-img-top"
+              src="/public/images/AM/Components/component-595239009.png"
+              alt="Card image cap"
+            /> -->
+            <div class="card-body">
+              <h5 class="card-title">Componente</h5>
+              <p class="card-text">
+                Triangulo Formador
+              </p>
+            </div>
+          </div>
+
+      </div>
+      <div class="col">
+          <div class="card" style="width: 11rem;">
+            <!-- <img
+            width="180" height="180" style="object-fit: scale-down;" 
+
+              class="card-img-top"
+              src="/public/images/AM/EPP/epp-389894948.png"
+              alt="Card image cap"
+            /> -->
+            <div class="card-body">
+              <h5 class="card-title">EPP</h5>
+              <p class="card-text">
+                General
+              </p>
+            </div>
+          </div>
+ 
+      </div>
+      <div class="col">
+        <div class="card" style="width: 11rem;background-color:#8EB4E3;">
+
+          <div class="card-body">
+            <h5 class="card-title">Descripcion</h5>
+            <p class="card-text">
+              Limpiar polvo, suciedad y las costra que este genera
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <input type="checkbox" name="" id="">
+      </div>
+
+    </div>
+  </a>
+</div>
+<br>
+
+       <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+      </div>
+   </div>
+</div>
+</div>
+</div>   
+<br />    
+<hr>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="timeSet"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Reportar etapa</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="POST" action="setAMPhase" id="timeSetForm">
+        <div class="modal-body">
+         <h3 id="timeTitle"></h3>
+          <br>
+          <label>Usuario</label>
+          <input
+            name="userPhase"
+            class="form-control"
+            form="timeSetForm"
+            id="user"
+            type="text"
+            placeholder="#Empleado"
+          ></input>
+
+          <br>
+          <label>Contraseña</label>
+          <input
+            name="passPhase"
+            class="form-control"
+            form="timeSetForm"
+
+            id="passPhase"
+            type="password"
+          ></input>
+  
+          <input type="number" name="pid" id="pid" hidden>   
+          <input type="number" name="phase" id="phase" hidden>   
+        </div>
+        <div class="modal-footer">
+          <button id="cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancelar
+          </button>
+          <input
+          class="btn btn-primary"
+          type="submit"
+          value="Enviar"
+        />
+        </div>
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script src="/public/scripts/timetable.js"></script>
+
+<script>
+  Date.prototype.addHours= function(h){
+    this.setHours(this.getHours()+h);
+    return this;
+  }
+
+    /**
+     * 
+     * 
+     * 
+     * 
+     * 
+     * 
+    */
+
+  $( "#wo" ).submit(function( event ) {
+
+  });
+
+
+  $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+          $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+      });
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+          $("#line").empty();
+          $.each(data, function(index, row) {
+          $("#line").append(
+              "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+          });
+      });
+      });
+      $("#area").change(() => {
+
+  });
+
+
+  function setTask(timetable, pinit, pfinal, place, task, color, jobId){
+
+        let init = (new Date(pinit).addHours(-18));
+        let final = (new Date(pfinal).addHours(-18));
+        let res = task.split(" ");
+
+        let initFilter = document.getElementById("date").value;
+
+        let taskClass = res[0] + res[1];
+
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = '.time-entry.'+taskClass+' { background-color: '+color+';  color: black; border:1px solid #0f021b }';
+        document.getElementsByTagName('head')[0].appendChild(style);
+
+        timetable.addEvent(task, place, init, final, {class:taskClass, onClick: function(event){filterAM(initFilter, jobId, 1);}});
+    }
+
+    function represent(){
+      let timetable = new Timetable().setScope(6, 5);
+      let Lines = [];
+      // let timetable = new Timetable().setScope(6, 5);
+
+      console.log("Represent");
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+              $("#line").empty();
+              $.each(data, function(index, row) {
+                  $("#line").append(
+                      "<option value='" + row.Id + "' >" + row.Name + "</option>"
+                  );
+                  Lines.push(row.Name);
+              });
+
+        console.log("date="+$("#date").val());
+        $.getJSON("/getMetaAM_instance?date="+$("#date").val()+"&area="+$("#area").val(), function(data) {
+          timetable.addLocations(Lines);
+          $.each(data, function(index, row) {
+              
+              console.log("["+row.JobId+"]"+row.Planned_init+"--"+row.Planned_end+" | "+row.Line+">>"+row.Component+" "+row.LilaColor);
+
+              console.log("lineId: "+row.LineId);
+
+
+              setTask(timetable, row.Planned_init, row.Planned_end, row.Line, row.Component+"-"+row.JobId, row.LilaColor, row.LineId);
+          });
+          render(timetable);
+        });
+          
+      });
+  }
+
+
+      function render(timetable){
+          var renderer = new Timetable.Renderer(timetable);
+          renderer.draw('.timetable');
+      }
+
+
+
+    function filterAMJob(id){
+
+       let phase = 0;
+       let buttonCounter = 0;
+
+
+        $.getJSON(
+        "/getMetaLogAM_instanceE?pid="+ id,  
+            
+        (data) => {
+
+            $("#job_data").empty();
+            $.each(data, function (index, row) {
+
+                document.getElementById("jobLineTitle").innerHTML = "Trabajo en progreso #"+ row.Id;
+
+                let before = row.ComponentPhoto.replace("\\", "/");
+                before = before.replace('\\', "/");
+                before = before.replace('\\', "/");
+                before = before.replace('\\', "/");
+
+                let after = row.EPPPhoto.replace("\\", "/");
+                after = after.replace('\\', "/");
+                after = after.replace('\\', "/");
+
+                let phaseData =  Number(row.Phase);
+
+
+                $("#job_data").append("<tr>");
+                $("#job_data").append(
+                
+                "<td ><img style='border-radius: 50%;' src='"+row.OperatorProfile+"' width='75' height='75'></td>"+
+                "<td  onclick='phaseWrapper("+row.Id+")'>" +row.Id+ "</td>"+
+                "<td  >" +row.Line+ "</td>"+
+
+                "<td>" +row.OperatorNickName+ "</td>"+
+                "<td>" +row.OperatorFname+ "</td>"+
+                "<td>" +row.OperatorLname+ "</td>"+
+
+                "<td>" +row.Machine+ "</td>"+
+                "<td>" +row.Component+ "</td>"+
+                "<td ><img style='object-fit: scale-down;' src="+before+" width='200' height='180'></td>"+
+
+                "<td>" +row.EPP+ "</td>"+
+                "<td style='background-color: white;'><img style='object-fit: scale-down;' src="+row.EPPPhoto+" width='200' height='180'></td>"+
+
+                "<td style='background-color:" +row.LilaColor+"; color:black'>" +row.Lila+ "</td>"+
+                
+                "<td>" +row.Description+ "</td>"+
+
+                "<td>" +row.Planned_init+ "</td>"+
+                "<td>" +row.Planned_end+ "</td>"+
+
+                "<td>" +row.JobInit+ "</td>"+
+                "<td>" +row.JobEmd+ "</td>"+
+
+                "<td>" +row.MinutesStop+ "</td>"+
+                "<td>" +row.MinutesRun+ "</td>"+
+                "<td>" +row.Note+ "</td>"+
+                
+
+                "<td><img style='object-fit: scale-down;' src="+row.ApproverProfile+" width='200' height='180'></td>"+
+
+                "<td>" +row.ApproverNickName+ "</td>"+
+                "<td>" +row.ApproverFname+ "</td>"+
+                "<td>" +row.ApproverLname+ "</td>"+
+
+                "<td  style='background-color:" +row.StateColor+"; color:black'>" +row.State+ "</td>"+
+                "<td >"+"<button id='requestButton"+buttonCounter+"' type='button' onclick='presetPhase("+phase+")' class='btn btn-light' data-toggle='modal' data-target='#timeSet'>Trabajar</button>"+"</td>" 
+
+                );   
+
+                $("#job_data").append("</tr>");
+
+            });
+
+        }
+        );
+
+    $("#pid").val(id);
+
+    phaseWrapper(id);
+
+    }
+
+
+    function filterJobLineList(){
+
+      document.getElementById("currentTransacctionHolder").hidden = true;
+
+      let init = document.getElementById("date").value;
+      let line = $("#line").val();
+      let turn = $("#turn").val();
+      let pstate = $("#pstate").val();
+      filterAM(init, line, turn, pstate);
+
+    }
+
+
+    
+    function filterAM(init, Id, turn, pstate) {
+
+        console.log("jobId: "+Id);
+        console.log("init: "+init);
+        let phase = 0;
+        let buttonCounter = 0;
+
+
+        $.getJSON(
+        "/getMetaLogAM_instanceEList?"+
+            "line=" + Id+"&init="+init + "&turn="+turn + "&pstate="+pstate,
+
+        (data) => {
+
+            $("#job_dataList").empty();
+            $.each(data, function (index, row) {
+              
+                document.getElementById("listLineTitle").innerHTML = "Trabajos de la linea "+ row.Line;
+                
+                console.log("currentLine: "+row.Line);
+
+                let before = row.ComponentPhoto.replace("\\", "/");
+                before = before.replace('\\', "/");
+                before = before.replace('\\', "/");
+                before = before.replace('\\', "/");
+
+                let after = row.EPPPhoto.replace("\\", "/");
+                after = after.replace('\\', "/");
+                after = after.replace('\\', "/");
+
+                let phaseData =  Number(row.Phase);
+
+                $("#job_dataList").append("<tr >");
+                $("#job_dataList").append(
+                
+                "<td onclick='filterAMJob("+row.Id+")'><img style='border-radius: 50%;' src='"+row.OperatorProfile+"' width='75' height='75'></td>"+
+                "<td onclick='filterAMJob("+row.Id+")' >" +row.Id+ "</td>"+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.Line+ "</td>"+
+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.OperatorNickName+ "</td>"+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.OperatorFname+ "</td>"+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.OperatorLname+ "</td>"+
+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.Machine+ "</td>"+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.Component+ "</td>"+
+                "<td onclick='filterAMJob("+row.Id+")' ><img style='object-fit: scale-down;' src="+before+" width='100' height='100'></td>"+
+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.EPP+ "</td>"+
+                "<td  onclick='filterAMJob("+row.Id+")' style='background-color: white;'><img style='object-fit: scale-down;' src="+row.EPPPhoto+" width='100' height='100'></td>"+
+
+                "<td onclick='filterAMJob("+row.Id+")' style='background-color:" +row.LilaColor+"; color:black'>" +row.Lila+ "</td>"+
+                
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.Description+ "</td>"+
+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.Planned_init+ "</td>"+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.Planned_end+ "</td>"+
+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.JobInit+ "</td>"+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.JobEmd+ "</td>"+
+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.MinutesStop+ "</td>"+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.MinutesRun+ "</td>"+
+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.Note+ "</td>"+
+
+                "<td onclick='filterAMJob("+row.Id+")'><img style='object-fit: scale-down;' src="+row.ApproverProfile+" width='100' height='180'></td>"+
+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.ApproverNickName+ "</td>"+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.ApproverFname+ "</td>"+
+                "<td onclick='filterAMJob("+row.Id+")'>" +row.ApproverLname+ "</td>"+
+
+                "<td  style='background-color:" +row.StateColor+"; color:black'>" +row.State+ "</td>"+
+                "<td  color:black'>" +
+                 "<input name='minutesStop' id='minutesStop"+row.Id+"' type='number' class='form-control' step='1'  required>"+
+                "</td>"+
+                "<td color:black'>" +
+                  "<select name='note' id='note"+row.Id+"' class='form-control'>"+
+                   "<option value='bueno'>Bueno</option>"+
+                    "<option value='malo'>Malo</option>"+
+                  "</select>"+
+                "</td>"+
+                "<td color:black'>" +
+                  "<input type='checkbox'  onchange='flashPhase("+row.Id+")' class='form-control'>"+
+                "</td>"
+                );   
+
+                $("#job_dataList").append("</tr>");
+
+                buttonCounter += 1;
+     
+            });
+
+        }
+        );
+        
+    }
+
+
+    function presetPhase(phase){
+     
+        let Names = ['solicitud', 'Trabajando'];
+
+        let now = new Date();
+
+        document.getElementById('timeTitle').innerHTML = "Hora "+Names[phase]+ ": " + now;
+
+      }
+
+      function flashPhase(uid){
+
+
+        let url = "SetAMFlashPhase";
+
+        let minutes = document.getElementById("minutesStop"+uid).value;
+        let condition = document.getElementById("note"+uid).value;
+        
+        console.log("minutes: "+minutes+"\t|condition: "+condition);
+
+         var posting = $.post( url, { id: uid, minutes:minutes, condition:condition} );
+
+         posting.done(function( data, status ) {
+          console.log("Data: "+data+"\tStatus: "+status);
+        });
+
+        setTimeout(filterJobLineList(), 1000);
+
+
+      }
+
+      function phaseWrapper(jobId){
+
+        console.log("jobId>> "+jobId);
+
+        $.getJSON(
+        "/getMetaLogAM_instanceE?"+
+            "pid=" + jobId,
+
+        (data) => {
+
+             $.each(data, function (index, row) {
+                triggerPhase(row.Phase);
+                console.log("PhaseWrapper: "+ row.Phase);
+            });
+        });
+
+
+      }
+
+      function triggerPhase(current){
+
+
+        $("#phase").val(current);
+
+        console.log("currentPhase: "+current);
+
+        switch (current) {
+
+          case 0:
+            console.log("case 0:");
+
+            // document.getElementById('requestButton'+buttonCounter).disabled = false;
+         
+            document.getElementById("currentTransacctionHolder").hidden = true;
+            document.getElementById("requestButton0").disabled = false;
+            aTimer.reset();
+            bTimer.reset();
+
+            aTimer.stop();
+            bTimer.stop();
+
+            a.disabled = true;
+            b.disabled = true;
+   
+            a.hidden = true;
+            b.hidden = true;
+
+            break;
+          case 1:
+            console.log("case 1:");
+
+
+            // document.getElementById('requestButton'+buttonCounter).disabled = true;
+       
+
+            document.getElementById("currentTransacctionHolder").hidden = true;
+
+            aTimer.reset();
+            bTimer.reset();
+
+            aTimer.stop();
+            bTimer.stop();
+
+            a.disabled = false;
+            b.disabled = true;
+
+            a.hidden = false;
+            b.hidden = true;
+
+            aTimer.start();
+
+            break;
+          case 2:
+            console.log("case 2:");
+            // document.getElementById('requestButton'+buttonCounter).disabled = true;
+           
+            document.getElementById("requestButton0").disabled = true;
+            document.getElementById("currentTransacctionHolder").hidden = false;
+
+            // aTimer.reset();
+            bTimer.reset();
+
+
+            aTimer.stop();
+            bTimer.stop();
+  
+            a.disabled = true;
+            b.disabled = false;
+
+            a.hidden = false;
+            b.hidden = false;
+       
+            bTimer.start();
+
+            break;     
+
+           case 3:
+            console.log("case 3:");
+            // document.getElementById('requestButton'+buttonCounter).disabled = true;
+       
+            document.getElementById("currentTransacctionHolder").hidden = false;
+
+            aTimer.stop();
+            bTimer.stop();
+  
+            a.disabled = true;
+            b.disabled = true;
+            document.getElementById("requestButton0").disabled = true;
+
+            a.hidden = false;
+            b.hidden = false;
+       
+            break;  
+
+          default:
+            break;
+        }
+
+        // presetPhase(current);
+
+      }
+
+
+      function setNextCurrentPhase(jobId){
+
+        $.getJSON("/getMetaLogAM_instanceE?pid="+jobId, data => {
+          
+          let phase = data[0].Phase;
+
+          console.log(data);
+
+          $("#phase").val(phase);
+
+          console.log("setNextCurrentPhase()--> "+phase);
+
+        });
+
+      }
+
+
+      $( "#timeSetForm" ).submit(function( event ) {
+              event.preventDefault();
+              let currentPhase = $("#phase").val();
+              let container  = document.getElementById("wocontainer");
+
+            // Get some values from elements on the page:
+            var $form = $( this ),
+              uid =  $("#pid").val();
+              
+              uphase = $form.find( "input[name='phase']" ).val();
+              uuser = $form.find( "input[name='userPhase']" ).val();
+              upass = $form.find( "input[name='passPhase']" ).val();
+            
+              console.log("uid: "+uid+", user: "+uuser+", "+upass+" phase: "+uphase);
+
+              url = $form.attr( "action" );
+            
+            // Send the data using post
+            var posting = $.post( url, { id: uid, user:uuser, 
+                                          pass:upass, phase:uphase} );
+            
+
+
+            // Put the results in a div
+            posting.done(function( data, status ) {
+
+              console.log("Data: "+data+"\tStatus: "+status);
+              if (status == "success"){
+
+                console.log("currentPhaseAfterAuth: "+currentPhase);
+
+                let nextPhase = Number(currentPhase);
+
+                container.insertAdjacentHTML('beforebegin', `
+                <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+                  <strong>Usuario autorizado!</strong> en la orden de trabajo
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>  
+                `);
+                
+                // presetPhase(nextPhase);
+
+
+                setNextCurrentPhase(uid);
+                triggerPhase(nextPhase+1);
+
+
+              }else if (status!="success"){
+
+                container.insertAdjacentHTML('beforebegin', `
+                <div id="successAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <strong>Usuario no autorizado!</strong> en la orden de trabajo
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>  
+                `);
+              }
+              $("html, body").animate({ scrollTop: 0 }, "slow");
+
+              $("#cancel").click();
+            });
+
+
+      });
+
+      function sendNote(){
+
+        // $( "#wo" ).submit(function( event ) {
+        //   event.preventDefault();
+          let unote  = $("#note").val();
+          let uid =  $("#pid").val();
+          let minutesStop =  $("#minutesStop").val();
+          let minutesRun=  $("#minutesRun").val();
+
+          console.log("run: "+minutesRun+", stop"+minutesStop);
+
+          let url = "setAMNote";
+
+          var posting = $.post( url, { id: uid, note:unote, run: minutesRun, stop: minutesStop} );
+          // Put the results in a div
+          posting.done(function( data, status ) {
+
+            console.log("Data: "+data+"\tStatus: "+status);
+
+            if(status == "success") {
+              let container  = document.getElementById("wocontainer");
+
+              container.insertAdjacentHTML('beforebegin', `
+              <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+              <strong>Se guardo exitosamente!</strong> los datos
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              </div>  
+              `);
+              }
+              $("html, body").animate({ scrollTop: 0 }, "slow");
+              represent();
+
+          });
+          
+        
+        // });
+      
+      }
+
+
+  var Stopwatch = function(elem, options) {
+  
+  var timer       = createTimer(),
+      // startButton = createButton("iniciar", start),
+      // stopButton  = createButton("detener", stop),
+      // resetButton = createButton("reiniciar", reset),
+      offset,
+      clock,
+      interval;
+  
+  // default options
+  options = options || {};
+  options.delay = options.delay || 1;
+ 
+  // append elements     
+  elem.appendChild(timer);
+  // elem.appendChild(startButton);
+  // elem.appendChild(stopButton);
+  // elem.appendChild(resetButton);
+  
+  // initialize
+  reset();
+  
+  // private functions
+  function createTimer() {
+    return document.createElement("span");
+  }
+  
+  function createButton(action, handler) {
+    var a = document.createElement("a");
+    a.href = "#" + action;
+    a.innerHTML = action;
+    a.addEventListener("click", function(event) {
+      handler();
+      event.preventDefault();
+    });
+    return a;
+  }
+  
+    function start() {
+        if (!interval) {
+        offset   = Date.now();
+        interval = setInterval(update, options.delay);
+        }
+    }
+    
+    function stop() {
+        if (interval) {
+        clearInterval(interval);
+        interval = null;
+        }
+    }
+    
+    function reset() {
+        clock = 0;
+        render(0);
+    }
+    
+    function update() {
+        clock += delta();
+        render();
+    }
+    
+    function millisToTime(millis) {
+      let minutes = Math.floor(millis / 60000);
+      let seconds = ((millis % 60000) / 1000).toFixed(0);
+      return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+    }
+
+    function render() {
+
+    
+        timer.innerHTML =millisToTime(clock); 
+    }
+    
+    function delta() {
+        var now = Date.now(),
+            d   = now - offset;
+        
+        offset = now;
+        return d;
+    }
+    
+    // public API
+    this.start  = start;
+    this.stop   = stop;
+    this.reset  = reset;
+    };
+
+
+    // basic examples
+    var elems = document.getElementsByClassName("basic");
+
+    for (var i=0, len=elems.length; i<len; i++) {
+    new Stopwatch(elems[i]);
+    }
+
+
+    // programmatic examples
+    var a = document.getElementById("a-timer");
+    aTimer = new Stopwatch(a);
+
+    var b = document.getElementById("b-timer");
+    bTimer = new Stopwatch(b);
+
+
+    //aTimer.start();;
+
+
+</script>
+
+
+{{ template "Footer" }}
+
+
+{{end}}

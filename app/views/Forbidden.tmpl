@@ -1,0 +1,23 @@
+{{define "Forbidden"}}
+{{ template "Header" }}
+
+    <br><br>
+    <center>
+  
+    <div class="card" style="width: 24rem;" >
+        <img class="card-img-top"  src="/public/images/danger00.jpg" alt="Card image cap">
+  
+        <div class="card-body">
+         <h3>Error 403!  ):</h3>
+            {{ range $f := . }}
+            <p>{{ $f }}</p>
+            {{ end }}
+     <a class="btn btn-danger" href="/">Volver</a>
+
+    </div>
+    </div>
+  
+  </center>
+  
+{{ template "Footer" }}
+{{end}}

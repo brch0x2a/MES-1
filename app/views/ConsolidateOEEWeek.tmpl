@@ -1,0 +1,205 @@
+{{define "ConsolidateOEEWeek"}}
+
+{{ template "Header" }}
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{end}}
+
+{{template "NavOEE"}}
+<br><br>
+<div class="card">
+    <div class="card-body">
+        <form class="form-row align-items-center">
+            <div class="form-group col-md-2">
+                <label for="area">Area</label>
+                <select name="area" id="area" class="form-control"></select>
+            </div>
+            <div class="col-md-2 mb-2">
+                <label for="">Año</label>
+                <input
+                  type="number"
+                  id="year"
+                  placeholder="2019"
+                  class="form-control"
+                  step="1"
+                />
+              </div>
+              <div class="col-md-2 mb-2">
+                <label for="">Semana</label>
+                <input
+                  type="number"
+                  placeholder="1"
+                  class="form-control"
+                  id="wk"
+                  step="1"
+                  max="52"
+                />
+              </div>
+              <div class="col-md-2 mb-2">
+                <button type="button" id="btnOEE" class="btn btn-primary" onclick="getOEEWeek()">Filtrar</button>
+              </div>
+        </form>
+    </div>
+</div>
+<hr>
+<br>
+<div class="container">
+  <div class="table-responsive-xl">
+    <table
+      class="table table-dark table-striped"
+      style="font-size: small"
+      id="data_table"
+    >
+      <thead>
+        <tr>
+          <td>Linea</td>
+          <td>L</td>
+          <td>K</td>
+          <td>M</td>
+          <td>J</td>
+          <td>V</td>
+          <td>S</td>
+          <td>D</td>
+          <td>Total</td>
+        </tr>
+      </thead>
+      <tbody id="data_p"></tbody>
+    </table>
+  </div>
+</div>
+<br>
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <canvas id="myChart" width="400" height="400"></canvas>
+    </div>
+  </div>
+</div>
+
+
+<script src="/public/scripts/Chart.bundle.min.js"></script>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  
+    $(document).ready(() => {
+        $.getJSON("/getArea", function (data) {
+            $("#area").empty();
+            $.each(data, function (index, row) {
+                $("#area").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+            });
+        });
+
+    });
+
+
+    function getOEEWeek(){
+
+      for (let i = 0; i < 20; i++) {
+          removeData(myChart);
+      }
+
+
+      area = $("#area").val();
+      year = $("#year").val();
+      wk  = $("#wk").val();
+
+        $.getJSON("/getOEEWeek?week="+wk+"&year="+year+"&area="+area, data => {
+
+            $("#data_p").empty();
+            $.each(data, function (index, row) {
+                $("#data_p").append("<tr>");
+                $("#data_p").append(
+                    "<td>" + row.Line + "</td>" +
+                    "<td>" + row.DayInfo[0].OEE + "</td>" +//L
+                    "<td>" + row.DayInfo[1].OEE + "</td>" +//K
+                    "<td>" + row.DayInfo[2].OEE + "</td>" +//M
+                    "<td>" + row.DayInfo[3].OEE + "</td>" +//J
+                    "<td>" + row.DayInfo[4].OEE + "</td>" +//V
+                    "<td>" + row.DayInfo[5].OEE + "</td>" +//S
+                    "<td>" + row.DayInfo[6].OEE + "</td>" +//D
+                    "<td>" + row.Total + "</td>"//total
+                );
+
+                $("#data_p").append("</tr>");
+
+
+                addData(
+                  myChart,
+                  row.Line,
+                  row.Total,
+                  "white"
+                );
+            });
+
+          });
+
+    }
+
+
+
+
+    Chart.defaults.global.defaultFontColor = "white";
+
+
+
+    function addData(chart, label, data, color) {
+    chart.data.labels.push(label);
+    chart.data.datasets.forEach((dataset) => {
+      dataset.data.push(data);
+      dataset.backgroundColor.push(color);
+    });
+    chart.update();
+  }
+
+  function removeData(chart) {
+    chart.data.labels.pop();
+    chart.data.datasets.forEach((dataset) => {
+      dataset.data.pop();
+      dataset.backgroundColor.pop();
+    });
+    chart.update();
+  }
+
+
+
+var ctx = document.getElementById("myChart").getContext("2d");
+var myChart = new Chart(ctx, {
+  type: "bar",
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: "Paros",
+        data: [],
+        backgroundColor: [],
+        borderColor: ["rgba(0, 0, 255, 1)"],
+        borderWidth: 1,
+      },
+    ],
+  },
+  options: {
+    scales: {
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+        },
+      ],
+    },
+    animation: {
+      duration: 3000,
+    },
+    responsive: false,
+    maintainAspectRatio: false,
+  },
+});
+
+
+    
+</script>
+{{ template "Footer" }}
+
+{{end}}

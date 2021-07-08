@@ -1,0 +1,73 @@
+{{define "Event"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{ template "Nav_ltc"}}
+<center>
+    <div class="card" style="max-width:600px">
+        <div class="card-body">
+            <form class="form-inline md-form form-sm mt-0">
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <input id="searchbox" class="form-control form-control-sm ml-3 w-75" type="text" placeholder="Buscar"
+                    aria-label="Buscar" style="font-size: 24px">
+            </form>
+        </div>
+    </div>
+</center>
+<br>
+<div class="container">
+    <table id="tableData" class="table table-responsive table-dark table-striped">
+
+        <thead>
+            <tr>
+                <td>Line Time Classification</td>
+                <td>Codigo</td>
+                <td>Sub clasificacion</td>
+                <td>Rama</td>
+                <td>Evento</td>
+                <td>
+                    Accion |
+                    <a href="/newEvent">
+                        <button type="button" class="btn btn-success" style="margin-left: 20px"
+                            onclick="loading()">Agregar</button>
+                    </a>
+                </td>
+
+            </tr>
+        </thead>
+        <tbody>
+            {{ range . }}
+            <tr>
+                <td> {{ .LTC}} </td>
+                <td style="background-color:{{ .Color}}"> {{ .Id}} </td>
+                <td style="background-color:{{ .Color}}"> {{ .Sub}} </td>
+                <td style="background-color:{{ .Color}}"> {{ .Branch}} </td>
+                <td style="background-color:{{ .Color}}">{{ .Description }} </td>
+                <td>
+                    <a href="/editEvent?id={{.Id}}">
+                        <button type="button" class="btn btn-primary" onclick="loading()">Editar</button>
+                    </a>
+                    <a href="/deleteEvent?id={{.Id}}">
+                        <button type="button" class="btn btn-danger">Borrar</button>
+                    </a>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+
+    var $rows = $('#tableData tr');
+    $('#searchbox').keyup(function () {
+        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+
+        $rows.show().filter(function () {
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+            return !~text.indexOf(val);
+        }).hide();
+    });
+</script>
+
+{{ template "Footer" }}
+{{ end }}

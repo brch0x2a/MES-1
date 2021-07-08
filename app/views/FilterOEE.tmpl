@@ -1,0 +1,160 @@
+{{define "FilterOEE"}}
+  {{ template "Header" }}
+    {{ template "Menu" }}
+    {{ template "Nav_oee"}}
+
+   
+        <div class="card">
+                <div class="card-body">
+                    <form class="form-row align-items-center">
+                            <div class="form-group col-md-2">
+                             <label for="area">Area</label>
+                            <select name="area" id="area" class="form-control"></select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label for="line">Line</label>
+                                <select name="line" id="line" class="form-control"></select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label for="date">Date</label>
+                                <input type="date" name="date" id="date" class="form-control">
+                            </div>
+                            <div class="form-group col-md-2">
+                                    <label for="turn">Turn</label>
+                                    <select name="turn" id="turn" class="form-control">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                    </select>
+                             </div>  
+
+                             <button  type="button" id="btnOEE" class="btn btn-primary">Go</button>
+                        </form>
+                </div>
+        </div>
+<br>
+
+<center>
+        <canvas id="myChart" width="300" height="300"></canvas>
+</center>
+
+
+
+
+<script src="/public/scripts/Chart.bundle.js"></script>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+   
+
+    Chart.defaults.global.defaultFontColor = 'white';
+    
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Line'],
+            datasets: [{
+                label: 'OEE X Line X Turn',
+                data: [100],
+                backgroundColor: [
+                    'rgba(255, 255, 255, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(0, 0, 255, 1)',
+                ],
+                borderWidth: 1
+            },
+            {
+                label: "Relation",
+                type: "line",
+                borderColor: "#FF",
+                data: [100],
+                fill: false
+            }
+            ]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            animation: {
+                duration:3000
+            },
+            responsive:false,
+            maintainAspectRatio: false
+            
+        }
+    });
+        function addData(chart, label, data) {
+        chart.data.labels.push(label);
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data.push(data);
+        });
+        chart.update();
+    }
+
+    function removeData(chart) {
+        chart.data.labels.pop();
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data.pop();
+        });
+        chart.update();
+    }
+
+    var listenChange = ()=>{
+        while(true){
+            console.log("listen...");
+            
+        }
+    }
+
+
+    $(document).ready(()=>{
+        $.getJSON("/getArea", function(data){
+            $("#area").empty();
+            $.each(data, function(index, row){
+                $("#area").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+            });
+        });
+        $("#area").change(()=>{
+            $.getJSON("/getLineBy?id="+$("#area").val(), function(data){
+            $("#line").empty();
+            $.each(data, function(index, row){
+                    $("#line").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+                });
+            });
+        });
+
+        $("#btnOEE").on('click', ()=>{
+
+            var date_val = $("#date").val();
+            
+            
+            $.getJSON("/getOEE?line="+$("#line").val()+"&turn="+$("#turn").val()+"&date="+date_val, function(data){
+                console.log(data);
+                if(data == NaN) console.log("NUll data");
+                
+                removeData(myChart);
+                removeData(myChart);
+                addData(myChart, $("#line option:selected").text(), data);
+                addData(myChart, "Ideal", 100);
+            });
+
+
+        });
+
+
+    });
+    
+ 
+
+
+</script>
+
+
+  {{ template "Footer" }}
+{{ end }}

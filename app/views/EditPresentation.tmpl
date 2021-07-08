@@ -1,0 +1,63 @@
+{{ define "EditPresentation" }}
+  {{ template "Header" }}
+    {{ template "Menu" }} 
+    {{ template "Nav_products"}}
+<div class="d-flex align-items-center flex-column justify-content-center h-100">
+  <div class="card w-50">
+   <div class="card-header">Editar Presentacion</div>
+   <div class="card-body">
+        <form method="POST" action="updatePresentation">
+        <input type="hidden" name="uid" value="{{ .Id }}" />
+        <div class="form-group">
+        <label>Producto</label>
+        <select name="product" id="pproduct" class="form-control" required></select>
+        <div>
+        <div class="form-group">    
+        <label>Nombre Presentacion</label>
+        <input type="text" name="name"  class="form-control" value="{{ .Name }}"  required/><br /> 
+        </div>
+
+        <div class="form-group">    
+            <label>Peso</label>
+            <input type="number" name="weight_value"  class="form-control" value="{{ .Weight_value }}"  required/><br /> 
+        </div>
+        <div class="form-group">    
+                <label>Unidad</label>
+                <input type="text" name="weight_unit"  class="form-control" value="{{ .Weight_unit }}"  required/><br /> 
+        </div>
+        <div class="form-group">    
+                <label>Porcentaje de Error</label>
+                <input type="number" name="error_rate"  class="form-control" placeholder="0.00" step="0.01" value="{{ .Error_rate }}" required/><br />   
+        </div>
+        <div class="form-group">    
+                <label>Cajas</label>
+                <input type="number" name="box_amount"  class="form-control" placeholder="#Cajas" value="{{ .Box_amount }}" required/><br />             
+        </div>
+
+        <br><br>
+        <input class="btn-block" type="submit" value="Guardar" onsubmit="loading()"/>
+        <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+        </form>
+    </div>
+  </div>
+</div> 
+<br />    
+<hr>
+
+    <script src="/public/scripts/jquery-3.3.1.min.js"></script>
+    <script>
+
+$(document).ready(()=>{
+
+    $.getJSON("/getProducts", function(data){
+            $("#pproduct").empty();
+            $.each(data, function(index, row){
+                $("#pproduct").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+            });
+        });        
+
+
+});
+    </script>
+  {{ template "Footer" }}
+{{ end }}

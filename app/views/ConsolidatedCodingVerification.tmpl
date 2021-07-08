@@ -1,0 +1,370 @@
+{{define "ConsolidatedCodingVerification"}}
+{{template "Header"}}
+
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+<br />
+<center>
+  <h2 style="color: gold;"> Registro de verificación de codificación del Doy Pack y Corrugado</h2>
+</center>
+<div class="card">
+  <div class="card-body">
+    <form class="form-row align-items-center" action="#">
+        <div class="col">
+          <label for="area">Area</label>
+          <select name="area" id="area" class="form-control"></select>
+        </div>
+        <div class="col">
+          <label for="line">Linea</label>
+          <select name="line" id="line" class="form-control"></select>
+        </div>
+      
+        <div class="col">
+          <label> Fecha inicio </label>
+          <input
+            type="date"
+            id="idate"
+            name="dinit"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col">
+          <label> Fecha final </label>
+          <input
+            type="date"
+            id="fdate"
+            name="dfinal"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col">
+          <input
+            type="button"
+            class="btn btn-primary btn-block"
+            value="Filtrar"
+            onclick="filter()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br /><br /><br />
+<center><h2 style="color: gold;">Cajas | Doypacks</h2></center>
+<a id="dlink" style="display: none;"></a>
+
+<input
+  id="exportButton"
+  class="btn btn-block btn-success"
+  type="button"
+  onclick="tableToExcel('data_table', 'name', 'reporteBatch.xls')"
+  value="Exportar a Excel"
+  hidden="true"
+/>
+<br />
+
+<div style="d-flex align-items-center flex-column justify-content-center" >
+  <div >
+    <table
+      class="table table-dark table-striped table-responsive"
+      style="font-size: small;"
+      id="data_table"
+    >
+      <thead>
+        <tr>
+          <td>#Transaccion</td>
+          <td>Responsable</td>
+          <td>Hora captura</td>
+          <td>Nombre</td>
+          <td>Apellido</td>
+          <td>Linea</td>
+          <td>Presentacion</td>
+          <td>Tipo</td>
+          <td>Codificacion</td>
+          <td>Comentario</td>
+          <td>Aprovador</td>
+          <td>Nombre</td>
+          <td>Apellido</td>
+          <td>Hora verificación</td>
+          <td>Estado</td>
+          <td>Accion</td>
+        </tr>
+      </thead>
+      <tbody id="data_p"></tbody>
+    </table>
+  </div>
+</div>
+<br />
+<center>
+  <p id="noResult" style="color: white; font-size: 36px;" hidden>
+    No hay resultados!
+  </p>
+  <img
+    id="desert"
+    src="/public/images/desertIconWhite.png"
+    alt="noResultados"
+    hidden
+  />
+</center>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="closeForm"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="closeFormLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Aprobar Lavado</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="closeFormSet" method="POST" action="setCodingVerification" >
+        <div class="modal-body">
+
+          <br>
+          <label>Usuario</label>
+          <input
+            name="user"
+            class="form-control"
+            form="timeSetForm"
+            id="user"
+            type="text"
+            placeholder="#Empleado"
+          ></input>
+
+          <br>
+          <label>Contraseña</label>
+          <input
+            name="pass"
+            class="form-control"
+            form="timeSetForm"
+
+            id="pass"
+            type="password"
+          ></input>
+          <br>
+          <label id="lbbatch" for="batch">Estado</label>
+    
+              <select name="state" id="state" class="form-control" >
+                <option value="4">Por aprobar</option>
+                <option value="7">Aprobado</option>
+                <option value="6">Rechazado</option>
+                <option value="5">N/A</option>
+              </select>
+      
+          <input type="number" name="pid" id="pid" hidden>       
+        </div>
+        <div class="modal-footer">
+          <button  id="cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+          >
+            Aceptar
+          </button>
+        </div>
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  $(document).ready(function () {
+
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+    $("#area").change(() => {
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+
+    hiddeE("exportButton", true);
+
+  });
+
+  function filter() {
+
+    let line =  $("#line").val();
+    let init =  $("#idate").val();
+    let end =  $("#fdate").val();
+
+
+    $.getJSON("/getCodingVerificationBy?line="+line+ "&init="+init + "&end="+end,
+     function(data) {
+        $("#data_p").empty();
+        $.each(data, function(index, row) {
+
+            $("#data_p").append("<tr>");
+
+            $("#data_p").append(
+                "<td>" +row.Id+ "</td>"+
+                "<td>" +
+                  "<img style='border-radius: 50%;' src='/"+row.OAProfile_Picture+"' width='75' height='75'>"+
+                "</td>"+
+                "<td>" +row.Date_reg+ "</td>"+
+                "<td>" +row.OFname+ "</td>"+
+                "<td>" +row.OLname+ "</td>"+
+                "<td>" +row.Line+ "</td>"+
+                "<td>" +row.Presentation + "</td>"+
+                "<td>" +row.Type+ "</td>"+
+
+                "<td>" +
+                  "<img style='object-fit: scale-down;' src='/"+row.Photo_coding+"' width='200' height='200'>"+
+                "</td>"+
+               
+                "<td>" +row.Comment+ "</td>"+
+                "<td>" +
+                  "<img style='border-radius: 50%;' src='/"+row.CAProfile_Picture+"' width='75' height='75'>"+
+                "</td>"+
+                "<td>" +row.CFname+ "</td>"+
+                "<td>" +row.CLname+ "</td>"+
+                "<td>" +row.Date_check+ "</td>"+
+                "<td>" +row.State+ "</td>"+
+                "<td><a onclick='approver("+row.Id+")'})>"+
+                  "<button type='button' class='btn btn-primary' data-toggle='modal'data-target='#closeForm' >Aprovar</button>"+
+                "</a></td>"
+            );
+
+
+            $("#data_p").append("</tr>");
+          
+        });
+      });
+
+
+
+    hiddeE("exportButton", false);
+  }
+  
+
+  function approver(i) {
+      
+      $.getJSON("/getCodingVerificationE?id="+i, data =>{
+    
+        $('input[name="pid"]').val(data.Id);
+
+      });
+      
+  }
+
+
+
+  $( "#closeFormSet" ).submit(function( event ) {
+        event.preventDefault();
+  
+        // Get some values from elements on the page:
+        var $form = $( this ),
+        uid =  $("#pid").val();
+      
+        uuser = $form.find( "input[name='user']" ).val();
+        upass = $form.find( "input[name='pass']" ).val();
+        ustate =  $("#state").val();
+        
+        console.log("uid: "+uid+", user: "+uuser+", "+upass+", state: "+ustate);
+
+        url = $form.attr( "action" );
+        
+        // Send the data using post
+        var posting = $.post( url, { id: uid, user:uuser,  pass:upass, state:ustate} );
+        
+        // Put the results in a div
+        posting.done(function( data, status ) {
+
+             if (status == "success"){
+              console.log("Succes");
+
+          }else if (status!="success"){
+
+          }
+          $("html, body").animate({ scrollTop: 0 }, "slow");
+
+          setTimeout(filter(), 1000);
+          
+          $("#cancel").click();
+        });
+
+
+      });
+
+
+
+
+  var tableToExcel = (function () {
+    var uri = "data:application/vnd.ms-excel;base64,",
+      template =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+      base64 = function (s) {
+        return window.btoa(unescape(encodeURIComponent(s)));
+      },
+      format = function (s, c) {
+        return s.replace(/{(\w+)}/g, function (m, p) {
+          return c[p];
+        });
+      };
+    return function (table, name, filename) {
+      if (!table.nodeType) table = document.getElementById(table);
+      var ctx = { worksheet: name || "Worksheet", table: table.innerHTML };
+
+      document.getElementById("dlink").href =
+        uri + base64(format(template, ctx));
+      document.getElementById("dlink").download = filename;
+      document.getElementById("dlink").click();
+    };
+  })();
+
+
+
+  
+</script>
+
+{{template "Footer"}}
+{{ end }}

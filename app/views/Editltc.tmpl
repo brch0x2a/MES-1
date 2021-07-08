@@ -1,0 +1,26 @@
+{{define "Editltc"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{ template "Nav_ltc"}}
+<div class="d-flex align-items-center flex-column justify-content-center h-100">
+    <div class="card w-50">
+        <div class="card-header">Editar LTC</div>
+        <div class="card-body">
+            <form method="POST" action="updateltc">
+                <input type="hidden" name="uid" value="{{ .Id }}" />
+
+                <label> LTC </label>
+                <input name="description" type="text" class="form-control" value="{{ .Description}}"
+                    placeholder="Line time classifaction" required>
+                <br>
+                <input class="btn-block" type="submit" value="Guardar" onsubmit="loading()" />
+                <img class="card-img-bottom" src="/public/images/visual_ul02.jpg" height="92" width="100%">
+            </form>
+        </div>
+    </div>
+</div>
+<br />
+<hr>
+
+{{ template "Footer" }}
+{{end}}

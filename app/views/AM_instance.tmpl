@@ -1,0 +1,569 @@
+{{define "AM_instance"}}
+{{template "Header"}}
+{{ template "Menu" }}
+{{ template "Nav_AM"}}
+
+
+<div id="wocontainer">
+    <div  class="d-flex align-items-center flex-column justify-content-center h-100">
+    <div class="card" style="width: 100%;">
+    <div id="card_header" class="card-header">
+      <div class="row">
+        <div class="col">
+          Celandario AM
+        </div>
+        <div class="col">
+            <label for="">Area</label>
+        </div>
+    
+        <div class="col">    
+            <select name="area" id="area" class="form-control" required></select>
+        </div>
+    
+        <div class="col">
+          <input type="date" name="date" id="date" class="form-control" required>
+        </div>
+
+        <div class="col">
+          <button class="btn-primary btn-block" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+        </div>
+        <div class="col">
+          <button class="btn-dark btn-block" onclick="represent()">Obtener</button>
+        </div>
+
+      </div>
+    
+     </div>
+       <div class="card-body">
+           <form method="POST" action="insertAM_instance" id="wo">
+    
+          <br>
+    
+              <div style="width: 100%;">
+              <div class="timetable"></div>
+              </div>
+          <br><br>
+          <div >
+            <div>
+              <table
+              class="table table-responsive table-dark"
+              style="font-size: small"
+              id="data_table"
+              >
+              <thead>
+                <tr>
+
+                  <td>Perfil</td>
+                  <td>#Transaccion</td>
+                  <td>Linea</td>
+                  <td>#Empleado</td>
+                  <td>Nombre</td>
+                  <td>Apellido</td>
+      
+                  <td>Maquina</td>
+                  <td>Componente</td>
+                  <td>ComponenteImagen</td>
+                  <td>EPP</td>
+                  <td>EPPImagen</td>
+                  <td>LILA</td>
+                  <td>Descripcion </td>
+      
+                  <td>InicioPlanificado</td>
+                  <td>FinPlanificado</td>
+      
+                  <td>InicioActual</td>
+                  <td>FinActual</td>
+      
+                  <td>MinutosParo</td>
+                  <td>MinutosOperativos</td>
+                  
+                  <td>PerfilAprobador</td>
+                  <td>#EmpleadoAprobador</td>
+                  <td>NombreAprobador</td>
+                  <td>ApellidoAprobador</td>
+      
+                  <td>Estado</td>
+                  <td>Accion</td>
+                </tr>
+              </thead>
+              <tbody id="job_data"></tbody>
+              </table>
+            </div>
+          </div>
+              <br>
+
+          <div class="row">
+
+            <br />
+            <h3 id="lostTitle">Trabajo</h3>
+            <br>
+            <div class="form-group row" style="padding-left: 10px">
+              <input
+                id="searchbox"
+                class="form-control form-control-sm ml-3 w-75"
+                type="text"
+                placeholder="Buscar"
+                aria-label="Buscar"
+                style="font-size: 24px"
+              />
+              <i class="fa fa-search" aria-hidden="true"></i>
+            </div>
+    
+            <div id="table-wrapper">
+              <div id="table-scroll">
+                <table class="table table-responsive table-bordered table-striped">
+                  <thead>
+                    <tr style="color: black">
+                        <td>Id</td>
+                        <td>Maquina</td>
+                        <td>Componente</td>
+                        <td>ComponenteImagen</td>
+                        <td>LILA</td>
+                        <td>EPP</td>
+                        <td>EPPImagen</td>
+                        <td>Descripcion</td>
+                    </tr>
+                  </thead>
+                  <tbody id="tableData">
+                    {{   range . }}
+                    <tr onclick="currentAMjob({{ .Id}})">
+                        <td>{{ .Id }}</td>
+                        <td>{{ .Machine}}</td>
+                        <td>{{ .Component }}</td> 
+                        <td><img style="object-fit: scale-down;"  src="/{{ .ComponentPhoto}}" width='200' height='180'></td>
+                        <td style="background-color: {{ .LILAColor}}; color: black;">{{ .LILA}}</td>
+                        <td>{{ .EPP}}</td>
+                        <td style="background-color: white;"><img style="object-fit: scale-down;"  src="/{{ .EPPPhoto}}" width='200' height='180'></td>
+                        <td>{{ .Description}}</td>  </tr>
+                    {{  end  }}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col">
+                    <h4 id="currentStop">Trabajo seleccionado</h4>
+                </div>
+                <div class="col">
+                    <p style="outline: 5px dotted #127cb9;" id="currentAMJob"></p>
+                    <input type="number" id="job" name="job" hidden />
+                </div>
+            </div>
+
+          </div>
+
+          <br>
+    <div class="row">
+    
+           <div class="col">    
+            <label for="">Hora inicio planeada</label>
+            <input type="datetime-local" name="init" id="init" class="form-control" required>
+           </div>
+    
+           <div class="col">
+            <label for="">Hora final planeada</label>
+            <input type="datetime-local" name="end" id="end" class="form-control" required>
+          </div>
+
+          <div class="col">
+            <label for="">Recurrencia</label>
+            <select name="recurrence" id="recurrence" class="form-control">
+              <option value="1">Diaria</option> 
+
+              <option value="30">Mensual</option> 
+              <option value="15">Quincenal</option>
+              <option value="7">Semanal</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="">Periodo</label>
+            <select name="period" id="period" class="form-control">
+              <option value="1">Mensual</option> 
+              <option value="2">Bimestral</option> 
+              <option value="3">Trimestral</option>
+              <option value="6">Semestral</option>
+              <option value="12">Anual</option>
+              
+            </select>
+          </div>
+        </div>
+    
+    <div class="row">
+   
+    
+           <div class="col">    
+            <label for="">Line asignada</label>
+            <select name="line" id="line" class="form-control" multiple="" required></select>
+           </div>
+    </div>
+   
+    <br>
+           <input class="btn-primary btn-block" type="submit" value="Guardar" />
+           <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+           </form>
+       </div>
+    </div>
+    </div>
+    </div>   
+    <br />    
+    <hr>
+    
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/tutorial00.mp4" type="video/mp4">
+        <source src="/public/videos/tutorial00.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/tutorial00.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+
+    <script src="/public/scripts/jquery-3.3.1.min.js"></script>
+    <script src="/public/scripts/timetable.js"></script>
+    
+
+<script>
+
+  Date.prototype.addHours= function(h){
+    this.setHours(this.getHours()+h);
+    return this;
+  }
+
+  $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+          $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+      });
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+          $("#line").empty();
+          $.each(data, function(index, row) {
+          $("#line").append(
+              "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+          });
+      });
+      });
+      $("#area").change(() => {
+
+  });
+
+
+  var $rows = $("#tableData tr");
+
+  $("#searchbox").keyup(function() {
+  var val = $.trim($(this).val())
+      .replace(/ +/g, " ")
+      .toLowerCase();
+
+  $rows
+      .show()
+      .filter(function() {
+      var text = $(this)
+          .text()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+
+      return !~text.indexOf(val);
+      })
+      .hide();
+  });
+
+
+  function setTask(timetable, pinit, pfinal, place, task, color, jobId){
+
+      let init = (new Date(pinit).addHours(-18));
+      let final = (new Date(pfinal).addHours(-18));
+      let res = task.split(" ");
+
+      let taskClass = res[0] + res[1];
+
+      var style = document.createElement('style');
+      style.type = 'text/css';
+      style.innerHTML = '.time-entry.'+taskClass+' { background-color: '+color+';  color: black; border:1px solid #0f021b }';
+
+      document.getElementsByTagName('head')[0].appendChild(style);
+
+      timetable.addEvent(task, place, init, final, {class:taskClass, onClick: function(event){filterAM(jobId);}});
+  }
+
+  function represent(){
+      let timetable = new Timetable().setScope(6, 5);
+      let Lines = [];
+      // let timetable = new Timetable().setScope(6, 5);
+
+      console.log("Represent");
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+              $("#line").empty();
+              $.each(data, function(index, row) {
+                  $("#line").append(
+                      "<option value='" + row.Id + "' >" + row.Name + "</option>"
+                  );
+                  Lines.push(row.Name);
+              });
+
+        console.log("date="+$("#date").val());
+        $.getJSON("/getMetaAM_instance?date="+$("#date").val()+"&area="+$("#area").val(), function(data) {
+          timetable.addLocations(Lines);
+          $.each(data, function(index, row) {
+              
+              console.log("["+row.JobId+"]"+row.Planned_init+"--"+row.Planned_end+" | "+row.Line+">>"+row.Component+" "+row.LilaColor);
+
+              setTask(timetable, row.Planned_init, row.Planned_end, row.Line, row.Component+"-"+row.Id, row.LilaColor, row.Id);
+          });
+          render(timetable);
+        });
+          
+      });
+  }
+
+
+    function render(timetable){
+        var renderer = new Timetable.Renderer(timetable);
+        renderer.draw('.timetable');
+    }
+
+
+    function currentAMjob(i) {
+    $.getJSON("/getAM_JobBy?id=" + i, function(data) {
+     
+        document.getElementById("currentAMJob").innerHTML = data.Id +"-"+ data.LILA + "-"+ data.Component;
+        $("#currentAMJob").css("outline-style", "dotted");
+        $('input[name="job"]').val(data.Id);
+    
+    });
+  }
+
+
+  $( "#wo" ).submit(function( event ) {
+    
+    // Stop form from submitting normally
+    event.preventDefault();
+    
+    // Get some values from elements on the page:
+
+    var $form = $( this ),
+
+      pjob = $form.find( "input[name='job']" ).val();
+      pinit = $form.find( "input[name='init']" ).val();
+      pend = $form.find( "input[name='end']" ).val();
+      precurrence = $("#recurrence").val();
+      pperiod = $("#period").val();
+
+
+      // pline =$("#line").val();
+      pline =$("#line").serialize();
+      
+      console.log("lines: "+pline);
+      // pline = select1;
+
+      url = $form.attr( "action" );
+
+
+      //Check if Work order date range is correct
+      let dateInit = Date.parse(pinit)
+      let dateEnd = Date.parse(pend)
+
+      if (dateInit >= dateEnd) {
+          let container  = document.getElementById("wocontainer");
+
+          container.insertAdjacentHTML('beforebegin', `
+          <div id="successAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Rango de fechas invalido!</strong> la hora de inicio no puede ser mayor a la hora final
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>  
+          `);
+
+          represent();
+          $("html, body").animate({ scrollTop: 0 }, "slow");
+          return false;
+    }
+
+    
+    // Send the data using post
+    var posting = $.post( url,
+    { 
+      job: pjob,  init:pinit, end:pend,
+      line:pline, recurrence: precurrence,
+      period:pperiod
+    });
+    
+    // Put the results in a div
+    posting.done(function( data, status ) {
+
+      console.log("Data: "+data+"\tStatus: "+status);
+
+      if(status == "success") {
+        let container  = document.getElementById("wocontainer");
+
+        container.insertAdjacentHTML('beforebegin', `
+        <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+          <strong>Se guardo exitosamente!</strong> la nueva serie de trabajo(s)
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>  
+        `);
+
+        represent();
+        $("html, body").animate({ scrollTop: 0 }, "slow");
+      }
+      
+
+  });
+});
+
+
+
+function filterAM(Id) {
+
+    console.log("jobId: "+Id);
+
+    $.getJSON(
+      "/getMetaLogAM_instanceE?"+
+        "pid=" + Id,
+
+      (data) => {
+
+        $("#job_data").empty();
+        $.each(data, function (index, row) {
+
+            let before = row.ComponentPhoto.replace("\\", "/");
+            before = before.replace('\\', "/");
+            before = before.replace('\\', "/");
+            before = before.replace('\\', "/");
+
+            let after = row.EPPPhoto.replace("\\", "/");
+            after = after.replace('\\', "/");
+            after = after.replace('\\', "/");
+
+
+            $("#job_data").append("<tr>");
+            $("#job_data").append(
+            
+             "<td ><img style='border-radius: 50%;' src='"+row.OperatorProfile+"' width='75' height='75'></td>"+
+             "<td>" +row.Id+ "</td>"+
+             "<td>" +row.Line+ "</td>"+
+
+             "<td>" +row.OperatorNickName+ "</td>"+
+             "<td>" +row.OperatorFname+ "</td>"+
+             "<td>" +row.OperatorLname+ "</td>"+
+
+             "<td>" +row.Machine+ "</td>"+
+             "<td>" +row.Component+ "</td>"+
+             "<td ><img style='object-fit: scale-down;' src="+before+" width='200' height='180'></td>"+
+
+             "<td>" +row.EPP+ "</td>"+
+             "<td style='background-color: white;'><img style='object-fit: scale-down;' src="+row.EPPPhoto+" width='200' height='180'></td>"+
+
+             "<td style='background-color:" +row.LilaColor+"; color:black'>" +row.Lila+ "</td>"+
+             
+             "<td>" +row.Description+ "</td>"+
+
+             "<td>" +row.Planned_init+ "</td>"+
+             "<td>" +row.Planned_end+ "</td>"+
+
+             "<td>" +row.JobInit+ "</td>"+
+             "<td>" +row.JobEmd+ "</td>"+
+
+             "<td>" +row.MinutesStop+ "</td>"+
+             "<td>" +row.MinutesRun+ "</td>"+
+
+             "<td><img style='object-fit: scale-down;' src="+row.ApproverProfile+" width='200' height='180'></td>"+
+
+             "<td>" +row.ApproverNickName+ "</td>"+
+             "<td>" +row.ApproverFname+ "</td>"+
+             "<td>" +row.ApproverLname+ "</td>"+
+
+             "<td  style='background-color:" +row.StateColor+"; color:black'>" +row.State+ "</td>"+
+             
+             "<td >"+
+              "<a onclick='deleteWorkOrder(this, "+row.Id+")'><button  type='button' class='btn btn-danger'>Borrar</button></a></td>"
+             
+            );   
+
+            $("#job_data").append("</tr>");
+        });
+      }
+    );
+
+
+  }
+
+
+  function deleteStatus(btn){
+          
+          let container  = document.getElementById("wocontainer");
+      
+          container.insertAdjacentHTML('beforebegin', `
+            <div id="successAlert" class="alert alert-warning alert-dismissible fade show" role="alert">
+              <strong>Se elimino!</strong> el trabajo
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>  
+            `);
+          
+            $("html, body").animate({ scrollTop: 0 }, "slow");
+      
+        }
+      
+        function deleteWorkOrder(btn, pid){
+      
+          $.get("/deleteAM_Intance?id="+pid, (data)=> {});
+              deleteStatus(btn, pid);
+      
+              setTimeout(() => {  
+      
+                $("#job_data").empty();
+                represent();
+      
+              }, 1000);
+        }
+
+
+    </script>
+
+
+{{ template "Footer" }}
+
+
+{{end}}

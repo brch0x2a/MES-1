@@ -1,0 +1,545 @@
+{{define "ConsolidateOEE"}}
+
+{{ template "Header" }}
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+{{template "NavOEE"}}
+<br /><br />
+<div class="card">
+  <div class="card-body">
+    <form class="form-row align-items-center">
+      <div class="form-group col-md-2">
+        <label for="area">Area</label>
+        <select name="area" id="area" class="form-control"></select>
+      </div>
+      <div class="form-group col-md-2">
+        <label for="line">Linea</label>
+        <select name="line" id="line" class="form-control"></select>
+      </div>
+      <div class="form-group col-md-2">
+        <label for="date">Fecha</label>
+        <input
+          type="date"
+          name="date"
+          id="date"
+          class="form-control"
+          required
+        />
+      </div>
+      <div class="form-group col-md-2">
+        <label for="turn">Turno</label>
+        <select name="turn" id="turn" class="form-control">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">Todos</option>
+        </select>
+      </div>
+
+      <button type="button" id="btnOEE" class="btn btn-primary">Filtrar</button>
+    </form>
+  </div>
+</div>
+<hr />
+
+<div class="row">
+  <div class="mb-3">
+    <div id="gauge"></div>
+  </div>
+  <div class="mb-3">
+    <canvas id="myChart" width="300" height="300"></canvas>
+  </div>
+  <div class="mb-3">
+    <canvas id="planningChart" width="300" height="300"></canvas>
+  </div>
+</div>
+
+<br />
+<hr />
+<br /><br />
+<div class="container">
+  <div class="table-responsive-xl">
+
+  <table class="table table-dark table-striped">
+    <thead>
+      <tr>
+        <th>Perfil</th>
+        <th>Fecha | Hora</th>
+        <th>#Empleado</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Sub clasificacion</th>
+        <th>Rama</th>
+
+        <th>Evento</th>
+        <th>Minutos</th>
+        <th>Nota</th>
+      </tr>
+    </thead>
+    <tbody id="data_p"></tbody>
+  </table>
+</div>
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <canvas id="dtime" width="200" height="100"></canvas>
+  </div>
+</div>
+
+<script src="/public/scripts/Chart.bundle.min.js"></script>
+<script src="/public/scripts/d3.v5.min.js"></script>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  Chart.defaults.global.defaultFontColor = "white";
+
+  var ctx = document.getElementById("myChart").getContext("2d");
+  var myChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Line"],
+      datasets: [
+        {
+          label: "OEE X Line X Turn",
+          data: [],
+          backgroundColor: ["rgba(255, 255, 255, 0.2)"],
+          borderColor: ["rgba(0, 0, 255, 1)"],
+          borderWidth: 1
+        },
+        {
+          label: "Relation",
+          type: "line",
+          borderColor: "#FF",
+          data: [100],
+          fill: false
+        }
+      ]
+    },
+    options: {
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true
+            }
+          }
+        ]
+      },
+      animation: {
+        duration: 3000
+      },
+      responsive: false,
+      maintainAspectRatio: false
+    }
+  });
+  var ctx2 = document.getElementById("planningChart").getContext("2d");
+  var planningChart = new Chart(ctx2, {
+    type: "pie",
+    data: {
+      labels: ["Planned", "Produced"],
+      datasets: [
+        {
+          label: "Planning",
+          data: [],
+          backgroundColor: ["rgba(255, 255, 255, 0.2)"],
+          borderColor: ["rgba(0, 0, 255, 1)"],
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true
+            }
+          }
+        ]
+      },
+      animation: {
+        duration: 3000
+      },
+      responsive: false,
+      maintainAspectRatio: false
+    }
+  });
+
+  var ctx3 = document.getElementById("dtime").getContext("2d");
+  var dtimeChart = new Chart(ctx3, {
+    type: "horizontalBar",
+
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: "Comparativa de tiempos en minutos",
+          data: [],
+          backgroundColor: [
+            "rgba(255, 99, 132, 0.2)",
+            "rgba(54, 162, 235, 0.2)",
+            "rgba(255, 206, 86, 0.2)"
+          ],
+          borderColor: [
+            "rgba(255,99,132,1)",
+            "rgba(54, 162, 235, 1)",
+            "rgba(255, 206, 86, 1)"
+          ],
+          borderWidth: 1
+        }
+      ]
+    }, 
+    onAnimationComplete: function () {
+
+        var ctx = this.chart.ctx3;
+        ctx.font = this.scale.font;
+        ctx.fillStyle = this.scale.textColor
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+
+        this.datasets.forEach(function (dataset) {
+            dataset.points.forEach(function (points) {
+                ctx.fillText(points.value, points.x, points.y - 10);
+            });
+        })
+      }
+  });
+
+
+
+  function addData(chart, label, data) {
+    chart.data.labels.push(label);
+    chart.data.datasets.forEach(dataset => {
+      dataset.data.push(data);
+    });
+    chart.update();
+  }
+
+  function removeData(chart) {
+    chart.data.labels.pop();
+    chart.data.datasets.forEach(dataset => {
+      dataset.data.pop();
+    });
+    chart.update();
+  }
+
+  $(document).ready(() => {
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+    $("#area").change(() => {
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+    $("#btnOEE").on("click", () => {
+      var date_val = $("#date").val();
+
+      $.getJSON(
+        "/getOEE?line=" +
+          $("#line").val() +
+          "&turn=" +
+          $("#turn").val() +
+          "&date=" +
+          date_val,
+        function(data) {
+          var data_oee = [];
+          if (data == NaN) console.log("NUll data");
+
+          removeData(myChart);
+          removeData(myChart);
+          addData(myChart, $("#line option:selected").text(), data);
+          addData(myChart, "Ideal", 100);
+
+          console.log("my oee: " + data);
+          render((data_oee = [{ unit: "seconds", numeric: data }]));
+          /*
+                setInterval(function() {
+                    return render(data_oee = [{"unit": "seconds", "numeric": data}]);
+                }, 2000);
+                */
+        }
+      );
+
+      $.getJSON(
+        "/getEventFilterV00?line=" +
+          $("#line").val() +
+          "&turn=" +
+          $("#turn").val() +
+          "&date=" +
+          date_val,
+        data => {
+          $("#data_p").empty();
+          $.each(data, function(index, row) {
+            $("#data_p").append("<tr>");
+            $("#data_p").append(
+              "<td style='background-color:" +
+                row.Color +
+                "'>" +
+                "<img  loading='lazy' style='border-radius: 50%;' src='"+row.Profile_picture+"' width='75' height='75'>"+
+                "</td>"+
+              "<td style='background-color:" +
+                row.Color +
+                "'>" +
+                row.Date_event +
+                "</td>" +
+
+                "<td style='background-color:" +
+                row.Color +
+                "'>" +
+                row.Nick_name +
+                "</td>" +
+
+                "<td style='background-color:" +
+                row.Color +
+                "'>" +
+                row.Fname +
+                "</td>" +
+
+                "<td style='background-color:" +
+                row.Color +
+                "'>" +
+                row.Lname +
+                "</td>" + 
+
+                "<td style='background-color:" +
+                row.Color +
+                "'>" +
+                row.Sub +
+                "</td>" +
+                "<td style='background-color:" +
+                row.Color +
+                "'>" +
+                row.Branch +
+                "</td>" +
+                "<td style='background-color:" +
+                row.Color +
+                "'>" +
+                row.Event +
+                "</td>" +
+                "<td style='background-color:" +
+                row.Color +
+                "'>" +
+                row.Minutes +
+                "</td>" +
+                "<td style='background-color:" +
+                row.Color +
+                "'>" +
+                row.Note +
+                "</td>"
+            );
+            $("#data_p").append("</tr>");
+          });
+        }
+      );
+
+      $.getJSON(
+        "/getPlanningV00?line=" +
+          $("#line").val() +
+          "&turn=" +
+          $("#turn").val() +
+          "&date=" +
+          date_val,
+        data => {
+          console.log(
+            "Planned: " + data[0].Planned + "\tProduced: " + data[0].Produced
+          );
+          removeData(planningChart);
+          removeData(planningChart);
+          addData(planningChart, "Planned", data[0].Planned);
+          addData(planningChart, "Produced", data[0].Produced);
+        }
+      );
+
+      $.getJSON(
+        "/getDTime?line=" +
+          $("#line").val() +
+          "&turn=" +
+          $("#turn").val() +
+          "&date=" +
+          $("#date").val(),
+        data => {
+          removeData(dtimeChart);
+          removeData(dtimeChart);
+          removeData(dtimeChart);
+          addData(dtimeChart, "Tiempo Operativo actual", data.OperationalTime);
+          addData(dtimeChart, "Tiempo no reportado", data.DMinutes);
+
+          addData(dtimeChart, "Tiempo Operativo esperado", data.TNeto_teoricalProduction);
+
+        }
+      );
+    });
+  });
+
+  var fields;
+
+  fields = function() {
+    $.getJSON(
+      "/getOEE?line=" +
+        $("#line").val() +
+        "&turn=" +
+        $("#turn").val() +
+        "&date=" +
+        $("#date").val(),
+      function(data) {
+        var oee = -1;
+
+        if (data != NaN) {
+          oee = data;
+        }
+
+        oee += Math.floor(5 * Math.random());
+        //console.log("my oee: " + oee);
+
+        return (data = [
+          {
+            unit: "seconds",
+            numeric: oee
+          }
+        ]);
+      }
+    );
+  };
+
+  var width, height, offSetX, offSetY, pi, scaleSecs, scaleHours;
+  width = 400;
+  height = 200;
+  offSetX = 150;
+  offSetY = 100;
+
+  pi = Math.PI;
+  scaleSecs = d3
+    .scaleLinear()
+    .domain([0, 100])
+    .range([pi + pi / 2, 2 * pi + pi / 2]);
+
+  var vis, clockGroup;
+
+  vis = d3
+    .select("#gauge")
+    .append("svg:svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  clockGroup = vis
+    .append("svg:g")
+    .attr("transform", "translate(" + offSetX + "," + offSetY + ")");
+
+  clockGroup
+    .append("svg:circle")
+    .attr("r", 80)
+    .attr("fill", "white")
+    .attr("fill-opacity", 0.4)
+    .attr("class", "clock outercircle")
+    .attr("stroke", "white")
+    .attr("stroke-width", 2);
+
+  clockGroup
+    .append("svg:circle")
+    .attr("r", 4)
+    .attr("fill", "white")
+    .attr("class", "clock innercircle");
+
+  var render;
+
+  render = function(data) {
+    var hourArc, minuteArc, secondArc;
+
+    clockGroup.selectAll(".clockhand").remove();
+    clockGroup.selectAll("text").remove();
+
+    secondArc = d3
+      .arc()
+      .innerRadius(0)
+      .outerRadius(70)
+      .startAngle(function(d) {
+        return scaleSecs(d.numeric);
+      })
+      .endAngle(function(d) {
+        return scaleSecs(d.numeric);
+      });
+
+    clockGroup
+      .selectAll(".clockhand")
+      .data(data)
+      .enter()
+      .append("svg:path")
+      .attr("d", function(d) {
+        if (d.unit === "seconds") {
+          return secondArc(d);
+        }
+      })
+      .attr("class", "clockhand")
+      .attr("stroke", "white")
+      .attr("stroke-width", function(d) {
+        if (d.unit === "seconds") {
+          clockGroup
+            .append("text")
+            .style("fill", "white")
+            .style("font-size", "26px")
+            .attr("x", -12)
+            .attr("dy", ".35em")
+            .attr("y", 35)
+            .text(d.numeric);
+
+          if (d.numeric < 50) {
+            clockGroup.selectAll("text").style("fill", "red");
+
+            clockGroup.selectAll(".clockhand").attr("stroke", "red");
+          } else if (49 < d.numeric && d.numeric < 75) {
+            clockGroup.selectAll("text").style("fill", "#d25403");
+
+            clockGroup.selectAll(".clockhand").attr("stroke", "#d25403");
+          } else if (74 < d.numeric && d.numeric < 101) {
+            clockGroup.selectAll("text").style("fill", "#045206");
+
+            clockGroup.selectAll(".clockhand").attr("stroke", "#045206");
+          } else if (100 < d.numeric) {
+            clockGroup.selectAll("text").style("fill", "blue");
+
+            clockGroup.selectAll(".clockhand").attr("stroke", "blue");
+          }
+
+          clockGroup
+            .append("text")
+            .style("fill", "gold")
+            .style("font-size", "14px")
+            .attr("x", -28)
+            .attr("dy", ".35em")
+            .attr("y", 95)
+            .text("OEE / 100");
+
+          return 4;
+        }
+      })
+      .attr("fill", "none");
+  };
+</script>
+{{ template "Footer" }}
+
+{{ end }}

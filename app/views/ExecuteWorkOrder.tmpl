@@ -1,0 +1,1401 @@
+{{define "ExecuteWorkOrder"}}
+{{ template "Header" }}
+
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+ 
+<div id="wocontainer">
+<div  class="d-flex align-items-center flex-column justify-content-center h-100">
+<div class="card" style="width: 100%;">
+<div id="card_header" class="card-header">
+  <div class="row">
+    <div class="col">
+      Ordenes de trabajo
+    </div>
+    <div class="col">
+      <input type="date" name="date" id="date" class="form-control" required>
+    </div>
+    <div class="col">
+      <button class="btn-primary btn-block" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+    </div>
+
+    <div class="col">
+      <button class="btn-dark btn-block" onclick="represent()">Obtener</button>
+    </div>
+  </div>
+
+ </div>
+   <div class="card-body">
+       <div  id="wo">
+
+      <br>
+
+          <div style="width: 100%;">
+          <div class="timetable"></div>
+          </div>
+
+          <br>
+          <center>
+            <h1 id="listMechTitle">Trabajos por mecanico</h1>
+
+          </center>
+          <div class="row">
+
+            <div class="col">    
+              <label for="">Mecanico</label>
+                <select name="mech" id="mech" class="form-control" required>
+              </select>
+
+              <button class="btn-dark btn-block" onclick="filterJobMechList()">Filtrar</button>
+            </div>
+
+          </div>
+
+          <div id="table-wrapper">
+            <div id="table-scroll">
+              <div class="table-responsive-xl">
+                <table
+                class="table table-dark table-striped"
+                style="font-size: small"
+                id="data_tableList"
+                >
+                <thead>
+                  <tr>
+                    <td>#Trabajo</td>
+                    <td>Tipo</td>
+                    <td>Mecanico</td>
+                    <td>Linea</td>
+                    <td>Descripcion</td>
+                    <td>Inicio</td>
+                    <td>Fin</td>
+                    <td>Accion</td>
+                  </tr>
+                </thead>
+                <tbody id="job_dataList"></tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+      <center>
+        <h1 id="jobLineTitle">Trabajo actual</h1>
+      </center>
+      <div class="container">
+        <div class="table-responsive-xl">
+          <table
+          class="table table-dark table-striped"
+          style="font-size: small"
+          id="data_table"
+          >
+          <thead>
+            <tr>
+              <td>#Trabajo</td>
+              <td>Tipo</td>
+              <td>Mecanico</td>
+              <td>Linea</td>
+              <td>Descripcion</td>
+              <td>Inicio</td>
+              <td>Fin</td>
+              <td>Accion</td>
+            </tr>
+          </thead>
+          <tbody id="job_data"></tbody>
+          </table>
+        </div>
+      </div>
+          
+<br>
+      <button type="button" id="a-timer" class="btn btn btn-link btn-arrow-right" data-toggle='modal' data-target='#timeSet' hidden>Tiempo Espera </button>
+      <button type="button" id="b-timer"  class="btn btn btn-primary btn-arrow-right" data-toggle='modal' data-target='#timeSet' hidden>Tiempo Diagnostico </button>
+      <button type="button" id="c-timer" class="btn btn-info btn-arrow-right" data-toggle='modal' data-target='#timeSet' hidden>Tiempo Bodega Repuestos </button>
+      <button type="button" id="d-timer" class="btn btn-warning btn-arrow-right" data-toggle='modal' data-target='#timeSet' hidden>Tiempo de Reparacion </button>
+      <button type="button" id="e-timer" class="btn btn btn-success btn-arrow-right" data-toggle='modal' data-target='#timeSet' hidden>Tiempo de prueba y arranque </button>
+      <button type="button" id="f-timer" class="btn btn btn-danger btn-arrow-right" data-toggle='modal' data-target='#timeSet' hidden>Tiempo de entrega </button>
+ 
+ <br>
+       <div class="form-group">    
+        <label for="">Nota del mecanico:</label>
+        <textarea
+          id="note"
+          name="note"
+          class="form-control"
+          form="wo"
+          cols="30"
+          rows="5"
+        ></textarea>
+       </div>
+<div class="row">
+  <button class="btn-dark btn-block" onclick="sendNote()" ><img src="/public/images/sendIcon.png" width="40" height="33" alt="">Enviar nota</button>
+</div>
+       <br>
+       <div class="row">
+           <div class="col">
+             <label for="">Foto antes del trabajo actual</label>
+            <img id="beforeImgHolder" height="80%" width="100%" src="" alt="">
+           </div>
+           <div class="col">
+            <label for="">Foto despues del trabajo actual</label>
+            <img id="afterImgHolder" height="80%" width="100%" src="" alt="">
+          </div>
+
+       </div>
+<br>
+       <div class="row">
+        <div class="col">
+        
+          <button class="btn-primary btn-block" data-toggle='modal' data-target='#photoBeforeSet'><img src="/public/images/sendIcon.png" width="40" height="33" alt="">Tomar foto antes</button>
+                </div>
+        <div class="col">
+          <button class="btn-primary btn-block" data-toggle='modal' data-target='#photoAfterSet'><img src="/public/images/sendIcon.png" width="40" height="33" alt="">Tomar foto despues</button>
+        </div>
+       </div>
+
+       <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+      </div>
+   </div>
+</div>
+</div>
+</div>   
+<br />    
+<hr>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="timeSet"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Reportar etapa</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="POST" action="setWorkOrderPhase" id="timeSetForm">
+        <div class="modal-body">
+         <h3 id="timeTitle"></h3>
+          <br>
+          <label>Usuario</label>
+          <input
+            name="userPhase"
+            class="form-control"
+            form="timeSetForm"
+            id="user"
+            type="text"
+            placeholder="#Empleado"
+          ></input>
+
+          <br>
+          <label>Contraseña</label>
+          <input
+            name="passPhase"
+            class="form-control"
+            form="timeSetForm"
+
+            id="passPhase"
+            type="password"
+          ></input>
+  
+          <input type="number" name="pid" id="pid" hidden>   
+          <input type="number" name="phase" id="phase" hidden>   
+        </div>
+        <div class="modal-footer">
+          <button id="cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancelar
+          </button>
+          <input
+          class="btn btn-primary"
+          type="submit"
+          value="Enviar"
+        />
+        </div>
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="photoBeforeSet"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Foto antes del trabajo</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form  enctype="multipart/form-data" method="POST" action="setWorkOrderPhotoBefore" id="photoBeforeForm">
+        <div class="modal-body">
+         <h3 id="timeTitle"></h3>
+          <br>
+          <label>Usuario</label>
+          <input
+            name="user"
+            class="form-control"
+            form="timeSet"
+            id="user"
+            type="text"
+            placeholder="#Empleado"
+          ></input>
+
+          <br>
+          <label>Contraseña</label>
+          <input
+            name="pass"
+            class="form-control"
+            form="timeSet"
+            id="pass"
+            type="password"
+          ></input>
+          <div>
+            <br>
+            <div class="custom-file">
+                <input  type="file" class="custom-file-input" name="capture_before"  id="beforeImg" onchange="loadImage_frontal();">
+                <label class="custom-file-label" style="outline: 5px double #CCCCCC;" for="customFile">
+                <img src="/public/images/photo-camera.png" width="32px" height="32px"> 
+                Foto Antes del trabajo
+                </label>
+                </div>
+               
+                <canvas id="canvas_frontal"></canvas>
+           </div>
+          <input type="number" name="id" id="pid2" hidden>   
+     
+        </div>
+        <div class="modal-footer">
+          <button id="cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancelar
+          </button>
+          <input
+          class="btn btn-primary"
+          type="submit"
+          value="Enviar"
+        />
+        </div>
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="photoAfterSet"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Foto despues del trabajo</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form  enctype="multipart/form-data" method="POST" action="setWorkOrderPhotoAfter" id="photoBeforeForm">
+        <div class="modal-body">
+         <h3 id="timeTitle"></h3>
+          <br>
+          <label>Usuario</label>
+          <input
+            name="user"
+            class="form-control"
+            form="timeSet"
+            id="user"
+            type="text"
+            placeholder="#Empleado"
+          ></input>
+
+          <br>
+          <label>Contraseña</label>
+          <input
+            name="pass"
+            class="form-control"
+            form="timeSet"
+            id="pass"
+            type="password"
+          ></input>
+          <div>
+            <br>
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" name="capture_after"  id="afterImg" onchange="loadImage_info();">
+              <label class="custom-file-label" style="outline: 5px double #CCCCCC;" for="customFile">
+              <img src="/public/images/photo-camera.png" width="32px" height="32px"> 
+              Foto despues del trabajo
+              </label>
+              </div>
+        
+              <canvas id="canvas_info"></canvas>
+           </div>
+          <input type="number" name="id" id="pid3" hidden>   
+     
+        </div>
+        <div class="modal-footer">
+          <button id="cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancelar
+          </button>
+          <input
+          class="btn btn-primary"
+          type="submit"
+          value="Enviar"
+        />
+        </div>
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/tutorial00.mp4" type="video/mp4">
+        <source src="/public/videos/tutorial00.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/tutorial00.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script src="/public/scripts/timetable.js"></script>
+
+<script>
+  Date.prototype.addHours= function(h){
+    this.setHours(this.getHours()+h);
+    return this;
+  }
+
+    /**
+     * 
+     * 
+     * 
+     * 
+     * 
+     * 
+    */
+
+    $( "#wo" ).submit(function( event ) {
+
+  });
+
+
+        function setTask(timetable, pinit, pfinal, mecanic, task, color, jobId){
+
+            let init = (new Date(pinit).addHours(-18));
+            let final = (new Date(pfinal).addHours(-18));
+            let res = task.split(" ");
+
+            let taskClass = res[0] + res[1];
+
+            //   document.querySelector('[title="SMP"]').style.backgroundColor = "#0000FF"
+
+            // console.log("begin: "+init);
+            // console.log("final: "+final);
+
+            // console.log("mecanic: "+mecanic);
+            // console.log("task: "+task);
+            // console.log("color: "+color);
+
+            var style = document.createElement('style');
+            style.type = 'text/css';
+            style.innerHTML = '.time-entry.'+taskClass+' { background-color: '+color+'; border:1px solid #0f021b }';
+            document.getElementsByTagName('head')[0].appendChild(style);
+
+            timetable.addEvent(task, mecanic, init, final, {class:taskClass, onClick: function(event){currentJob(jobId);}});
+        }
+
+      function represent(){
+        let timetable = new Timetable().setScope(6, 5);
+        let Mecanics = [];
+        // let timetable = new Timetable().setScope(6, 5);
+
+        console.log("Represent");
+
+        $.getJSON("/getMecanics", function(data) {
+
+
+
+                $("#mech").empty();
+                $.each(data, function(index, row) {
+                  Mecanics.push(row.Fname+" "+row.Lname);
+
+                  $("#mech").append(
+                      "<option value='" + row.Id + "' >" + row.Fname+" "+row.Lname + "</option>"
+                  );
+
+                });
+
+          console.log("date="+$("#date").val());
+          $.getJSON("/getMetaWork_order?date="+$("#date").val(), function(data) {
+            timetable.addLocations(Mecanics);
+            $.each(data, function(index, row) {
+                setTask(timetable, row.Init, row.End, row.Fname+" "+row.Lname, row.Job+" - "+row.Line, row.Color, row.Id);
+            });
+            render(timetable);
+          });
+           
+        });
+      }
+
+
+      function render(timetable){
+          var renderer = new Timetable.Renderer(timetable);
+          renderer.draw('.timetable');
+      }
+
+
+      function loadImage_frontal() {
+          var input, file, fr, img;
+  
+          if (typeof window.FileReader !== 'function') {
+              write("The file API isn't supported on this browser yet.");
+              return;
+          }
+  
+          input = document.getElementById('beforeImg');
+          if (!input) {
+              write("Um, couldn't find the imgfile element.");
+          }
+          else if (!input.files) {
+              write("This browser doesn't seem to support the `files` property of file inputs.");
+          }
+          else if (!input.files[0]) {
+              write("Please select a file before clicking 'Load'");
+          }
+          else {
+              file = input.files[0];
+              fr = new FileReader();
+              fr.onload = createImage;
+              fr.readAsDataURL(file);
+          }
+  
+          function createImage() {
+              img = new Image();
+              img.onload = imageLoaded;
+              img.src = fr.result;
+          }
+  
+          function imageLoaded() {
+              var canvas = document.getElementById("canvas_frontal");
+              var ctx = canvas.getContext("2d");
+  
+              canvas.width = 500;
+              canvas.height = 500;
+  
+              var scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+              // get the top left position of the image
+              var x = (canvas.width / 2) - (img.width / 2) * scale;
+              var y = (canvas.height / 2) - (img.height / 2) * scale;
+              ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+          }
+  
+          function write(msg) {
+              var p = document.createElement('p');
+              p.innerHTML = msg;
+              document.body.appendChild(p);
+          }
+      }
+  
+      function currentJob(jobId){
+        console.log("jobId: "+ jobId);
+
+        document.getElementById("jobLineTitle").innerHTML = "Trabajo Actual #"+jobId;
+
+       let phase = 0;
+
+        $.getJSON("/getMetaWork_orderE?id="+jobId, data => {
+        
+
+        $("#job_data").empty();
+
+            $("#job_data").append("<tr>");
+            $("#job_data").append(
+                
+                "<td style='background-color:"+data.Color+"'>" + data.Id + "</td>" +
+                "<td style='background-color:"+data.Color+"'>" + data.Job + "</td>" +
+                "<td style='background-color:"+data.Color+"'>" + data.Fname +" "+data.Lname + "</td>"+
+                "<td style='background-color:"+data.Color+"'>" + data.Line + "</td>" +
+                "<td style='background-color:"+data.Color+"'>" + data.Description + "</td>" +
+                "<td style='background-color:"+data.Color+"'>" + data.Init + "</td>" +
+                "<td style='background-color:"+data.Color+"'>" + data.End + "</td>" +
+                "<td >"+"<button id='requestButton' type='button' onclick='presetPhase("+phase+")' class='btn btn-light' data-toggle='modal' data-target='#timeSet'>Solicitar</button>"+"</td>" 
+            );
+
+            $("#job_data").append("</tr>");
+
+            $("#beforeImgHolder").attr("src", data.Photo_before);
+            $("#afterImgHolder").attr("src", data.Photo_after);
+            $("#phase").val(Number(data.Phase));
+            triggerPhase(Number(data.Phase));
+            
+            
+
+        });
+
+        
+        $("#pid").val(jobId);
+        $("#pid2").val(jobId);
+        $("#pid3").val(jobId);
+
+      }
+
+
+      function filterJobMechList(){
+
+        let init = document.getElementById("date").value;
+        let mech = $("#mech").val();
+ 
+        currentJobList(init, mech);
+
+      }
+
+
+
+      function currentJobList(init, mecanic){
+
+        $.getJSON("/getMetaWork_orderList?init="+init+"&mech="+mecanic, data => {
+        
+          $("#job_dataList").empty();
+          $.each(data, function(index, row) {
+            $("#job_dataList").append("<tr>");
+            $("#job_dataList").append(
+                
+                "<td  onclick='currentJob("+row.Id+")' style='background-color:"+row.Color+"'>" + row.Id + "</td>" +
+                "<td  onclick='currentJob("+row.Id+")' style='background-color:"+row.Color+"'>" + row.Job + "</td>" +
+                "<td  onclick='currentJob("+row.Id+")' style='background-color:"+row.Color+"'>" + row.Fname +" "+row.Lname + "</td>"+
+                "<td  onclick='currentJob("+row.Id+")' style='background-color:"+row.Color+"'>" + row.Line + "</td>" +
+                "<td  onclick='currentJob("+row.Id+")' style='background-color:"+row.Color+"'>" + row.Description + "</td>" +
+                "<td  onclick='currentJob("+row.Id+")' style='background-color:"+row.Color+"'>" + row.Init + "</td>" +
+                "<td  onclick='currentJob("+row.Id+")' style='background-color:"+row.Color+"'>" + row.End + "</td>" 
+            );
+
+            $("#job_dataList").append("</tr>");
+        
+          });
+
+      
+
+           
+        });
+
+
+      }
+
+      function presetPhase(phase){
+     
+        let Names = ['solicitud', 'espera', 'diagnostico', 'espera repuesto', 'reparacion', 'prueba y arranque'];
+
+
+        let now = new Date();
+
+
+        document.getElementById('timeTitle').innerHTML = "Hora "+Names[phase]+ ": " + now;
+
+      }
+
+      function triggerPhase(current){
+        console.log("currentPhase: "+current);
+
+        switch (current) {
+
+          case 0:
+            console.log("case 0:");
+
+            document.getElementById('requestButton').disabled = false;
+
+            aTimer.reset();
+            bTimer.reset();
+            cTimer.reset();
+            dTimer.reset();
+            eTimer.reset();
+            fTimer.reset();
+
+
+            aTimer.stop();
+            bTimer.stop();
+            cTimer.stop();
+            dTimer.stop();
+            eTimer.stop();
+            fTimer.stop();
+
+            a.disabled = true;
+            b.disabled = true;
+            c.disabled = true;
+            d.disabled = true;
+            e.disabled = true;
+            f.disabled = true;
+
+            a.hidden = true;
+            b.hidden = true;
+            c.hidden = true;
+            d.hidden = true;
+            e.hidden = true;
+            f.hidden = true;
+
+
+            break;
+          case 1:
+            console.log("case 1:");
+            document.getElementById('requestButton').disabled = true;
+
+            aTimer.reset();
+            bTimer.reset();
+            cTimer.reset();
+            dTimer.reset();
+            eTimer.reset();
+            fTimer.reset();
+
+
+            aTimer.stop();
+            bTimer.stop();
+            cTimer.stop();
+            dTimer.stop();
+            eTimer.stop();
+            fTimer.stop();
+
+            a.disabled = false;
+            b.disabled = true;
+            c.disabled = true;
+            d.disabled = true;
+            e.disabled = true;
+            f.disabled = true;
+
+            a.hidden = false;
+            b.hidden = true;
+            c.hidden = true;
+            d.hidden = true;
+            e.hidden = true;
+            f.hidden = true;
+
+            aTimer.start();
+
+            break;
+          case 2:
+            console.log("case 2:");
+            document.getElementById('requestButton').disabled = true;
+           
+            // aTimer.reset();
+            bTimer.reset();
+            cTimer.reset();
+            dTimer.reset();
+            eTimer.reset();
+            fTimer.reset();
+
+
+            aTimer.stop();
+            bTimer.stop();
+            cTimer.stop();
+            dTimer.stop();
+            eTimer.stop();
+            fTimer.stop();
+
+            a.disabled = true;
+            b.disabled = false;
+            c.disabled = true;
+            d.disabled = true;
+            e.disabled = true;
+            f.disabled = true;
+
+            a.hidden = false;
+            b.hidden = false;
+            c.hidden = true;
+            d.hidden = true;
+            e.hidden = true;
+            f.hidden = true;
+
+      
+            bTimer.start();
+
+
+            break;     
+          case 3:
+            console.log("case 3:");
+            document.getElementById('requestButton').disabled = true;
+
+            // aTimer.reset();
+            // bTimer.reset();
+            cTimer.reset();
+            dTimer.reset();
+            eTimer.reset();
+            fTimer.reset();
+
+
+            aTimer.stop();
+            bTimer.stop();
+            cTimer.stop();
+            dTimer.stop();
+            eTimer.stop();
+            fTimer.stop();
+
+            a.disabled = true;
+            b.disabled = true;
+            c.disabled = false;
+            d.disabled = true;
+            e.disabled = true;
+            f.disabled = true;
+
+            a.hidden = false;
+            b.hidden = false;
+            c.hidden = false;
+            d.hidden = true;
+            e.hidden = true;
+            f.hidden = true;
+
+            cTimer.start();
+
+            break;                  
+          case 4:
+            console.log("case 4:");
+            document.getElementById('requestButton').disabled = true;
+            
+            // aTimer.reset();
+            // bTimer.reset();
+            // cTimer.reset();
+            dTimer.reset();
+            eTimer.reset();
+            fTimer.reset();
+
+
+            aTimer.stop();
+            bTimer.stop();
+            cTimer.stop();
+            dTimer.stop();
+            eTimer.stop();
+            fTimer.stop();
+
+            a.disabled = true;
+            b.disabled = true;
+            c.disabled = true;
+            d.disabled = false;
+            e.disabled = true;
+            f.disabled = true;
+
+            a.hidden = false;
+            b.hidden = false;
+            c.hidden = false;
+            d.hidden = false;
+            e.hidden = true;
+            f.hidden = true;
+
+            dTimer.start();
+
+            break; 
+
+          case 5:
+            console.log("case 5:");
+            document.getElementById('requestButton').disabled = true;
+           
+            // aTimer.reset();
+            // bTimer.reset();
+            // cTimer.reset();
+            // dTimer.reset();
+            eTimer.reset();
+            fTimer.reset();
+
+
+            aTimer.stop();
+            bTimer.stop();
+            cTimer.stop();
+            dTimer.stop();
+            eTimer.stop();
+            fTimer.stop();
+
+            a.disabled = true;
+            b.disabled = true;
+            c.disabled = true;
+            d.disabled = true;
+            e.disabled = false;
+            f.disabled = true;
+
+            a.hidden = false;
+            b.hidden = false;
+            c.hidden = false;
+            d.hidden = false;
+            e.hidden = false;
+            f.hidden = true;
+
+            eTimer.start();
+            break; 
+          case 6:
+            console.log("case 6:");
+            document.getElementById('requestButton').disabled = true;
+
+            // aTimer.reset();
+            // bTimer.reset();
+            // cTimer.reset();
+            // dTimer.reset();
+            // eTimer.reset();
+
+
+            aTimer.stop();
+            bTimer.stop();
+            cTimer.stop();
+            dTimer.stop();
+            eTimer.stop();
+
+            a.disabled = true;
+            b.disabled = true;
+            c.disabled = true;
+            d.disabled = true;
+            e.disabled = true;
+            f.disabled = false;
+
+            a.hidden = false;
+            b.hidden = false;
+            c.hidden = false;
+            d.hidden = false;
+            e.hidden = false;
+            f.hidden = false;
+
+            fTimer.start();
+
+          break;
+                    case 6:
+            console.log("case 6:");
+            document.getElementById('requestButton').disabled = true;
+
+            // aTimer.reset();
+            // bTimer.reset();
+            // cTimer.reset();
+            // dTimer.reset();
+            // eTimer.reset();
+
+
+            aTimer.stop();
+            bTimer.stop();
+            cTimer.stop();
+            dTimer.stop();
+            eTimer.stop();
+
+            a.disabled = true;
+            b.disabled = true;
+            c.disabled = true;
+            d.disabled = true;
+            e.disabled = true;
+            f.disabled = false;
+
+            a.hidden = false;
+            b.hidden = false;
+            c.hidden = false;
+            d.hidden = false;
+            e.hidden = false;
+            f.hidden = false;
+
+            fTimer.start();
+
+          break; 
+          case 6:
+            console.log("case 6:");
+            document.getElementById('requestButton').disabled = true;
+
+            // aTimer.reset();
+            // bTimer.reset();
+            // cTimer.reset();
+            // dTimer.reset();
+            // eTimer.reset();
+
+
+            aTimer.stop();
+            bTimer.stop();
+            cTimer.stop();
+            dTimer.stop();
+            eTimer.stop();
+
+            a.disabled = true;
+            b.disabled = true;
+            c.disabled = true;
+            d.disabled = true;
+            e.disabled = true;
+            f.disabled = false;
+
+            a.hidden = false;
+            b.hidden = false;
+            c.hidden = false;
+            d.hidden = false;
+            e.hidden = false;
+            f.hidden = false;
+
+            fTimer.start();
+
+          break; 
+           
+          case 7:
+            console.log("case 7:");
+            document.getElementById('requestButton').disabled = true;
+
+            // aTimer.reset();
+            // bTimer.reset();
+            // cTimer.reset();
+            // dTimer.reset();
+            // eTimer.reset();
+
+
+            aTimer.stop();
+            bTimer.stop();
+            cTimer.stop();
+            dTimer.stop();
+            eTimer.stop();
+            fTimer.stop();
+
+            a.disabled = true;
+            b.disabled = true;
+            c.disabled = true;
+            d.disabled = true;
+            e.disabled = true;
+            f.disabled = true;
+
+            a.hidden = false;
+            b.hidden = false;
+            c.hidden = false;
+            d.hidden = false;
+            e.hidden = false;
+            f.hidden = false;
+
+            break; 
+          default:
+            break;
+        }
+
+        // presetPhase(current);
+
+      }
+
+
+      function setNextCurrentPhase(jobId){
+
+
+        $.getJSON("/getMetaWork_orderE?id="+jobId, data => {
+          
+          let phase = data.Phase;
+
+          $("#phase").val(phase);
+
+          console.log("setNextCurrentPhase()--> "+phase);
+
+        });
+
+      }
+
+
+
+      $( "#timeSetForm" ).submit(function( event ) {
+        event.preventDefault();
+        let currentPhase = $("#phase").val();
+        let container  = document.getElementById("wocontainer");
+
+      // Get some values from elements on the page:
+      var $form = $( this ),
+        uid =  $("#pid").val();
+        
+        uphase = $form.find( "input[name='phase']" ).val();
+        uuser = $form.find( "input[name='userPhase']" ).val();
+        upass = $form.find( "input[name='passPhase']" ).val();
+       
+
+        console.log("uid: "+uid+", user: "+uuser+", "+upass+" phase: "+uphase);
+
+        url = $form.attr( "action" );
+      
+      // Send the data using post
+      var posting = $.post( url, { id: uid, user:uuser, 
+                                    pass:upass, phase:uphase} );
+      
+
+
+      // Put the results in a div
+      posting.done(function( data, status ) {
+
+        console.log("Data: "+data+"\tStatus: "+status);
+        if (status == "success"){
+
+          console.log("currentPhaseAfterAuth: "+currentPhase);
+
+          let nextPhase = Number(currentPhase);
+
+          container.insertAdjacentHTML('beforebegin', `
+          <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Usuario autorizado!</strong> en la orden de trabajo
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>  
+          `);
+          
+          // presetPhase(nextPhase);
+
+
+          setNextCurrentPhase(uid);
+          triggerPhase(nextPhase+1);
+
+
+        }else if (status!="success"){
+
+          container.insertAdjacentHTML('beforebegin', `
+          <div id="successAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Usuario no autorizado!</strong> en la orden de trabajo
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>  
+          `);
+        }
+        $("html, body").animate({ scrollTop: 0 }, "slow");
+
+        $("#cancel").click();
+      });
+
+
+      });
+
+      function sendNote(){
+
+        // $( "#wo" ).submit(function( event ) {
+        //   event.preventDefault();
+          let unote  = $("#note").val();
+          let uid =  $("#pid").val();
+
+          let url = "setWorkOrderNote";
+
+          var posting = $.post( url, { id: uid, note:unote} );
+          // Put the results in a div
+          posting.done(function( data, status ) {
+
+          console.log("Data: "+data+"\tStatus: "+status);
+
+          if(status == "success") {
+            let container  = document.getElementById("wocontainer");
+
+            container.insertAdjacentHTML('beforebegin', `
+            <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Se guardo exitosamente!</strong> la nota
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            </div>  
+            `);
+            }
+
+
+          });
+          
+        
+        // });
+      
+      }
+
+
+      function sendPhotoBefore(){
+        
+
+      $( "#wo" ).submit(function( event ) {
+        event.preventDefault();
+        console.log("setWorkOrderPhotoBefore");
+
+        let capture  = $("#beforeImg").val();
+        let uid =  $("#pid").val();
+
+        let url = "setWorkOrderPhotoBefore";
+
+        var posting = $.post( url, { id: uid, capture_before:capture} );
+
+
+        // Put the results in a div
+        posting.done(function( data, status ) {
+
+          console.log("Data: "+data+"\tStatus: "+status);
+
+          if(status == "success") {
+            let container  = document.getElementById("wocontainer");
+
+            container.insertAdjacentHTML('beforebegin', `
+            <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Se guardo exitosamente!</strong> la foto antes del trabajo
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            </div>  
+            `);
+
+          
+
+            }
+
+
+        });
+
+        
+
+      });
+
+      }
+
+      function loadImage_info() {
+          var input, file, fr, img;
+  
+          if (typeof window.FileReader !== 'function') {
+              write("The file API isn't supported on this browser yet.");
+              return;
+          }
+  
+          input = document.getElementById('afterImg');
+          if (!input) {
+              write("Um, couldn't find the imgfile element.");
+          }
+          else if (!input.files) {
+              write("This browser doesn't seem to support the `files` property of file inputs.");
+          }
+          else if (!input.files[0]) {
+              write("Please select a file before clicking 'Load'");
+          }
+          else {
+              file = input.files[0];
+              fr = new FileReader();
+              fr.onload = createImage;
+              fr.readAsDataURL(file);
+          }
+  
+          function createImage() {
+              img = new Image();
+              img.onload = imageLoaded;
+              img.src = fr.result;
+          }
+  
+          function imageLoaded() {
+              var canvas = document.getElementById("canvas_info");
+              var ctx = canvas.getContext("2d");
+  
+              canvas.width = 500;
+              canvas.height = 500;
+  
+              var scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+              // get the top left position of the image
+              var x = (canvas.width / 2) - (img.width / 2) * scale;
+              var y = (canvas.height / 2) - (img.height / 2) * scale;
+              ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+          }
+  
+          function write(msg) {
+              var p = document.createElement('p');
+              p.innerHTML = msg;
+              document.body.appendChild(p);
+          }
+      }
+
+      var Stopwatch = function(elem, options) {
+  
+  var timer       = createTimer(),
+      // startButton = createButton("iniciar", start),
+      // stopButton  = createButton("detener", stop),
+      // resetButton = createButton("reiniciar", reset),
+      offset,
+      clock,
+      interval;
+  
+  // default options
+  options = options || {};
+  options.delay = options.delay || 1;
+ 
+  // append elements     
+  elem.appendChild(timer);
+  // elem.appendChild(startButton);
+  // elem.appendChild(stopButton);
+  // elem.appendChild(resetButton);
+  
+  // initialize
+  reset();
+  
+  // private functions
+  function createTimer() {
+    return document.createElement("span");
+  }
+  
+  function createButton(action, handler) {
+    var a = document.createElement("a");
+    a.href = "#" + action;
+    a.innerHTML = action;
+    a.addEventListener("click", function(event) {
+      handler();
+      event.preventDefault();
+    });
+    return a;
+  }
+  
+    function start() {
+        if (!interval) {
+        offset   = Date.now();
+        interval = setInterval(update, options.delay);
+        }
+    }
+    
+    function stop() {
+        if (interval) {
+        clearInterval(interval);
+        interval = null;
+        }
+    }
+    
+    function reset() {
+        clock = 0;
+        render(0);
+    }
+    
+    function update() {
+        clock += delta();
+        render();
+    }
+    
+    function millisToTime(millis) {
+      let minutes = Math.floor(millis / 60000);
+      let seconds = ((millis % 60000) / 1000).toFixed(0);
+      return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+    }
+
+    function render() {
+
+    
+        timer.innerHTML =millisToTime(clock); 
+    }
+    
+    function delta() {
+        var now = Date.now(),
+            d   = now - offset;
+        
+        offset = now;
+        return d;
+    }
+    
+    // public API
+    this.start  = start;
+    this.stop   = stop;
+    this.reset  = reset;
+    };
+
+
+    // basic examples
+    var elems = document.getElementsByClassName("basic");
+
+    for (var i=0, len=elems.length; i<len; i++) {
+    new Stopwatch(elems[i]);
+    }
+
+
+    // programmatic examples
+    var a = document.getElementById("a-timer");
+    aTimer = new Stopwatch(a);
+
+    var b = document.getElementById("b-timer");
+    bTimer = new Stopwatch(b);
+
+    var c = document.getElementById("c-timer");
+    cTimer = new Stopwatch(c);
+
+
+    var d = document.getElementById("d-timer");
+    dTimer = new Stopwatch(d);
+
+    var e = document.getElementById("e-timer");
+    eTimer = new Stopwatch(e);
+
+
+
+    var f = document.getElementById("f-timer");
+    fTimer = new Stopwatch(f);
+    //aTimer.start();;
+
+
+</script>
+
+
+{{ template "Footer" }}
+
+
+{{end}}

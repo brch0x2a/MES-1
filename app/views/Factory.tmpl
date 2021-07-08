@@ -1,0 +1,50 @@
+{{define "Factory"}}
+  {{ template "Header" }}
+    {{ template "Menu" }}
+    {{ template "Nav_sectors"}}
+    <div class="container">
+        <table class="table  table-responsive  table-dark table-striped">
+
+            <thead>
+            <tr>
+                <td>Nombre</td>
+                <td>
+                    Accion | 
+                    <a href="/newFactory">
+                        <button type="button" class="btn btn-success" style="margin-left: 20px" onclick="loading()">Agregar</button>
+                    </a>
+                </td>
+
+            </tr>
+            </thead>
+            <tbody>
+            {{ range . }}
+            <tr>
+                <td>{{ .Name }} </td>
+                <td>
+                 <a href="/editFactory?id={{.Id}}">  
+                  <button  type="button" class="btn btn-primary" onclick="loading()">Editar</button>
+                 </a>
+                 <a href="/deleteFactory?id={{.Id}}">
+                  <button  type="button" class="btn btn-danger">Borrar</button>
+                </a>
+                </td>
+            </tr>
+            {{ end }}
+            </tbody>
+        </table>
+    </div>
+
+
+    <script src="/public/scripts/jquery-3.3.1.min.js"></script>
+    <script>
+      $("#factory").removeClass("nav-item active");
+      $("#area").removeClass("nav-item active");
+      $("line").removeClass("nav-item active");
+
+      $("#factory").addClass("nav-item active");
+
+    </script>
+
+  {{ template "Footer" }}
+{{ end }}

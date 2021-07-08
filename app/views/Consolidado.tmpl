@@ -1,0 +1,191 @@
+{{define "Consolidado"}}
+{{template "Header"}}
+{{template "Menu"}}
+{{template "Nav_event"}}
+
+<div class="card">
+  <div class="card-body">
+    <form action="#">
+      <div class="form-row align-items-center">
+        <div class="col-md-2 col-md-offset-3">
+          <label> Fecha inicio </label>
+          <input
+            type="date"
+            id="idate"
+            name="dinit"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-4 col-md-offset-3">
+          <label> Fecha final </label>
+          <input
+            type="date"
+            id="fdate"
+            name="dfinal"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <input
+            type="button"
+            class="btn btn-primary"
+            value="Filtrar"
+            onclick="filterEvents()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br /><br /><br />
+<a id="dlink" style="display: none;"></a>
+
+<input
+  id="exportButton"
+  class="btn btn-block btn-success"
+  type="button"
+  onclick="tableToExcel('data_table', 'name', 'reporteParos.xls')"
+  value="Exportar a Excel"
+  hidden="true"
+/>
+<br />
+
+<div class="container">
+  <div class="table-responsive-xl">
+    <table id="data_table" class="table table-bordered text-light">
+      <thead>
+        <tr>
+          <th>Perfil</th>
+          <th>Fecha</th>
+          <th>#Empleado</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Turno</th>
+          <th>Linea</th>
+          <th>Sub Categoria</th>
+          <th>Rama</th>
+          <th>Evento</th>
+          <th>Minutos</th>
+          <th>Nota</th>
+        </tr>
+      </thead>
+      <tbody id="data_p"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  $("#historic").removeClass("nav-item active");
+  $("#analytics").removeClass("nav-item active");
+
+  $("#historic").addClass("nav-item active");
+
+  function filterEvents() {
+    var idate = $("#idate").val();
+    var fdate = $("#fdate").val();
+
+    $.getJSON(
+      "/getEventFilterV01?idate=" + idate + "&fdate=" + fdate,
+      (data) => {
+        $("#data_p").empty();
+        $.each(data, function (index, row) {
+          $("#data_p").append("<tr>");
+          $("#data_p").append(
+            "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              "<img loading='lazy' style='border-radius: 50%;' src='" +
+              row.Profile_picture +
+              "' width='75' height='75'>" +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Date_event +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Nick_name +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Fname +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Lname +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Turn +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Line +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Sub +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Branch +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Event +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Minutes +
+              "</td>" +
+              "<td style='background-color:" +
+              row.Color +
+              "'>" +
+              row.Note +
+              "</td>"
+          );
+          $("#data_p").append("</tr>");
+        });
+      }
+    );
+    hiddeE("exportButton", false);
+  }
+
+  var tableToExcel = (function () {
+    var uri = "data:application/vnd.ms-excel;base64,",
+      template =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+      base64 = function (s) {
+        return window.btoa(unescape(encodeURIComponent(s)));
+      },
+      format = function (s, c) {
+        return s.replace(/{(\w+)}/g, function (m, p) {
+          return c[p];
+        });
+      };
+    return function (table, name, filename) {
+      if (!table.nodeType) table = document.getElementById(table);
+      var ctx = { worksheet: name || "Worksheet", table: table.innerHTML };
+
+      document.getElementById("dlink").href =
+        uri + base64(format(template, ctx));
+      document.getElementById("dlink").download = filename;
+      document.getElementById("dlink").click();
+    };
+  })();
+</script>
+{{ template "Footer" }}
+{{ end }}

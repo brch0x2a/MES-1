@@ -1,0 +1,268 @@
+{{define "Component"}}
+{{template "Header"}}
+{{template "Menu"}}
+{{template "NavAM"}}
+
+<center>
+  <div class="card" style="max-width:600px">
+    <div class="card-body">
+      <form class="form-inline md-form form-sm mt-0">
+        <i class="fa fa-search" aria-hidden="true"></i>
+        <input
+          id="searchbox"
+          class="form-control form-control-sm ml-3 w-75"
+          type="text"
+          placeholder="Buscar"
+          aria-label="Buscar"
+          style="font-size: 24px"
+        />
+      </form>
+    </div>
+  </div>
+</center>
+<br />
+
+<div class="container">
+  <h2 style="color: gold;">Componente</h2>
+  <table
+    id="tableData"
+    class="table table-dark table-striped"
+    style="font-size:small"
+  >
+    <thead>
+      <tr>
+        <td>Numero</td>
+        <td>Maquina</td>
+        <td>Componente</td>
+        <td>Descripcion</td>
+        <td>Imagen</td>
+        <td>
+          Accion |
+          <a href="/newComponent">
+            <button
+              type="button"
+              class="btn btn-success"
+              style="margin-left: 20px"
+            >
+              Agregar
+            </button>
+          </a>
+        </td>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range . }}
+      <tr>
+        <td>{{ .Id }}</td>
+        <td>{{ .Machine}}</td>
+        <td>{{ .Name }}</td>
+        <td>{{ .Description}}</td>
+   
+        <td><img style="object-fit: scale-down;"  src="/{{ .Photo}}" width='200' height='180'></td>
+        <td>
+          <a onclick="editEquipment({{.Id}})">
+            <button type="button" class="btn btn-primary" 
+            data-toggle="modal"
+            data-target="#closeForm"
+            >Editar</button>
+          </a>
+          <a href="/deleteComponent?id={{.Id}}">
+            <button type="button"          data-toggle="modal"
+        data-target="#closeForm"class="btn btn-danger">Borrar</button>
+          </a>
+        </td>
+      </tr>
+      {{  end }}
+    </tbody>
+  </table>
+</div>
+
+<hr />
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="closeForm"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="closeFormLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Editar Componente</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form  enctype="multipart/form-data"  id="closeFormSet" method="POST" action="updateComponent">
+        <div class="modal-body">
+
+            <label for="">Maquina</label>
+            <select name="machine" id="machine" class="form-control"
+              >maquina</select>
+    
+    
+           <div class="form-group"> 
+    
+           <label>Nombre</label>
+           <input type="text" name="name" id="name" class="form-control" placeholder="Nombre"/><br />
+           </div>
+    
+    
+           <br />
+           <label>Descripcion</label>
+           <textarea
+             name="description"
+             id="description"
+             class="form-control"
+             form="closeFormSet"
+             cols="30"
+             rows="5"
+             maxlength="125"
+           ></textarea>
+    
+           <div class="custom-file">
+            <input  type="file" class="custom-file-input" name="photo"  id="photo" onchange="loadImage_frontal();">
+            <label class="custom-file-label" style="outline: 5px double #CCCCCC;" for="customFile">
+            <img src="/public/images/photo-camera.png" width="32px" height="32px"> 
+            Imagen del componente
+            </label>
+            </div>
+            
+            <canvas id="canvas_frontal"></canvas>
+
+
+          <input type="number" name="pid" id="pid" hidden>       
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+          >
+            Actualizar
+          </button>
+        </div>
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  var $rows = $("#tableData tr");
+  $("#searchbox").keyup(function() {
+    var val = $.trim($(this).val())
+      .replace(/ +/g, " ")
+      .toLowerCase();
+
+    $rows
+      .show()
+      .filter(function() {
+        var text = $(this)
+          .text()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+        return !~text.indexOf(val);
+      })
+      .hide();
+  });
+
+  function editEquipment(i) {
+    
+    $.getJSON("/getComponent?id="+i, row =>{
+      $('input[name="pid"]').val(row.Id);
+      $('input[name="name"]').val(row.Name);
+      $("textarea#description").val(row.Description);
+      $("#machine").val(row.Id_machine);
+    });
+  }
+
+
+
+  $.getJSON("/getMachineCatalog", function(data) {
+                $("#machine").empty();
+                $.each(data, function(index, row) {
+                $("#machine").append(
+                    "<option value='" + row.Id +"' >" + row.Name + "</option>"
+                );
+            });
+    });
+
+
+
+  function loadImage_frontal() {
+          var input, file, fr, img;
+  
+          if (typeof window.FileReader !== 'function') {
+              write("The file API isn't supported on this browser yet.");
+              return;
+          }
+  
+          input = document.getElementById('photo');
+          if (!input) {
+              write("Um, couldn't find the imgfile element.");
+          }
+          else if (!input.files) {
+              write("This browser doesn't seem to support the `files` property of file inputs.");
+          }
+          else if (!input.files[0]) {
+              write("Please select a file before clicking 'Load'");
+          }
+          else {
+              file = input.files[0];
+              fr = new FileReader();
+              fr.onload = createImage;
+              fr.readAsDataURL(file);
+          }
+  
+          function createImage() {
+              img = new Image();
+              img.onload = imageLoaded;
+              img.src = fr.result;
+          }
+  
+          function imageLoaded() {
+              var canvas = document.getElementById("canvas_frontal");
+              var ctx = canvas.getContext("2d");
+  
+              canvas.width = 500;
+              canvas.height = 500;
+  
+              var scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+              // get the top left position of the image
+              var x = (canvas.width / 2) - (img.width / 2) * scale;
+              var y = (canvas.height / 2) - (img.height / 2) * scale;
+              ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+          }
+  
+          function write(msg) {
+              var p = document.createElement('p');
+              p.innerHTML = msg;
+              document.body.appendChild(p);
+          }
+      }
+
+
+
+</script>
+
+{{ template "Footer" }}
+
+{{ end }}

@@ -1,0 +1,30 @@
+{{define "EditJob_catalog"}}
+    {{ template "Header" }}
+    {{ template "Menu" }}
+    
+    <br><br><br>
+    <div class="d-flex align-items-center flex-column justify-content-center h-100">
+    <div class="card w-50">
+    <div class="card-header">Editar tipo de trabajo</div>
+    <div class="card-body">
+        <form method="POST" action="updateJob_catalog">
+            <input type="hidden" name="uid" value="{{ .Id }}" />
+        <div class="form-group">    
+        <label>Nombre</label>
+        <input type="text" name="name"  class="form-control" placeholder="Nombre" value="{{ .Name}}"  /><br />
+        </div>
+            <br>
+            <label> Color</label>
+            <input type="color" name="vcolor" class="form-control" value="{{ .Color}}">
+            <br>
+        <input class="btn-primary btn-block" type="submit" value="Guardar" onsubmit="loading()"/>
+        <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+        </form>
+    </div>
+    </div>
+    </div>
+    </div>   
+    <br />    
+    <hr>
+    {{ template "Footer" }}
+{{end}}
