@@ -1,0 +1,43 @@
+<!doctype html>
+<title>Excel PyEngine</title>
+<style>
+    table{
+
+        border-collapse: collapse;
+        width: 100%;
+        background-color: white;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even){
+        background-color: #dddddd;
+    }
+
+</style>
+<div>
+
+    <a style="color: white;" href="/">Volver</a>
+    <p style='background-color:green;color:white;'>Se proceso correctamente!</p>
+
+    <br>
+    <center><h4 style="color:gold;">Presentaciones que no estan registradas</h4></center>
+   
+   <center>
+    <table >
+        <tr>
+            <th>Codigo SAP</th>
+        </tr>
+            {% for e in result %}
+                <tr>
+                    <td>{{ e }}</td>
+                </tr>
+            {% endfor %}
+    </table>
+    </center>
+    
+</div>
