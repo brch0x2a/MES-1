@@ -1,0 +1,127 @@
+<html>
+<head>
+    <style>
+        * {
+            font-family: sans-serif;
+        }
+        body {
+            padding: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            text-align: right;
+        }
+        table tr {
+            border-bottom: 1px solid
+        }
+        table th, table td {
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+<img src="cid:image0" alt="" width="200" height="200">
+<h1>Reporte Utilizacion {{ title }}</h1>
+
+<br><hr><br>
+<h3 style="color:blue">Ordenes de trabajo mantenimiento Planificadas</h3>
+<table>
+  <thead>
+    <th>Mecanico</th>
+    <th>L</th>
+    <th>K</th>
+    <th>M</th>
+    <th>J</th>
+    <th>V</th>
+    <th>S</th>
+    <th>D</th>
+    <th>Total</th>
+  </thead>
+  <tbody>
+    {% for m in pm.Mecanics%}
+    <tr>
+      <td>{{ m.name }}</td>
+      {% for p in m.planned%}
+        <td>{{ p}}</td>
+
+      {% endfor %}
+
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h3 style="color:Orange">Ordenes de trabajo mantenimiento Ejecutadas</h3>
+<table>
+  <thead>
+    <th>Mecanico</th>
+    <th>L</th>
+    <th>K</th>
+    <th>M</th>
+    <th>J</th>
+    <th>V</th>
+    <th>S</th>
+    <th>D</th>
+    <th>Total</th>
+  </thead>
+  <tbody>
+    {% for m in pm.Mecanics%}
+    <tr>
+      <td>{{ m.name }}</td>
+      {% for p in m.actual%}
+        <td>{{ p}}</td>
+
+      {% endfor %}
+
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<img src="cid:image1" width="600">
+<br><hr><br>
+<h3 style="color:#ff00ff;">Calendario AM</h3>
+<table>
+  <thead>
+    <th>Linea</th>
+    <th>Totales</th>
+    <th>Abiertos</th>
+    <th>En curso</th>
+    <th>Cerrados</th>
+  </thead>
+  <tbody>
+    {% for d in am.Data %}
+    <tr>
+      <td>{{ d.line }}</td>
+      <td>{{ d.total }}</td>
+      <td>{{ d.open }}</td>
+      <td>{{ d.process}}</td>
+      <td>{{ d.closed }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<img src="cid:image2" width="600">
+<br><hr><br>
+<h3 style="color:#0000ff;">Reporte de paros</h3>
+<table>
+  <thead>
+    <th>Linea</th>
+    <th>Diferencia</th>
+    <th>Alocado</th>
+    <th>Tiempo total</th>
+    <th>%Utilizacion</th>
+  </thead>
+  <tbody>
+    {% for d in oee.Data %}
+    <tr>
+      <td>{{ d.line }}</td>
+      <td>{{ d.diff }}</td>
+      <td>{{ d.allocated }}</td>
+      <td>{{ d.totalTime}}</td>
+      <td>{{ d.utilization }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<img src="cid:image3" width="600">
+</body>
+</html>
