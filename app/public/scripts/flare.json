@@ -1,0 +1,335 @@
+{
+    "name": "flare",
+    "children": [
+     {
+      "name": "Cambios Generales",
+      "children": [
+       {
+        "name": "Cambio producto",
+        "children": [
+         {"name": "etc", "value": 3938},
+         {"name": "etc", "value": 3812},
+         {"name": "etc", "value": 6714},
+         {"name": "bla bla bla", "value": 743}
+        ]
+       },
+       {
+        "name": "Cambios de elemtos de corte",
+        "children": [
+         {"name": "Teflon", "value": 3534},
+         {"name": "Cuchilla", "value": 5731},
+         {"name":  "bla bla bla", "value": 7840},
+         {"name":  "bla bla bla", "value": 5914},
+         {"name":  "bla bla bla", "value": 3416}
+        ]
+       },
+       {
+        "name": "optimization",
+        "children": [
+         {"name": "AspectRatioBanker", "value": 7074}
+        ]
+       }
+      ]
+     },
+     {
+      "name": "Preparacion y cierre",
+      "children": [
+       {"name":  "bla bla bla", "value": 17010},
+       {"name":  "bla bla bla", "value": 5842},
+       {
+        "name": "interpolate",
+        "children": [
+         {"name": "ArrayInterpolator", "value": 1983},
+         {"name": "ColorInterpolator", "value": 2047},
+         {"name": "DateInterpolator", "value": 1375},
+         {"name": "Interpolator", "value": 8746},
+         {"name": "MatrixInterpolator", "value": 2202},
+         {"name": "NumberInterpolator", "value": 1382},
+         {"name": "ObjectInterpolator", "value": 1629},
+         {"name": "PointInterpolator", "value": 1675},
+         {"name": "RectangleInterpolator", "value": 2042}
+        ]
+       },
+       {"name": "ISchedulable", "value": 1041},
+       {"name": "Parallel", "value": 5176},
+       {"name": "Pause", "value": 449},
+       {"name": "Scheduler", "value": 5593},
+       {"name": "Sequence", "value": 5534},
+       {"name": "Transition", "value": 9201},
+       {"name": "Transitioner", "value": 19975},
+       {"name": "TransitionEvent", "value": 1116},
+       {"name": "Tween", "value": 6006}
+      ]
+     },
+     {
+      "name": "data",
+      "children": [
+       {
+        "name": "converters",
+        "children": [
+         {"name": "Converters", "value": 721},
+         {"name": "DelimitedTextConverter", "value": 4294},
+         {"name": "GraphMLConverter", "value": 9800},
+         {"name": "IDataConverter", "value": 1314},
+         {"name": "JSONConverter", "value": 2220}
+        ]
+       },
+       {"name": "DataField", "value": 1759},
+       {"name": "DataSchema", "value": 2165},
+       {"name": "DataSet", "value": 586},
+       {"name": "DataSource", "value": 3331},
+       {"name": "DataTable", "value": 772},
+       {"name": "DataUtil", "value": 3322}
+      ]
+     },
+     {
+      "name": "Comidas",
+      "children": [
+       {"name": "DirtySprite", "value": 8833},
+       {"name": "LineSprite", "value": 1732},
+       {"name": "RectSprite", "value": 3623},
+       {"name": "TextSprite", "value": 10066}
+      ]
+     },
+     {
+      "name": "flex",
+      "children": [
+       {"name": "FlareVis", "value": 4116}
+      ]
+     },
+     {
+      "name": "Disponibilad de materiales",
+      "children": [
+       {"name":  "bla bla bla", "value": 1082},
+       {"name":  "bla bla bla", "value": 1336},
+     
+       {"name":  "bla bla bla", "value": 10498}
+
+      ]
+     },
+     {
+      "name": "Quiebras",
+      "children": [
+       {"name": "AggregateExpression", "value": 1616},
+       {"name": "And", "value": 1027},
+       {"name": "Arithmetic", "value": 3891},
+       {"name": "Average", "value": 891},
+       {"name": "BinaryExpression", "value": 2893},
+       {"name": "Comparison", "value": 5103},
+       {"name": "CompositeExpression", "value": 3677},
+       {"name": "Count", "value": 781},
+       {"name": "DateUtil", "value": 4141},
+       {"name": "Distinct", "value": 933},
+       {"name": "Expression", "value": 5130},
+       {"name": "ExpressionIterator", "value": 3617},
+       {"name": "Fn", "value": 3240},
+       {"name": "If", "value": 2732},
+       {"name": "IsA", "value": 2039},
+       {"name": "Literal", "value": 1214},
+       {"name": "Match", "value": 3748},
+       {"name": "Maximum", "value": 843},
+       {
+        "name":  "bla bla bla",
+        "children": [
+         {"name":  "bla bla bla", "value": 593}
+        
+        ]
+       },
+       {"name": "Minimum", "value": 843},
+       {"name": "Not", "value": 1554},
+       {"name": "Or", "value": 970},
+       {"name": "Query", "value": 13896},
+       {"name": "Range", "value": 1594},
+       {"name": "StringUtil", "value": 4130},
+       {"name": "Sum", "value": 791},
+       {"name": "Variable", "value": 1124},
+       {"name": "Variance", "value": 1876},
+       {"name": "Xor", "value": 1101}
+      ]
+     },
+     {
+      "name": "Escazes de personal",
+      "children": [
+       {"name":  "bla bla bla", "value": 2105},
+       {"name":  "bla bla bla", "value": 1316},
+       {"name":  "bla bla bla", "value": 3151},
+       {"name":  "bla bla bla", "value": 3770}
+
+      ]
+     },
+     {
+      "name": "Tiempo Osioso",
+      "children": [
+       {"name":  "bla bla bla", "value": 8258},
+       {"name":  "bla bla bla", "value": 10001},
+       {"name":  "bla bla bla", "value": 8217},
+       {"name":  "bla bla bla", "value": 12555},
+       {"name":  "bla bla bla", "value": 2324},
+       {"name":  "bla bla bla", "value": 10993},
+       {
+        "name": "heap",
+        "children": [
+         {"name": "FibonacciHeap", "value": 9354},
+         {"name": "HeapNode", "value": 1233}
+        ]
+       },
+       {"name": "IEvaluable", "value": 335},
+       {"name": "IPredicate", "value": 383},
+       {"name": "IValueProxy", "value": 874},
+       {
+        "name": "math",
+        "children": [
+         {"name": "DenseMatrix", "value": 3165},
+         {"name": "IMatrix", "value": 2815},
+         {"name": "SparseMatrix", "value": 3366}
+        ]
+       },
+       {"name": "Maths", "value": 17705},
+       {"name": "Orientation", "value": 1486},
+       {
+        "name": "palette",
+        "children": [
+         {"name": "ColorPalette", "value": 6367},
+         {"name": "Palette", "value": 1229},
+         {"name": "ShapePalette", "value": 2059},
+         {"name": "SizePalette", "value": 2291}
+        ]
+       },
+       {"name": "Property", "value": 5559},
+       {"name": "Shapes", "value": 19118},
+       {"name": "Sort", "value": 6887},
+       {"name": "Stats", "value": 6557},
+       {"name": "Strings", "value": 22026}
+      ]
+     },
+     {
+      "name": "Ajustes",
+      "children": [
+       {
+        "name": "axis",
+        "children": [
+         {"name": "Axes", "value": 1302},
+         {"name": "Axis", "value": 24593},
+         {"name": "AxisGridLine", "value": 652},
+         {"name": "AxisLabel", "value": 636},
+         {"name": "CartesianAxes", "value": 6703}
+        ]
+       },
+       {
+        "name": "etc",
+        "children": [
+         {"name":  "bla bla bla", "value": 2138},
+         {"name":  "bla bla bla", "value": 3824},
+         {"name":  "bla bla bla", "value": 1353},
+         {"name":  "bla bla bla", "value": 4665}
+        ]
+       },
+       {
+        "name": "Lavados",
+        "children": [
+         {"name":  "bla bla bla", "value": 20544},
+         {"name":  "bla bla bla", "value": 19788},
+         {"name":  "bla bla bla", "value": 10349},
+         {"name":  "bla bla bla", "value": 3301},
+         {"name":  "bla bla bla", "value": 19382},
+         {
+          "name":  "bla bla bla",
+          "children": [
+           {"name":  "bla bla bla", "value": 698},
+           {"name":  "bla bla bla", "value": 5569},
+           {"name":  "bla bla bla", "value": 353},
+           {"name":  "bla bla bla", "value": 2247}
+          ]
+         },
+         {"name": "ScaleBinding", "value": 11275},
+         {"name": "Tree", "value": 7147},
+         {"name": "TreeBuilder", "value": 9930}
+        ]
+       },
+       {
+        "name": "events",
+        "children": [
+         {"name": "DataEvent", "value": 2313},
+         {"name": "SelectionEvent", "value": 1880},
+         {"name": "TooltipEvent", "value": 1701},
+         {"name": "VisualizationEvent", "value": 1117}
+        ]
+       },
+       {
+        "name": "legend",
+        "children": [
+         {"name": "Legend", "value": 20859},
+         {"name": "LegendItem", "value": 4614},
+         {"name": "LegendRange", "value": 10530}
+        ]
+       },
+       {
+        "name": "operator",
+        "children": [
+         {
+          "name": "distortion",
+          "children": [
+           {"name": "BifocalDistortion", "value": 4461},
+           {"name": "Distortion", "value": 6314},
+           {"name": "FisheyeDistortion", "value": 3444}
+          ]
+         },
+         {
+          "name": "encoder",
+          "children": [
+           {"name": "ColorEncoder", "value": 3179},
+           {"name": "Encoder", "value": 4060},
+           {"name": "PropertyEncoder", "value": 4138},
+           {"name": "ShapeEncoder", "value": 1690},
+           {"name": "SizeEncoder", "value": 1830}
+          ]
+         },
+         {
+          "name": "filter",
+          "children": [
+           {"name": "FisheyeTreeFilter", "value": 5219},
+           {"name": "GraphDistanceFilter", "value": 3165},
+           {"name": "VisibilityFilter", "value": 3509}
+          ]
+         },
+         {"name": "IOperator", "value": 1286},
+         {
+          "name": "label",
+          "children": [
+           {"name": "Labeler", "value": 9956},
+           {"name": "RadialLabeler", "value": 3899},
+           {"name": "StackedAreaLabeler", "value": 3202}
+          ]
+         },
+         {
+          "name": "layout",
+          "children": [
+           {"name": "AxisLayout", "value": 6725},
+           {"name": "BundledEdgeRouter", "value": 3727},
+           {"name": "CircleLayout", "value": 9317},
+           {"name": "CirclePackingLayout", "value": 12003},
+           {"name": "DendrogramLayout", "value": 4853},
+           {"name": "ForceDirectedLayout", "value": 8411},
+           {"name": "IcicleTreeLayout", "value": 4864},
+           {"name": "IndentedTreeLayout", "value": 3174},
+           {"name": "Layout", "value": 7881},
+           {"name": "NodeLinkTreeLayout", "value": 12870},
+           {"name": "PieLayout", "value": 2728},
+           {"name": "RadialTreeLayout", "value": 12348},
+           {"name": "RandomLayout", "value": 870},
+           {"name": "StackedAreaLayout", "value": 9121},
+           {"name": "TreeMapLayout", "value": 9191}
+          ]
+         },
+         {"name": "Operator", "value": 2490},
+         {"name": "OperatorList", "value": 5248},
+         {"name": "OperatorSequence", "value": 4190},
+         {"name": "OperatorSwitch", "value": 2581},
+         {"name": "SortOperator", "value": 2023}
+        ]
+       },
+       {"name": "Visualization", "value": 16540}
+      ]
+     }
+    ]
+   }
