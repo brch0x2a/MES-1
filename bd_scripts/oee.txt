@@ -1,0 +1,2059 @@
+
+
+CREATE USER 'brch'@'10.0.0.254' IDENTIFIED BY 'tk2718';
+
+GRANT ALL PRIVILEGES ON * . * TO 'brch'@'10.0.0.254';
+
+
+CREATE USER 'brch'@'192.168.1.4' IDENTIFIED BY 'tk2718';
+
+GRANT ALL PRIVILEGES ON * . * TO 'brch'@'192.168.1.4';
+
+ 
+--Tomato cube bins 
+create table TomateCubeBins(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+
+  id_line int not null,
+  FOREIGN key fkwline_fromTemporalStorageProduct(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  date_reg datetime DEFAULT CURRENT_TIMESTAMP,
+
+  id_autor int not null,
+  FOREIGN key fkwminor_fromTemporalStorageProduct(id_autor)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  lote int,
+
+  weight float, 
+
+  aperture_time datetime, 
+  consumption_time datetime,
+
+  sticker boolean,
+
+  Observation varchar(230)
+)
+
+
+-- TemporalStorageProduct
+
+create table TemporalStorageProduct(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+
+  id_line int not null,
+  FOREIGN key fkwline_fromTemporalStorageProduct(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_product int not null,
+  FOREIGN key fkwpresentation_fromTemporalStorageProduct(id_product)
+  REFERENCES Product (id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  date_reg datetime DEFAULT CURRENT_TIMESTAMP,
+
+  id_autor int not null,
+  FOREIGN key fkwminor_fromTemporalStorageProduct(id_autor)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  bache int,
+  tank int,
+
+  Observation varchar(230)
+)
+
+
+-- Packing Control
+
+create table PackingControl(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+
+
+  id_line int not null,
+  FOREIGN key fkwline_fromPackingControl(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_presentation int not null,
+  FOREIGN key fkwpresentation_fromPackingControl(id_presentation)
+  REFERENCES Presentation (id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  date_reg datetime DEFAULT CURRENT_TIMESTAMP,
+
+  id_autor int not null,
+  FOREIGN key fkwminor_fromPackingControl(id_autor)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  lote int,
+  autoclave int,
+  pallet int ,
+
+  box int,
+
+  Observation varchar(230)
+)
+
+
+
+
+--- Loss X Line
+SELECT
+	X.id,
+    L.name,
+	LTC.description,
+	S.description,
+	B.description,
+	E.description,
+    E.id,
+	S.color
+FROM 
+	LossesXLine X
+Inner join Event E On E.id = X.id_event
+INNER JOIN Branch B ON
+	E.id_branch = B.id
+INNER JOIN Sub_classification S ON
+	S.id = B.id_sub_classification
+INNER JOIN LineTimeClassification LTC ON
+	LTC.id = S.id_LTC
+inner join Line L on X.id_line = L.id
+Where X.id_line = 1
+ORDER BY S.id;
+
+--- Loss X Line
+
+create table LossesXLine(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+
+  id_line int not null,
+  FOREIGN key fkwline_fromLossesXLine(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_event int not null,
+  FOREIGN key fkwpresentation_fromLossesXLine(id_event)
+  REFERENCES Event (id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+)
+
+-- Get data Actual Production
+
+SELECT 
+    A.id,
+    L.name,
+    P.name,
+    A.date_reg,
+    A.box,
+    U.profile_picture,
+    U.fname,
+    U.lname
+FROM
+    ActualProduction A
+        INNER JOIN
+    Line L ON L.id = A.id_line
+        INNER JOIN
+    Presentation P ON P.id = A.id_presentation
+        INNER JOIN
+    User_table U ON U.id = A.id_autor
+---Actual Production
+create table ActualProduction(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+
+  id_line int not null,
+  FOREIGN key fkwline_fromActualProduction(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_presentation int not null,
+  FOREIGN key fkwpresentation_fromActualProduction(id_presentation)
+  REFERENCES Presentation (id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  date_reg datetime DEFAULT CURRENT_TIMESTAMP,
+
+  box float,
+
+  id_autor int not null,
+  FOREIGN key fkwminor_fromActualProduction(id_autor)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+)
+
+
+
+
+
+---   Clean verification --
+
+create table Coding_Verification(
+
+  id int not null AUTO_INCREMENT PRIMARY key, 
+
+  date_reg datetime DEFAULT CURRENT_TIMESTAMP,
+
+  id_operator int not null,
+  FOREIGN key fkwminor_fromCoding_Verification(id_operator)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_line int not null,
+  FOREIGN key fkwline_fromiCoding_Verification(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_presentation int not null,
+  FOREIGN key fkwpresentation_fromCoding_Verification(id_presentation)
+  REFERENCES Presentation (id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  photo_coding varchar(120),
+
+  verification_type varchar(10), -- doypack | caja
+
+  comment varchar(200),
+
+
+  date_check datetime,
+
+  id_checker int not null,
+  FOREIGN key fkwmchecker_fromCoding_Verification(id_checker)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_state int not null DEFAULT 4,
+  FOREIGN key fkstateCoding_Verification(id_state)
+  REFERENCES Transaction_state(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+)
+
+
+
+--Query de SPC
+SELECT 
+    Concat("Salsitas ", L.name) as Linea,
+    "Llenadora" as Maquina,
+    "Pesos S9" as Parameter,
+    (W.value1 + W.value2 + W.value3 + W.value4 + W.value5)/5 as valor,
+    DATE_FORMAT(W.date_reg, "%d:%m:%y") as Fecha,
+    DATE_FORMAT(W.date_reg, "%h:%i") as Hora,
+    ""
+FROM
+    mes.weight_control W
+        INNER JOIN
+    salsitas_statistical_process S ON S.id = W.id_sub_header
+        INNER JOIN
+    Line L ON S.id_line = L.id
+    where 
+    S.id_line = 10
+    AND W.date_reg >= "20210101";
+
+
+ --
+SELECT 
+    CD.id,
+    R.profile_picture,
+    CD.date_init,
+    R.fname,
+    R.lname,
+    L.name,
+    W.name,
+    E.name,
+    CD.whashed_type,
+    CD.detergent,
+    CD.disinfectand,
+    CD.chemical,
+    CD.foam,
+    CD.spray,
+    CF.name,
+    CD.water_ph,
+    IF(CD.visual_inspection, 'Si', 'No'),
+    IF(CD.microbiology, 'Si', 'No'),
+    CD.atp,
+    CD.id_corrective_action,
+    CD.new_atp,
+    T.name,
+    CD.maintenance,
+    CD.comment,
+    A.profile_picture,
+    A.fname,
+    A.lname,
+    IFNULL(CD.date_end, ''),
+    CT.name
+FROM
+    Clean_Disinfection CD
+        INNER JOIN
+    User_table R ON R.id = CD.id_autor
+        INNER JOIN
+    Line L ON L.id = CD.id_line
+        INNER JOIN
+    Washing_stage W ON W.id = CD.id_washing_stage
+        INNER JOIN
+    Equipment E ON E.id = CD.id_equiment
+        INNER JOIN
+    Clean_filter CF ON CF.id = CD.id_filter
+        INNER JOIN
+    Transaction_state T ON T.id = CD.id_allergen_state
+        INNER JOIN
+    User_table A ON A.id = CD.id_approver
+        INNER JOIN
+    Transaction_state CT ON CT.id = CD.id_state
+WHERE
+    CD.id_line = 21
+        AND CD.date_init BETWEEN '20200101' AND '20210201'
+
+
+
+---Salsitas Output COntrol
+
+create table SalsitasOutputControl(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+
+  id_line int not null,
+  FOREIGN key fkwline_fromiSalsitasOutputControl(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_presentation int not null,
+  FOREIGN key fkwpresentation_fromSalsitasOutputControl(id_presentation)
+  REFERENCES Presentation (id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  output_date datetime,
+
+  batch_init varchar(9),
+  batch_end varchar(9),
+
+  responsable_minor int not null,
+  FOREIGN key fkwminor_fromSalsitasOutputControl(responsable_minor)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  responsable_major int not null,
+  FOREIGN key fkwmajor_fromSalsitasOutputControl(responsable_major)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  observations varchar(200)
+)
+
+
+--Clean Desinfection
+use mes; 
+create table Clean_filter(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(125)
+ 
+);
+
+create table Washing_stage(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(125)
+ 
+);
+
+create table Clean_Corrective_Action(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  description varchar(250),
+  bottom float,
+  top float
+);
+
+
+
+create table Clean_Disinfection(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+
+  id_line int not null,
+  FOREIGN key fkwline_fromCleanDesinfection(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+
+  date_init datetime,
+  date_end datetime,
+
+  id_washing_stage int not null,
+  FOREIGN key fkwashingstage_fromCleanDesinfection(id_washing_stage)
+  REFERENCES Washing_stage(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+
+  id_equiment int not null,
+  FOREIGN key fk_equiment_from_clean(id_equiment)
+  REFERENCES Equipment(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+
+
+  comment varchar(200),
+
+  whashed_type char(1),
+
+
+  detergent float,
+  disinfectand float,
+  chemical float,
+  foam float,
+  spray float,
+  
+
+  id_filter int not null,
+  FOREIGN key fkfilter_fromCleanDesinfection(id_filter)
+  REFERENCES Clean_filter(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  water_ph float, 
+
+
+  visual_inspection boolean,
+
+  microbiology boolean,
+  atp float,
+  
+  id_corrective_action int not null,
+  FOREIGN key fkcorrective_action_fromclean(id_corrective_action)
+  REFERENCES Clean_Corrective_Action(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  new_atp float, 
+
+
+  id_allergen_state int not null DEFAULT 1,
+  FOREIGN key fkstate_fromCleanDesinfection(id_allergen_state)
+  REFERENCES Transaction_state(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  maintenance char(2),
+
+  id_autor INT NOT NULL,
+  FOREIGN KEY fkautor_fromCleanDesinfection(id_autor)
+  REFERENCES User_table (id)
+  ON DELETE RESTRICT ON UPDATE CASCADE,
+
+
+  id_approver INT NOT NULL,
+  FOREIGN KEY fkapprover_fromCleanDesinfection(id_approver)
+  REFERENCES User_table (id)
+  ON DELETE RESTRICT ON UPDATE CASCADE,
+
+  id_state int not null DEFAULT 1,
+  FOREIGN key fkstateCleanDesinfection(id_state)
+  REFERENCES Transaction_state(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+
+);
+
+
+
+
+
+--poner todas las comidas en cero por rango de tiempo
+UPDATE eventxline 
+SET 
+    minutes = 0
+WHERE
+    id IN (SELECT 
+            ExL.id
+        FROM
+            EventXLine ExL
+                INNER JOIN
+            Event E ON E.id = ExL.id_event
+                INNER JOIN
+            Branch B ON B.id = E.id_branch
+        WHERE
+            B.id = 61
+                AND DATE(date_event) BETWEEN '20201109' AND '20201129');
+
+
+-- delete audit correction EventXLine
+SELECT 
+    *
+FROM
+    EventXLine
+WHERE
+    id_user = 5
+        AND DATE(date_event) BETWEEN '20201102' AND '20201108';
+
+
+UPDATE Product 
+SET 
+	photo = "/public/images/doypack.png",
+    psi_bottom = 1,
+    psi_top = 1,
+    bares_bottom = 1,
+    bares_top = 1,
+    lung_bottom = 1,
+    lung_top = 1,
+    interchange_bottom = 1,
+    interchange_top = 1,
+    hopper_bottom = 1,
+    hopper_top = 1,
+    fill_bottom = 1,
+    fill_top = 1;
+
+
+	SELECT 
+    	Li.name, E.description, S.color, SUM(ExL.minutes) as TotalMinutes
+	FROM
+		EventXLine ExL
+			INNER JOIN
+		Event E ON ExL.id_event = E.id
+			INNER JOIN
+		Branch B ON E.id_branch = B.id
+			INNER JOIN
+		Sub_classification S ON B.id_sub_classification = S.id
+			INNER JOIN
+		LineTimeClassification L ON S.id_LTC = L.id
+			INNER JOIN
+		Line Li ON Li.id = ExL.id_line
+	where 
+	
+     ExL.date_event BETWEEN DATE_ADD(DATE("20201101"),
+	INTERVAL 6 HOUR) AND DATE_ADD(DATE("20201130"),
+	INTERVAL 6 HOUR)
+	AND L.id = 3
+	group by E.id
+	order by TotalMinutes desc
+
+
+
+
+ALTER TABLE Product
+ADD COLUMN photo VARCHAR(120),
+
+ADD COLUMN psi_bottom FLOAT,
+ADD COLUMN psi_top FLOAT,
+
+ADD COLUMN bares_bottom FLOAT,
+ADD COLUMN bares_top FLOAT,
+
+ADD COLUMN lung_bottom FLOAT,
+ADD COLUMN lung_top FLOAT,
+
+ADD COLUMN interchange_bottom FLOAT,
+ADD COLUMN interchange_top FLOAT,
+
+ADD COLUMN hopper_bottom FLOAT,
+ADD COLUMN hopper_top FLOAT,
+
+ADD COLUMN fill_bottom FLOAT,
+ADD COLUMN fill_top FLOAT;
+
+CREATE TABLE ReportFailures (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    date_event DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id_operator INT NOT NULL,
+    FOREIGN KEY (id_operator)
+        REFERENCES User_table (id)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    device VARCHAR(50),
+    browser VARCHAR(50),
+    module VARCHAR(90),
+    location VARCHAR(90),
+    failure_description VARCHAR(200)
+);
+
+
+
+
+--borrar trabajos AM por lineas especificas y rango de horas
+use mes;
+
+DELETE FROM AM_instance
+WHERE
+    planned_init BETWEEN DATE_ADD(DATE(planned_init),
+    INTERVAL 6*60 MINUTE) AND DATE_ADD(DATE(planned_init),
+    INTERVAL 8*60+30 MINUTE)
+    AND MONTH(planned_init) = 11;
+
+-- correr un dia los trabajos de un rango de fechas
+UPDATE am_instance 
+SET 
+    planned_init = ADDDATE(planned_init, INTERVAL - 1 DAY),
+    planned_end = ADDDATE(planned_end, INTERVAL - 1 DAY)
+WHERE
+    DATE(planned_init) BETWEEN '20201101' AND '20201212'
+
+
+--   numero total de trabajos x linea 
+SELECT 
+    L.id, L.name, COUNT(L.id)
+FROM
+    AM_instance AM
+        INNER JOIN
+    Line L ON L.id = AM.id_line
+        INNER JOIN
+    Area A ON L.id_area = A.id
+        INNER JOIN
+    Transaction_state T ON T.id = AM.id_state
+        INNER JOIN
+    AM_Job J ON J.id = AM.id_job
+        INNER JOIN
+    Component C ON C.id = J.id_component
+        INNER JOIN
+    LILA_Point LILA ON LILA.id = J.id_lila
+WHERE
+    DATE(AM.planned_init) BETWEEN '20201001' AND '20201030'
+GROUP BY L.id
+
+
+--   comteo de estados de trabajo x linea
+SELECT 
+    T.name, COUNT(AM.id_state)
+FROM
+    AM_instance AM
+        INNER JOIN
+    Line L ON L.id = AM.id_line
+        INNER JOIN
+    Area A ON L.id_area = A.id
+        INNER JOIN
+    Transaction_state T ON T.id = AM.id_state
+        INNER JOIN
+    AM_Job J ON J.id = AM.id_job
+        INNER JOIN
+    Component C ON C.id = J.id_component
+        INNER JOIN
+    LILA_Point LILA ON LILA.id = J.id_lila
+WHERE
+    DATE(AM.planned_init) BETWEEN '20201001' AND '20201030'
+        AND L.id = 5
+GROUP BY AM.id_state
+    
+
+
+
+
+-- LILA Catalog
+-- Limpieza=Celeste
+-- Inspección= Amarillo
+-- Lubricación= Anaranjado
+-- Apriete= Gris
+
+
+-- AM Calendar
+create table Machine(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(125),
+);
+
+create table Component(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(125),
+  description varchar(120),
+  photo varchar(120),
+
+
+  id_machine int not null,
+  FOREIGN key fkComponent_fromMachine(id_machine)
+  REFERENCES Machine(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+);
+
+
+create table EPP(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(125),
+  photo varchar(120)
+);
+
+create table LILA_Point(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(50),
+  color varchar(7)
+);
+
+create table AM_Job(
+
+  id int not null AUTO_INCREMENT PRIMARY key,
+
+
+  description varchar(450),
+
+  id_component int not null,
+  FOREIGN key fk_component_amjob(id_component)
+  REFERENCES Component(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+ 
+  id_epp  int not null,
+  FOREIGN key fk_epp_amjob(id_epp)
+  REFERENCES EPP(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_lila int not null DEFAULT 1,
+  FOREIGN key fk_lila_amjob(id_lila)
+  REFERENCES LILA_Point(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+
+);
+ 
+
+create table AM_instance(
+
+  id int not null AUTO_INCREMENT PRIMARY key,
+
+  id_job int not null,
+  FOREIGN key fk_job_amjob(id_job)
+  REFERENCES AM_Job(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  comment varchar(200),
+
+  minutes_run int,
+  minutes_stop int,
+
+  planned_init datetime,
+  planned_end datetime,
+
+  phase int not null DEFAULT 0,
+
+  job_init datetime,
+  job_end datetime,
+
+  id_line  int not null,
+  FOREIGN key fk_id_line_aminstance(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_operator  int not null DEFAULT 5,
+  FOREIGN key fk_id_operator_aminstance(id_operator)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_approver  int not null DEFAULT 5,
+  FOREIGN key fk_id_approver_aminstance(id_approver)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_state int not null DEFAULT 1,
+  FOREIGN key fk_state_aminstance(id_state)
+  REFERENCES Transaction_state(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+);
+ 
+
+
+-- Work Orders
+
+create table Job_catalog(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(20),
+  color varchar(7)
+);
+
+
+
+create table Work_Order(
+
+  id int not null AUTO_INCREMENT PRIMARY key,
+
+  id_job  int not null,
+  FOREIGN key fk_id_job_job_catalog(id_job)
+  REFERENCES Job_catalog(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  description varchar(500),
+
+  planned_init datetime,
+  planned_end datetime,
+  
+  notification_time datetime,
+  photo_before varchar(100) DEFAULT "",
+  wait_time datetime,
+  diagnostic_time datetime,
+  stock_time datetime,
+  repair_time datetime,
+  test_time datetime,
+  delivery_time datetime, 
+  photo_after varchar(100) DEFAULT "",
+
+  phase int not null DEFAULT 0,
+
+  id_mecanic  int not null,
+  FOREIGN key fk_id_mecanic_user(id_mecanic)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_line  int not null,
+  FOREIGN key fk_id_line_work_order(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  note varchar(40),
+
+  
+  id_state int not null DEFAULT 1,
+  FOREIGN key fk_state_wo(id_state)
+  REFERENCES Transaction_state(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+
+);
+
+-- Id	job_id	description	planned_init
+-- planned_end	notification_time	photo_before
+-- wait_time	diagnostic_time	stock_time	
+-- repair_time	test_time	photo_after	id_mecanic
+-- id_line	note	status
+
+
+
+create table Batch(
+  id int not null AUTO_INCREMENT PRIMARY key,
+
+  change_date datetime DEFAULT CURRENT_TIMESTAMP,
+
+  id_operator int not null,
+  FOREIGN key fk_operator_from_batch(id_operator)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_line int not null,
+  FOREIGN key fk_line_from_batch(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  `id_presentation` int not null,
+   FOREIGN key fk_presentation_batch(id_presentation)
+   REFERENCES Presentation(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE,
+
+  batch_count varchar(4)
+);
+/*-
+
+
+/*
+Add column to EventxLine
+
+*/
+ALTER TABLE eventxline
+  ADD COLUMN id_user INT DEFAULT(5),/*el id defaul va hacer la persona que se quiera ser para todos los valores*/
+  ADD     FOREIGN KEY fk_user_exl(id_user) 
+    REFERENCES User_table(id) 
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE;
+
+
+
+
+/* CRQS y verificacion de alergenos - 192*/  
+create table Reason_change_catalog(
+    id int not null AUTO_INCREMENT PRIMARY key,
+    Name varchar(30)
+);
+
+create table Allergen_Verification(
+    id int not null AUTO_INCREMENT PRIMARY key,
+
+    date_reg datetime DEFAULT CURRENT_TIMESTAMP,
+    
+    id_reason_change  int not null,
+    FOREIGN key fk_id_reason_change_Allergen_Verification(id_reason_change)
+    REFERENCES Reason_change_catalog(id)
+    on DELETE RESTRICT
+    on UPDATE CASCADE,
+
+    batch varchar(10) DEFAULT "0",
+    lote varchar(10) DEFAULT "0",
+    coil_weight float DEFAULT "0",
+
+    lote_plug varchar(10) DEFAULT "0",
+    lote_top varchar(10) DEFAULT "0",
+    lote_gallon varchar(10) DEFAULT "0",
+
+    front_laminate varchar(100),
+    allergen_laminate varchar(100),
+
+    milk boolean DEFAULT 0,
+    soya boolean DEFAULT 0,
+    gluten boolean DEFAULT 0,
+    egg boolean DEFAULT 0,
+
+    id_sub_header int not null,
+    FOREIGN key fk_id_sub_header_Allergen_Verification(id_sub_header)
+    REFERENCES Salsitas_statistical_process(id)
+    on DELETE RESTRICT
+    on UPDATE CASCADE
+);
+
+
+
+/* CRQS y verificacion de alergenos - 192*/  
+create table CRQS_Category(
+  id int not null AUTO_INCREMENT PRIMARY key,
+  Name VARCHAR(30)
+);
+
+
+create table CRQS_SubCategory(
+  id int not null AUTO_INCREMENT PRIMARY key,
+  Name VARCHAR(64),
+
+  id_category int not null, 
+  FOREIGN Key fk_id_category_from_CRQS_Category(id_category)
+  REFERENCES CRQS_Category(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+);
+
+create table CRQS(
+    id int not null AUTO_INCREMENT PRIMARY key,
+
+    date_reg datetime DEFAULT CURRENT_TIMESTAMP,
+
+    Codification_img varchar(100),
+    Codification_text varchar(30),
+
+    simbol_level int,
+
+    id_CRQS_SubCategory  int not null,
+    FOREIGN key fk_id_CRQS_SubCategory_CRQS_SubCategory(id_CRQS_SubCategory)
+    REFERENCES CRQS_SubCategory(id)
+    on DELETE RESTRICT
+    on UPDATE CASCADE,
+
+    Observation varchar(64),
+
+    id_sub_header int not null,
+    FOREIGN key fk_id_sub_header_CRQS_SubCategory(id_sub_header)
+    REFERENCES Salsitas_statistical_process(id)
+    on DELETE RESTRICT
+    on UPDATE CASCADE
+);
+
+/* Verificacion de sellos por prensa neumatica - 022*/
+create table Seal_verification_pneumaticpress(
+  id int not null AUTO_INCREMENT PRIMARY key,
+
+  date_reg datetime DEFAULT CURRENT_TIMESTAMP,
+
+  seal_top        float, /*med de sellos | superior*/
+  seal_lateral_a  float, /*med de sellos | lateral a*/
+  seal_lateral_b  float, /*med de sellos | lateral b*/
+  seal_bottom_a   float, /*med de sellos | fondo a */  
+  seal_bottom_b   float, /*med de sellos | fondo b*/
+
+  yield boolean DEFAULT 0,/*Cede?*/
+
+  id_sub_header int not null,
+  FOREIGN key fk_sub_header_Seal_verification_pneumaticpress(id_sub_header)
+  REFERENCES Salsitas_statistical_process(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+);
+
+
+/* Temperatura de mordazas, estado de mordazas y teflon, parametros ultrasonicos - 022*/
+/*-------------------Query)-------------*/
+SELECT 
+    J.date_reg,
+    SP.turn,
+    L.name,
+    P.name,
+    U.nick_name,
+    U.fname,
+    U.lname,
+    J.j1,
+    J.j2,
+    J.j3,
+    J.j4,
+    J.j5,
+    J.j6,
+    J.j7,
+    J.j8,
+    J.j9,
+    J.j10,
+    J.j11,
+    J.j12,
+    IF(J.jaw_state = 1, 'Si', 'No'),
+    IF(J.teflon_state = 1, 'Si', 'No'),
+    ultrasonic_time,
+    ultrasonic_amplitude,
+    ultrasonic_pressure
+FROM
+    Jaw_teflon_ultrasonic_state J
+        INNER JOIN
+    Salsitas_statistical_process SP ON SP.id = J.id_sub_header
+        INNER JOIN
+    Line L ON L.id = SP.id_line
+        INNER JOIN
+    Presentation P ON P.id = SP.id_presentation
+        INNER JOIN
+    User_table U ON U.id = SP.id_operator
+	WHERE
+			L.id = ?
+			AND DATE(J.date_reg) >= ?
+			AND DATE(J.date_reg) <  ?
+
+
+/* Temperatura de mordazas, estado de mordazas y teflon, parametros ultrasonicos - 022*/
+create table Jaw_teflon_ultrasonic_state(
+  id int not null AUTO_INCREMENT PRIMARY key,
+
+  date_reg datetime DEFAULT CURRENT_TIMESTAMP,
+
+  j1 float,
+  j2 float,
+  j3 float,
+  j4 float,
+  j5 float,
+  j6 float,
+  j7 float,
+  j8 float,
+  j9 float,
+  j10 float,
+  j11 float DEFAULT 0,
+  j12 float DEFAULT 0,
+
+  jaw_state boolean,
+  teflon_state boolean,
+
+  ultrasonic_time float DEFAULT 0,
+  ultrasonic_amplitude float DEFAULT 0,
+  ultrasonic_pressure float DEFAULT 0,
+  
+  id_sub_header int not null,
+  FOREIGN key fk_sub_header_jaw_teflon_ultrasonic_state(id_sub_header)
+  REFERENCES Salsitas_statistical_process(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+);
+
+
+
+/*Control de temperaturas (intercambiador, tolva de llenado y boquillas)- 022 */
+/*-------------------Query)-------------*/
+  	SELECT 
+		TC.date_reg,
+		SP.turn,
+		L.name,
+		P.name,
+		U.nick_name,
+		U.fname,
+		U.lname,
+		TC.batch,
+		TC.hopper_psi,
+		TC.exchange_temperature,
+		TC.hopper_temperature,
+		TC.fill_temperature
+	FROM
+		Process_temperature_control TC
+			INNER JOIN
+		Salsitas_statistical_process SP ON SP.id = TC.id_sub_header
+			INNER JOIN
+		Line L ON L.id = SP.id_line
+			INNER JOIN
+		Presentation P ON P.id = SP.id_presentation
+			INNER JOIN
+		User_table U ON U.id = SP.id_operator 
+	WHERE
+			L.id = ?
+			AND DATE(TC.date_reg) >= ?
+			AND DATE(TC.date_reg) < ?
+
+/*Control de temperaturas (intercambiador, tolva de llenado y boquillas)- 022 */
+create table Process_temperature_control(
+  id int not null AUTO_INCREMENT PRIMARY key,
+
+  date_reg datetime DEFAULT CURRENT_TIMESTAMP,
+  batch int,
+  hopper_psi float,/*presion de tolva*/
+  exchange_temperature float,/*Temperatura del intercambiador*/
+  hopper_temperature float,/*temperatura de tolva*/
+  fill_temperature float,/*temperatura de llenado*/
+
+  id_sub_header int not null,
+  FOREIGN key fk_sub_header_Process_temperature_control(id_sub_header)
+  REFERENCES Salsitas_statistical_process(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+);
+
+/*-------------------Boletas---(Verde)-------------*/
+/*-------------------Query)-------------*/
+SELECT 
+    T.id,
+    L.name,
+    U.nick_name,
+    U.fname,
+    U.lname,
+    T.request_date,
+    T.close_date,
+    TG.name,
+    TG.color,
+    P.name,
+    E.name,
+    C.name,
+    Ec.name,
+    T.descriptionAnomly,
+    F.name,
+    if(T.investigation=1, "Si", "No"),
+    Sc.name,
+    if(T.inWeb=1, "Si", "No"),
+    T.corrective_action,
+    T.suggestion,
+    T.lesion_description,
+    T.damage_description,
+    She.name,
+    TS.name,
+    TS.color
+FROM
+    She_tag_green T
+        INNER JOIN
+    Line L ON L.id = T.id_line
+        INNER JOIN
+    TypeOfTag TG ON TG.id = T.id_type
+        INNER JOIN
+    Priority P ON P.id = T.id_priority
+        INNER JOIN
+    Equipment E ON E.id = T.id_equiment
+        INNER JOIN
+    User_table U ON U.id = T.id_operator
+        INNER JOIN
+    Transaction_state TS ON TS.id = T.id_state
+        INNER JOIN
+    Class_of_event C ON C.id = T.id_class_of_event
+        INNER JOIN
+    Event_cause Ec ON Ec.id = T.id_event_cause
+        INNER JOIN
+    Frequency_catalog F ON F.id = T.id_frequency
+        INNER JOIN
+    Severity_catalog Sc ON Sc.id = T.id_severity
+        INNER JOIN
+    she_standard_catalog She ON She.id = T.id_she_standard
+/*-------------------Boletas---(Verde)-------------*/
+create table Class_of_event (
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(64)
+);
+
+create table Event_cause (
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(64)
+);
+
+create table Frequency_catalog (
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(64)
+);
+
+create table Severity_catalog (
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(64)
+);
+
+create table SHE_standard_catalog (
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(64)
+);
+
+create table SHE_tag_green(
+  id int not null AUTO_INCREMENT PRIMARY key,
+
+  id_line int not null,
+  FOREIGN key fk_line_from_shetag(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_operator int not null,
+  FOREIGN key fk_operator_from_shetag(id_operator)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  request_date datetime DEFAULT CURRENT_TIMESTAMP,
+  close_date datetime,
+
+  id_type int not null,
+  FOREIGN key fk_type_from_shetag(id_type)
+  REFERENCES TypeOfTag(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+  
+  id_priority int not null,
+  FOREIGN key fk_priority_from_shetag(id_priority)
+  REFERENCES Priority(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_equiment int not null,
+  FOREIGN key fk_equiment_from_shetag(id_equiment)
+  REFERENCES Equipment(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_class_of_event int not null,
+  FOREIGN key fk_class_of_event_from_shetag(id_class_of_event)
+  REFERENCES Class_of_event(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_event_cause int not null,
+  FOREIGN key fk_event_cause_from_shetag(id_event_cause)
+  REFERENCES Event_cause(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  descriptionAnomly varchar(254),
+
+  id_frequency int not null,
+  FOREIGN key fk_frequency_from_shetag(id_frequency)
+  REFERENCES Frequency_catalog(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  investigation boolean DEFAULT 0,
+
+  id_severity int not null,
+  FOREIGN key fk_severity_from_shetag(id_severity)
+  REFERENCES Severity_catalog(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  inWeb boolean DEFAULT 0,  
+  corrective_action varchar(254),
+  suggestion varchar(254),
+  lesion_description varchar(254),
+  damage_description varchar(254),
+
+  id_she_standard int not null,
+  FOREIGN key fk_she_standard_from_shetag(id_she_standard)
+  REFERENCES SHE_standard_catalog(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_state int not null DEFAULT 1,
+  FOREIGN key fk_state_from_shetag(id_state)
+  REFERENCES Transaction_state(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+
+);
+
+
+/*-------------------Boletas---(Naranja)-------------*/
+/*-------------------Query---------------------------*/
+	SELECT 
+		T.id,
+		L.name,
+		U.nick_name, 
+		U.fname,
+		U.lname,
+		T.request_date,
+		T.close_date,
+		TG.name,
+		TG.color,
+		P.name,
+		E.name,
+		T.descriptionAnomly,
+		T.improvement_description,
+		TS.name,
+		TS.color
+	FROM
+		Qa_tag_orange T
+			INNER JOIN
+		Line L ON L.id = T.id_line
+			INNER JOIN
+		TypeOfTag TG ON TG.id = T.id_type
+			INNER JOIN
+		Priority P ON P.id = T.id_priority
+			INNER JOIN
+		Equipment E ON E.id = T.id_equiment
+			INNER JOIN
+		User_table U ON U.id = T.id_operator
+			INNER JOIN
+		Transaction_state TS ON TS.id = T.id_state
+/*-------------------Boletas---(Naranja)-------------*/
+create table Qa_anomaly_catalog(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  description varchar(64)
+);
+
+
+create table Qa_tag_orange(
+  id int not null AUTO_INCREMENT PRIMARY key,
+
+  id_line int not null,
+  FOREIGN key fk_line_from_qatag(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_operator int not null,
+  FOREIGN key fk_operator_from_qatag(id_operator)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  request_date datetime DEFAULT CURRENT_TIMESTAMP,
+  close_date datetime,
+
+  id_type int not null,
+  FOREIGN key fk_type_from_qatag(id_type)
+  REFERENCES TypeOfTag(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+  
+  
+  id_priority int not null,
+  FOREIGN key fk_priority_from_qatag(id_priority)
+  REFERENCES Priority(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_equiment int not null,
+  FOREIGN key fk_equiment_from_qatag(id_equiment)
+  REFERENCES Equipment(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_anomaly int not null,
+  FOREIGN key fk_anomaly_from_qatag(id_anomaly)
+  REFERENCES Qa_anomaly_catalog(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  descriptionAnomly varchar(254),
+
+  improvement_description varchar(254),
+
+  id_state int not null DEFAULT 1,
+  FOREIGN key fk_state_from_qatag(id_state)
+  REFERENCES Transaction_state(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+
+);
+/*-------------------(Verde)-----Boletas--Anomalias---------(Roja)-------------*/
+
+create table Priority(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(7),
+  description varchar(64)
+);
+
+create table TypeOfTag(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(12),
+  color varchar(7)
+);
+
+create table Equipment(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(128)
+);
+/*----------------------Tag-Query------------------------------------*/
+SELECT 
+    T.id,
+    L.name,
+    U.fname,
+    T.request_date,
+    T.close_date,
+    TG.name,
+    P.name,
+    E.name,
+    T.descriptionAnomly,
+    T.benefit_qa,
+    T.benefit_cost,
+    T.benefit_productivity,
+    T.benefit_moral,
+    T.benefit_deliver,
+    T.benefit_safety,
+    T.is_area_affect,
+    T.is_tag_before,
+    I.fname,
+    T.improvement_description,
+    TS.name
+FROM
+    Tag T
+        INNER JOIN
+    Line L ON L.id = T.id_line
+        INNER JOIN
+    TypeOfTag TG ON TG.id = T.id_type
+        INNER JOIN
+    Priority P ON P.id = T.id_priority
+        INNER JOIN
+    Equipment E ON E.id = T.id_equiment
+        INNER JOIN
+    User_table U ON U.id = T.id_operator
+        INNER JOIN
+    User_table I ON I.id = T.improvement_user
+        INNER JOIN
+    Transaction_state TS ON TS.id = T.id_state
+/*----------------------Tag-Query------------------------------------*/
+    SELECT 
+      T.id,
+      L.name,
+      U.nick_name, 
+      U.fname,
+      U.lname,
+      T.request_date,
+      T.close_date,
+      TG.name,
+      TG.color,
+      P.name,
+      E.name,
+      T.descriptionAnomly,
+      if(T.benefit_qa=1, "Si", "No"),
+      if(T.benefit_cost=1, "Si", "No"),
+      if(T.benefit_productivity=1, "Si", "No"),
+      if(T.benefit_moral=1, "Si", "No"),
+      if(T.benefit_deliver=1, "Si", "No"),
+      if(T.benefit_safety=1, "Si", "No"),
+      if(T.is_area_affect=1, "Si", "No"),
+      if(T.is_tag_before=1, "Si", "No"),
+      I.nick_name,
+      I.fname,
+      I.lname,
+      T.improvement_description,
+      TS.name,
+      TS.color
+    FROM
+      Tag T
+        INNER JOIN
+      Line L ON L.id = T.id_line
+        INNER JOIN
+      TypeOfTag TG ON TG.id = T.id_type
+        INNER JOIN
+      Priority P ON P.id = T.id_priority
+        INNER JOIN
+      Equipment E ON E.id = T.id_equiment
+        INNER JOIN
+      User_table U ON U.id = T.id_operator
+        INNER JOIN
+      User_table I ON I.id = T.improvement_user
+        INNER JOIN
+      Transaction_state TS ON TS.id = T.id_state
+
+/*-------------------------------------------------------------------*/
+create table Tag(
+  id int not null AUTO_INCREMENT PRIMARY key,
+
+  id_line int not null,
+  FOREIGN key fk_line_from_tag(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_operator int not null,
+  FOREIGN key fk_operator_from_tag(id_operator)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  request_date datetime DEFAULT CURRENT_TIMESTAMP,
+  close_date datetime,
+
+  id_type int not null,
+  FOREIGN key fk_type_from_tag(id_type)
+  REFERENCES TypeOfTag(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+  
+  id_priority int not null,
+  FOREIGN key fk_priority_from_tag(id_priority)
+  REFERENCES Priority(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_equiment int not null,
+  FOREIGN key fk_equiment_from_tag(id_equiment)
+  REFERENCES Equipment(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  descriptionAnomly varchar(254),
+
+  benefit_qa boolean DEFAULT 0,
+  benefit_cost boolean DEFAULT 0,
+  benefit_productivity boolean DEFAULT 0,
+  benefit_moral boolean DEFAULT 0,
+  benefit_deliver boolean DEFAULT 0,
+  benefit_safety boolean DEFAULT 0,
+
+  is_area_affect boolean DEFAULT 0,
+  is_tag_before boolean DEFAULT 0,
+
+  improvement_user int not null,
+  FOREIGN key fk_improvement_user_from_tag(improvement_user)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  improvement_description varchar(254),
+
+  id_state int not null DEFAULT 1,
+  FOREIGN key fk_state_from_tag(id_state)
+  REFERENCES Transaction_state(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+);
+/*------------------------CALL----OFF------------------------*/
+/*----------------------Transaccion-Query------------------------------------*/
+SELECT 
+    C.id,
+    L.name,
+    U.nick_name,
+    U.fname,
+    U.lname,
+    C.request_date,
+    C.close_date,
+    M.cod_material,
+    M.material_name,
+    C.amount,
+    C.comment,
+    T.name,
+    T.color
+FROM
+    call_off C
+        INNER JOIN
+    line L ON L.id = C.id_line
+        INNER JOIN
+    user_table U ON U.id = C.id_operator
+        INNER JOIN
+    material M ON M.id = C.id_material
+        INNER JOIN
+    transaction_state T ON T.id = C.id_state
+
+/*-----------------------------------------------------------*/
+CREATE TABLE Material (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    cod_material INT,
+    material_name VARCHAR(128)
+);
+
+create table Transaction_state(
+  id int not null AUTO_INCREMENT PRIMARY key, 
+  name varchar(64),
+  color varchar(7)
+);
+
+create table Call_off(
+  id int not null AUTO_INCREMENT PRIMARY key,
+
+  id_line int not null,
+  FOREIGN key fk_line_calloff(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  id_operator int not null,
+  FOREIGN key fk_operator_from_calloff(id_operator)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  request_date datetime DEFAULT CURRENT_TIMESTAMP,
+  close_date datetime,
+
+  id_material int not null,
+  FOREIGN key fk_material_from_calloff(id_material)
+  REFERENCES Material(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  amount int,
+  comment varchar(128),
+
+  id_state int not null DEFAULT 1,
+  FOREIGN key fk_state_from_calloff(id_state)
+  REFERENCES Transaction_state(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+);
+
+/*------------------------*/
+
+CREATE TABLE DocSign(
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    eventDate DATE UNIQUE,
+    signPath VARCHAR(128),
+    pdfPath VARCHAR(128),
+    `id_user` INT NOT NULL,
+    FOREIGN KEY fk_user_docsign(id_user) REFERENCES User_table(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    `id_header` INT NOT NULL,
+    FOREIGN KEY fk_header_docsign(id_header) REFERENCES Header(id) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+/*---------------------*/
+
+CREATE TABLE `Factory` (
+  `id` int not null AUTO_INCREMENT PRIMARY KEY,
+  `name` varchar(30)
+);
+
+CREATE TABLE `Area` (
+  `Id` int not null AUTO_INCREMENT PRIMARY KEY,
+  `Name` varchar(30),
+  `id_factory` int not null,
+   FOREIGN key fk_factory(id_factory)
+   REFERENCES Factory(id)
+   on UPDATE CASCADE
+   on DELETE RESTRICT
+);
+
+CREATE TABLE `Line` (
+  `id` int not null AUTO_INCREMENT PRIMARY KEY,
+  `name` varchar(30),
+  `id_area` int not null,
+   FOREIGN KEY fk_area(id_area)
+   REFERENCES Area(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE
+);
+
+
+CREATE TABLE `Product` (
+  `id` int not null AUTO_INCREMENT PRIMARY KEY,
+  `sku` int,
+  `name` varchar(100)
+);
+
+CREATE TABLE `Presentation` (
+  `id` int not null AUTO_INCREMENT PRIMARY KEY,
+  `name` varchar(100),
+  `weight_unit` varchar(5),
+  `weght_value` float,
+  `box_amount` int,
+  `id_product` int not null,
+   FOREIGN key fk_product(id_product)
+   REFERENCES Product(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE
+);
+
+CREATE TABLE `Planning` (
+  `id` int not null AUTO_INCREMENT PRIMARY key,
+  `planned` float,
+  `produced` float,
+  `turn` int,
+  `nominal_speed` float,
+
+  `id_presentation` int not null,
+   FOREIGN key fk_presentation_planning(id_presentation)
+   REFERENCES Presentation(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE,
+
+  `id_line` int not null,
+   FOREIGN key fk_line_planning(id_line)
+   REFERENCES Line(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE
+
+  `date_planning` date,
+  `version` int
+);
+
+CREATE TABLE `LineTimeClassification` (
+  `id` int not null AUTO_INCREMENT PRIMARY key,
+  `description` varchar(50)
+);
+
+
+CREATE TABLE `Sub_classification` (
+  `id` int not null AUTO_INCREMENT PRIMARY key,
+  `description` varchar(100),
+  `color` varchar(7),
+  `id_LTC` int not null,
+   FOREIGN key fk_ltc(id_LTC)
+   REFERENCES LineTimeClassification(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE
+);
+
+CREATE TABLE `Branch` (
+  `id` int not null AUTO_INCREMENT PRIMARY key,
+  `description` varchar(100),
+  `id_sub_classification` int  not null, 
+   FOREIGN key fk_sub_classification(id_sub_classification)
+   REFERENCES Sub_classification(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE
+);
+
+CREATE TABLE `Event` (
+  `id` int not null AUTO_INCREMENT PRIMARY key,
+  `description` varchar(120),
+  `id_branch` int not null,
+  FOREIGN key fk_branch(id_branch)
+  REFERENCES Branch(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE   
+);
+
+
+CREATE TABLE `EventXLine` (
+  `id` int not null AUTO_INCREMENT PRIMARY key,
+    
+  `id_event` int not null,
+   FOREIGN key fk_event_EXL(id_event) /*nomeclature  fk + field name + simple table name --> if cardinality == NxN*/
+   REFERENCES Event(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE,  
+
+  `id_user` INT NOT NULL,
+    FOREIGN KEY fk_user_exl(id_user) 
+    REFERENCES User_table(id) 
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+    
+  `id_line` int not null,
+  FOREIGN key fk_line_EXL(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,  
+
+    `id_user` int not null,
+  FOREIGN key fk_user_EXL(id_user)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE, 
+       
+  `date_event` date,
+  `minutes` float,
+  `turn` int,
+  `note` varchar(150)
+);
+
+
+/*------------------------*/
+
+
+
+CREATE TABLE `Privilege` (
+  `id` int not null AUTO_INCREMENT PRIMARY key,
+  `level` int,
+  `description` varchar(30)
+);
+
+           
+CREATE TABLE `User_table` (
+  `id` int not null AUTO_INCREMENT PRIMARY key,
+  `nick_name` varchar(30),
+  `password` varchar(64),
+  `fname` varchar(30),
+  `lname` varchar(30),
+   profile_picture varchar(100),
+  
+  `id_privilege` int not null,
+  FOREIGN key fk_privilege_from_usertbl(id_privilege)
+  REFERENCES Privilege(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,  
+    
+  `id_factory` int not null,
+  FOREIGN key fk_factory_from_usertbl(id_factory)
+  REFERENCES Factory(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+);
+
+
+
+CREATE TABLE `Header` (
+  `id` int not null AUTO_INCREMENT PRIMARY key,
+  `name` varchar(64),
+  `cod_doc` varchar(32),
+  `revision_date` date,
+  `next_revision_date` date,
+  `revision_no` int
+);
+
+CREATE TABLE `Attached_note` (
+  `id` int not null AUTO_INCREMENT PRIMARY key,
+  `id_header` int not null,
+   
+   FOREIGN key fk_header(id_header) 
+   REFERENCES Header(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE,     
+   
+    
+  `description` varchar(100)
+);
+
+/*------------------------------------------*/
+
+CREATE TABLE `Physicochemical_subheader` (
+  `id` int not null AUTO_INCREMENT PRIMARY KEY,
+
+  `boula_fryma` varchar(24),
+  `date` datetime,
+  `observation` varchar(32),
+
+  `id_presentation` int not null,
+  FOREIGN key fk_presentation_from_physico_sub(id_presentation)
+  REFERENCES Presentation(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,  
+
+  id_line int not null,
+  FOREIGN key fk_line_from_physico_sub(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,
+
+  `id_header` int not null,
+   FOREIGN key fk_header_from_physico_sub(id_header)
+   REFERENCES Header(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE
+
+);
+
+CREATE TABLE `Sensorial_analysis_scale` (
+  `id` int not null AUTO_INCREMENT PRIMARY KEY,
+  `description` varchar(64)
+);
+
+create table `Desition_catalog` (
+  `id` int not null AUTO_INCREMENT PRIMARY KEY,
+  `description` varchar(16)
+);
+
+
+
+/*------------Tarjetas--analisis----QA----------------*/
+SELECT 
+    A.name,
+    Ps.boula_fryma,
+    Ph.batch,
+    Ph.tank,
+    Ph.date_reg,
+    Ph.brix,
+    Ph.ph,
+    Ph.ph_pcc,
+    Ph.chloride,
+    Ph.consistency_plummet,
+    Ph.consistency_homogenizer,
+    Sa.description,
+    Sc.description,
+    Sr.description,
+    St.description,
+    D.description,
+    U.nick_name
+FROM
+    Physicochemical_general Ph
+        INNER JOIN
+    Sensorial_analysis_scale Sa ON Sa.id = Ph.appearance
+        INNER JOIN
+    Sensorial_analysis_scale Sc ON Sc.id = Ph.color
+        INNER JOIN
+    Sensorial_analysis_scale Sr ON Sr.id = Ph.aroma
+        INNER JOIN
+    Sensorial_analysis_scale St ON St.id = Ph.taste
+        INNER JOIN
+    User_table U ON U.id = Ph.id_analyst
+        INNER JOIN
+    Desition_catalog D ON D.id = Ph.id_desition
+        INNER JOIN
+    Physicochemical_subheader Ps ON Ps.id = Ph.id_subheader
+        INNER JOIN
+    Area A ON A.id = Ps.id_area
+/*----------------------------------*/
+CREATE TABLE `Physicochemical_general` (
+  `id`  int not null AUTO_INCREMENT PRIMARY KEY,
+
+  `batch` int,
+  `tank`     varchar(8),#olla/tanque/tacho
+  `presentation_density` float,
+  `date` datetime,
+
+  `brix` float,
+  `ph` float,
+  `ph_pcc` float,
+  `chloride` float,
+  `consistency_plummet` float,
+  `consistency_homogenizer` float,
+
+  `appearance` int not null, #from catalog
+   FOREIGN key fk_appearance_from_physico(appearance)
+   REFERENCES Sensorial_analysis_scale(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE,
+
+
+  `color` int,      #from catalog
+   FOREIGN key fk_color_from_physico(color)
+   REFERENCES Sensorial_analysis_scale(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE,
+
+  `aroma` int,      #from catalog
+   FOREIGN key fk_aroma_from_physico(aroma)
+   REFERENCES Sensorial_analysis_scale(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE,
+
+  `taste` int,      #from catalog
+   FOREIGN key fk_taste_from_physico(taste)
+   REFERENCES Sensorial_analysis_scale(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE,
+
+  `id_analyst`  int not null,
+   FOREIGN key fk_analyst_from_physico(id_analyst)
+   REFERENCES User_table(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE,
+
+
+  `id_desition`  int not null,
+   FOREIGN key fk_desisition_from_pysico(id_desition)
+   REFERENCES Desition_catalog(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE,
+
+
+  `id_subheader`  int not null,
+   FOREIGN key fk_subheader_from_pysico(id_subheader)
+   REFERENCES Physicochemical_subheader(id)
+   on DELETE RESTRICT
+   on UPDATE CASCADE
+);
+
+
+
+
+
+/*-------------------------------*/
+
+CREATE TABLE `Salsitas_statistical_process` (/*subheader*/
+  `id` int not null AUTO_INCREMENT PRIMARY KEY,
+  `date_reg` date,
+  `turn` int,
+
+  `id_line` int not null,
+  FOREIGN key fk_line_Salsitas_process(id_line)
+  REFERENCES Line(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,  
+
+  `id_presentation` int not null,
+  FOREIGN key fk_presentation_Salsitas_process(id_presentation)
+  REFERENCES Presentation(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,  
+
+  `id_coordinator` int not null,
+  FOREIGN key fk_coordinator_Salsitas_process(id_coordinator)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,  
+
+  `id_operator` int not null,
+  FOREIGN key fk_operator_Salsitas_process(id_operator)
+  REFERENCES User_table(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE,  
+
+  `id_header` int not null,
+  FOREIGN key fk_header_Salsitas_process(id_header)
+  REFERENCES Header(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+);
+
+CREATE TABLE `Weight_control` (/*general*/
+  `id` int not null AUTO_INCREMENT PRIMARY KEY,
+  `value1` float,
+  `value2` float,
+  `value3` float,
+  `value4` float,
+  `value5` float,
+  `date_reg` float,
+  `unit` varchar(5),
+
+  `id_sub_header` int not null,
+  FOREIGN key fk_sub_header_Weight_control(id_sub_header)
+  REFERENCES Salsitas_statistical_process(id)
+  on DELETE RESTRICT
+  on UPDATE CASCADE
+);
+
+
+/*---------trigger---template-------------------*/
+
+CREATE TRIGGER before_delete_area BEFORE DELETE
+ON
+    Area FOR EACH ROW
+INSERT INTO AreaAudit
+SET
+    change_date = NOW(), action = 'delete', previous_name = OLD.Name, id_user = OLD.id_user
+
+
+/*-----------Query--with-optional--parametra----------------------------*/
+
+SELECT
+    E.date_event,
+    E.turn,
+    L.name,
+    E.minutes,
+    E.note
+FROM
+    EventXLine E
+INNER JOIN Line L ON
+    L.id = E.id_line
+WHERE
+    COALESCE(NULL, DATE(E.date_event)) = DATE(E.date_event) AND COALESCE(NULL, E.id_line) = E.id_line and COALESCE(NULL, E.turn) = E.turn
+
+
+
+/*----------------------DATE+PLUS+TIME*(MONTT, HOUR, MINUTE)-------------------------*/
+SELECT * FROM `EventXLine` 
+  WHERE id_line = 1 
+  AND date_event BETWEEN DATE_ADD( DATE("20200121"), INTERVAL 14 HOUR )
+  AND DATE_ADD( DATE("20200121"), INTERVAL 1319 MINUTE )
