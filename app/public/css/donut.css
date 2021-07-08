@@ -1,0 +1,19 @@
+.progress .back {
+  position: absolute;
+  background-color: #e7eeeb;
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  top: 5px;
+  left: 5px;
+  border-radius: 50%;
+}
+
+.progress .back-centre {
+  position: absolute;
+  background-color: #fff;
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
+  top: 20px;
+  left: 20px;
+  border-radius: 50%;
+}
