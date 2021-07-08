@@ -1,0 +1,62 @@
+{{ define "NewPresentation" }}
+  {{ template "Header" }}
+    {{ template "Menu" }}
+     {{ template "Nav_products"}}
+
+<center>
+   <div class="card" style="width: 32rem;">
+        <div class="card-header">Nueva Presentacion</div>
+       <div class="card-body">
+        <form method="POST" action="InsertPresentation">
+        <div class="form-group">
+         <label> Producto </label>
+         <select id="product" name="product"  class="form-control"></select><br /><br />
+        <label>Nombre presentacion</label>
+        <input type="text" name="name"  class="form-control" placeholder="#Nombre" required/><br />
+      
+        <label>Peso</label>
+        <input type="number" name="weight_value"  class="form-control" placeholder="#Peso" required/><br />
+
+       <label>Unidad</label>
+        <input type="text" name="weight_unit"  class="form-control" placeholder="#Unidad" required/><br />
+        
+        <label>Porcentaje de Error</label>
+        <input type="number" name="error_rate"  class="form-control" placeholder="0.00" step="0.01" required/><br />
+
+        <label>Cajas</label>
+        <input type="number" name="box_amount"  class="form-control" placeholder="#Cajas" required/><br />
+        
+        
+        <div>
+        <div class="form-group">    
+  </div>
+        <input  class="btn-block" type="submit" value="Guardar" onsubmit="loading()"/>
+        <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+
+        </form>
+    </div>
+    </div>
+    </center>
+<br />    
+<hr>
+    <script src="/public/scripts/jquery-3.3.1.min.js"></script>
+    <script>
+
+        $("#products").removeClass("nav-item active");
+        $("#presentations").removeClass("nav-item active");
+
+        $("#presentations").addClass("nav-item active");
+
+        $(document).ready(function () {
+            $.getJSON("/getProducts", function (data) {
+                $("#product").empty();
+                $.each(data, function (index, row) {
+                    $("#product").append("<option value='" + row.Id + "'>" + row.Name+"</option>");
+                });
+            });
+    });
+
+    </script>
+
+{{ template "Footer" }}
+{{ end }}

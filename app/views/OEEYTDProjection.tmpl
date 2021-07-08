@@ -1,0 +1,110 @@
+{{define "OEEYTDProjection"}}
+
+{{ template "Header" }}
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+{{template "Nav_validation"}}
+<br>
+<center>
+    <h1 style="color: gold;">Proyeccion OEE x Rango fechas</h1>
+</center>
+
+<div class="card">
+    <div class="card-body">
+      <form action="#">
+        <div class="form-row align-items-center">
+          <div class="col-md-2 col-md-offset-3">
+            <label> Fecha inicio </label>
+            <input
+              type="date"
+              id="idate"
+              name="idate"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="col-md-4 col-md-offset-3">
+            <label> Fecha final </label>
+            <input
+              type="date"
+              id="fdate"
+              name="fdate"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="col-md-2 col-md-offset-3">
+            <input
+              type="button"
+              class="btn btn-primary btn-block"
+              value="Filtrar"
+              onclick="getProjection()"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<br>
+
+
+<div class="container">
+    <div class="table-responsive-xl">
+        <table class="table table-dark">
+            <thead>
+                <tr>
+                    <th>Linea</th>
+                    <th>Actual</th>
+                    <th>Ideal</th>
+                    <th>Desviado %15</th>
+                    <th>Desviado %10</th>
+                </tr>
+            </thead>
+            <tbody id="data_p"></tbody>
+        </table>
+    </div>
+</div>
+
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script>
+
+    function getProjection(){
+
+        let start = $("input[name='idate']").val();
+        let end = $("input[name='fdate']").val();
+
+        $.getJSON("/getOEEProjectionbyRange?start=" + start + "&end=" + end, data => {
+
+            $("#data_p").empty();
+            $.each(data, function (index, row) {
+                $("#data_p").append("<tr>");
+                $("#data_p").append(
+                    
+                    "<td>" + row.Line + "</td>" +
+                    "<td>" + row.CurrentCase + "</td>" +
+                    "<td>" + row.WorseCase + "</td>" +
+                    "<td>" + row.AverageCase + "</td>" +
+                    "<td>" + row.BestCase + "</td>"
+                );
+                $("#data_p").append("</tr>");
+            });
+
+        });
+
+
+    }
+
+</script>
+
+
+
+{{ template "Footer" }}
+
+{{end}}

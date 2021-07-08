@@ -1,0 +1,216 @@
+{{define "ReportEvent"}}
+{{ template "Header" }}
+
+{{if .User.HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+
+<center>
+  <div class="card" style="max-width: 675px;">
+    <div class="card-header">
+      <div class="row">
+        <div class="col">
+          Reportar Paro
+        </div>
+        <div class="col">
+          <button class="btn-primary btn-block" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="InsertReportEvent" id="eventReport">
+        <h3 id="lostTitle">Paro</h3>
+        <br />
+
+        <div class="form-group row" style="padding-left: 10px;">
+          <input
+            id="searchbox"
+            class="form-control form-control-sm ml-3 w-75"
+            type="search"
+            placeholder="Buscar"
+            aria-label="Buscar"
+            style="font-size: 24px;"
+          />
+          <i
+            class="fa fa-search fa-2x"
+            aria-hidden="true"
+            onclick="searchEvent()"
+          ></i>
+        </div>
+
+        <div id="table-wrapper">
+          <div id="table-scroll">
+            <table
+              id="tableData"
+              class="table table-responsive table-bordered text-light table-striped"
+            >
+              <thead>
+                <tr style="color: black;">
+                  <td>Codigo</td>
+                  <td>Sub clasificacion</td>
+                  <td>Rama</td>
+                  <td>Evento</td>
+                </tr>
+              </thead>
+              <tbody>
+                {{ range.Event }}
+                <tr onclick="currentEvent({{ .Id}})">
+                  <td style="background-color:{{ .Color}}">{{ .Id}}</td>
+                  <td style="background-color:{{ .Color}}">{{ .Sub}}</td>
+                  <td style="background-color:{{ .Color}}">{{ .Branch}}</td>
+                  <td style="background-color:{{ .Color}}">
+                    {{ .Description }}
+                  </td>
+                </tr>
+                {{  end  }}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br />
+        <h4 id="currentStop">Paro seleccionado</h4>
+        <p style="outline: 5px dotted blue;" id="paroActual"></p>
+        <input type="number" name="Event" hidden />
+        <br />
+        <h3>Instante</h3>
+        <label> Fecha | Hora </label>
+        <input
+          type="datetime-local"
+          name="vdate"
+          class="form-control"
+          required
+        />
+        <br />
+        <br /><br />
+        <label>Minutos</label>
+        <input type="number" name="minutes" class="form-control" required />
+        <br /><br />
+        <label>Nota</label>
+        <textarea
+          name="note"
+          class="form-control"
+          form="eventReport"
+          id=""
+          cols="30"
+          rows="5"
+        ></textarea>
+
+        <br /><br />
+        <input
+          class="btn btn-primary btn-block"
+          type="submit"
+          value="Guardar"
+        />
+        <img
+          class="card-img-bottom"
+          src="/public/images/visual_ul02.jpg"
+          height="184"
+          width="100%"
+        />
+      </form>
+    </div>
+  </div>
+</center>
+
+
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/tutorial00.mp4" type="video/mp4">
+        <source src="/public/videos/tutorial00.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/tutorial00.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script>
+
+  $.getJSON("/getLineBy?id=" + {{.User.Line}}, function(data) {
+    $("#line").empty();
+    $.each(data, function(index, row) {
+        console.log(data.Name);
+    });
+  
+  });
+
+
+  var $rows = $("#tableData tr");
+
+  $("#searchbox").on("keypress", "input", function (e) {
+    if (e.which == 13) {
+      searchEvent();
+    }
+  });
+
+  function searchEvent() {
+    var val = $.trim($("#searchbox").val()).replace(/ +/g, " ").toLowerCase();
+
+    $rows
+      .show()
+      .filter(function () {
+        var text = $(this).text().replace(/\s+/g, " ").toLowerCase();
+
+        return !~text.indexOf(val);
+      })
+      .hide();
+  }
+
+  //$("#searchbox").keyup();//function search
+
+  function currentEvent(i) {
+    console.log(i);
+
+    $.getJSON("/getEventBy?id=" + i, function (data) {
+      $.each(data, function (index, row) {
+        document.getElementById("paroActual").innerHTML = row.Description;
+        $("#paroActual").css("outline-style", "dotted");
+        $('input[name="Event"]').val(row.Id);
+        $("#lostTitle").css("background-color", row.Color);
+        $("#lostTitle").css("color", "white");
+
+        $("#currentStop").css("background-color", row.Color);
+        $("#currentStop").css("color", "white");
+      });
+    });
+  }
+</script>
+{{ template "Footer" }}
+{{ end }}

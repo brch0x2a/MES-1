@@ -1,0 +1,132 @@
+{{ define "NewUser" }}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{template "Nav_gestion_personal"}}
+<div class="d-flex align-items-center flex-column justify-content-center h-100">
+  <div class="card w-50">
+    <div class="card-header">Nuevo Usuario</div>
+    <div class="card-body">
+      <form enctype="multipart/form-data"  method="POST" action="insertUser">
+
+      <div class="custom-file">
+          <input type="file" class="custom-file-input" name="capture"  id="imgfile" onchange="loadImage();">
+          <label class="custom-file-label" style="outline: 5px double #CCCCCC;" for="customFile">
+            <img src="/public/images/photo-camera.png" width="32px" height="32px"> 
+            Foto de perfil
+          </label>
+        </div>
+        <canvas id="canvas"></canvas>
+  
+        <br><br>
+        <div class="form-group">
+          <label>Nivel</label>
+          <select name="level" id="level" class="form-control" required></select>
+        </div>
+        <br>
+        <div class="form-group">
+          <label>Planta</label>
+          <select name="factory" id="factory" class="form-control" required></select>
+        </div>
+        <div class="form-group">
+          <label># Empleado</label>
+          <input type="text" name="num" class="form-control" placeholder="#Empleado" required /><br />
+          <div>
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" name="fname" class="form-control" placeholder="Nombre" required /><br />
+            </div>
+            <div class="form-group">
+              <label>Apellido</label>
+              <input type="text" name="lname" class="form-control" placeholder="Apellido" required /><br />
+            </div>
+            <br>
+            <div class="form-group">
+              <label>Contraseña</label>
+              <input type="password" name="pass" class="form-control" placeholder="Contraseña" required /><br />
+            </div>
+            <br>
+            <br>
+            <input type="submit" value="Guardar" class="btn-block" onsubmit="loading()" />
+            <img class="card-img-bottom" src="/public/images/visual_ul02.jpg" height="184" width="100%">
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+<br />
+<hr>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  $(document).ready(() => {
+    $.getJSON("/getPrivilege", data => {
+      $("#level").empty();
+      $.each(data, function (index, row) {
+        $("#level").append("<option value='" + row.Id + "' >" + row.Description + "</option>")
+      });
+    });
+    $.getJSON("/getFactory", data => {
+      $("#factory").empty();
+      $.each(data, function (index, row) {
+        $("#factory").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+      });
+    });
+
+
+  });
+  function loadImage() {
+          var input, file, fr, img;
+  
+          if (typeof window.FileReader !== 'function') {
+              write("The file API isn't supported on this browser yet.");
+              return;
+          }
+  
+          input = document.getElementById('imgfile');
+          if (!input) {
+              write("Um, couldn't find the imgfile element.");
+          }
+          else if (!input.files) {
+              write("This browser doesn't seem to support the `files` property of file inputs.");
+          }
+          else if (!input.files[0]) {
+              write("Please select a file before clicking 'Load'");
+          }
+          else {
+              file = input.files[0];
+              fr = new FileReader();
+              fr.onload = createImage;
+              fr.readAsDataURL(file);
+          }
+  
+          function createImage() {
+              img = new Image();
+              img.onload = imageLoaded;
+              img.src = fr.result;
+          }
+  
+          function imageLoaded() {
+              var canvas = document.getElementById("canvas");
+              var ctx = canvas.getContext("2d");
+  
+              canvas.width = 500;
+              canvas.height = 500;
+  
+              var scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+              // get the top left position of the image
+              var x = (canvas.width / 2) - (img.width / 2) * scale;
+              var y = (canvas.height / 2) - (img.height / 2) * scale;
+              ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+          }
+  
+          function write(msg) {
+              var p = document.createElement('p');
+              p.innerHTML = msg;
+              document.body.appendChild(p);
+          }
+      }
+  
+
+</script>
+
+{{ template "Footer" }}
+{{ end }}

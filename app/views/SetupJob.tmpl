@@ -1,0 +1,185 @@
+{{define "SetupJob"}}
+{{ template "Header" }}
+
+{{if .User.HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{end}}
+<hr style="background-color: antiquewhite">
+<center>
+    <h1 style="color: antiquewhite">Configurar Trabajo</h1>
+</center>
+<hr style="background-color: antiquewhite">
+<br><br>
+<center>
+    <div class="card" style="max-width:800px">
+
+        <div class="card-body">
+            <h3 class="card_title">Parametros Actuales</h3>
+
+            <form method="POST" action="/setJob">
+                <label for="">Area</label>
+                <select name="area" id="area" class="form-control">Area</select>
+
+
+                <div class="col-md-5 col-md-offset-6">
+                    <label for="">Linea</label>
+                    <select name="line" id="line" class="form-control" required></select>
+                </div>
+
+                <br><br>
+                <div class="form-group">
+                    <label for="">Fecha</label>
+                    <input name="vdate" type="date" class="form-control" required>
+                </div>
+                <br><br>
+                <div class="form-group">
+                    <label for="">Turno</label>
+                    <select name="turn" id="turn" class="form-control">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
+                <br>
+                <h3>Presentacion</h3>
+
+
+                <div class="form-group row" style="padding-left: 10px">
+                    <input id="searchbox" class="form-control form-control-sm ml-3 w-75" type="text"
+                        placeholder="Buscar" aria-label="Buscar" style="font-size: 24px">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                </div>
+
+                <div id="table-wrapper">
+                    <div id="table-scroll">
+                        <table id="tableData" class="table table-hover table-bordered table-striped"
+                            style="font-size:small">
+                            <thead>
+                                <tr>
+                                    <td>Producto</td>
+                                    <td>Presentacion</td>
+                                    <td>Peso teorico</td>
+                                    <td>Unidad</td>
+                                    <td>Porcentaje de error</td>
+                                    <td>Cajas</td>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{ range .Presentation}}
+                                <tr onclick="currentPresentation({{ .Id}})">
+                                    <td> {{.Product}} </td>
+                                    <td> {{.Name}} </td>
+                                    <td> {{.Weight_value}} </td>
+                                    <td> {{.Weight_unit}} </td>
+                                    <td> {{.Error_rate}} </td>
+                                    <td> {{.Box_amount}} </td>
+                                </tr>
+                                {{end}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <br>
+
+                <h4 id="currentPresentation">Presentacion seleccionada</h4>
+                <p style="outline: 5px dotted blue;" id="presentacionActual"></p>
+                <input type="number" name="presentation" hidden>
+                <br>
+                <div class="form-group">
+                    <label for="">Coordinador</label>
+                    <select name="coordinador" id="coordinador" class="form-control"></select>
+                </div>
+
+                <br><br>
+                <div class="form-row  align-items-center">
+                    <div class="col-md-5 col-md-offset-6">
+
+                        <input type="submit" class="btn btn-primary btn-block" value="Listo">
+                        <img class="card-img-bottom" src="/public/images/visual_ul02.jpg" height="92" width="100%">
+
+            </form>
+
+        </div>
+    </div>
+    </div>
+    </div>
+</center>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+
+    $(document).ready(() => {
+        $.getJSON("/getArea", function (data) {
+            $("#area").empty();
+            $.each(data, function (index, row) {
+                $("#area").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+            });
+
+            $.getJSON("/getLineBy?id=" + $("#area").val(), function (data) {
+                $("#line").empty();
+                $.each(data, function (index, row) {
+                    $("#line").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+                });
+            });
+        });
+
+        $.getJSON("/getUsers", function (data) {
+            $("#coordinador").empty();
+            $.each(data, function (index, row) {
+                $("#coordinador").append("<option value='" + row.Id + "' >" + row.Fname + " " + row.Lname + "</option>")
+            });
+        });
+
+
+        $("#area").change(() => {
+            $.getJSON("/getLineBy?id=" + $("#area").val(), function (data) {
+                $("#line").empty();
+                $.each(data, function (index, row) {
+                    $("#line").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+                });
+            });
+        });
+
+
+
+    });
+
+
+
+    var $rows = $('#tableData tr');
+
+    $('#searchbox').keyup(function () {
+
+        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+
+        $rows.show().filter(function () {
+
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+
+            return !~text.indexOf(val);
+
+        }).hide();
+    });
+
+    function currentPresentation(i) {
+        console.log(i);
+
+        $.getJSON("/getPresentationBy?id=" + i, function (data) {
+
+            $.each(data, function (index, row) {
+                document.getElementById("presentacionActual").innerHTML = row.Name;
+                $('input[name="presentation"]').val(row.Id);
+
+
+            });
+        });
+
+    }
+
+</script>
+
+{{template "Footer"}}
+
+{{ end }}

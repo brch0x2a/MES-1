@@ -1,0 +1,454 @@
+{{define "RelativeWork_order"}}
+{{ template "Header" }}
+
+
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+{{if .HasPermissionTo "woOption"}}
+    <input type="text" id="username" name="username" value="42" hidden>
+
+{{else}}
+    <input type="text" id="username" name="username" value="0" hidden>
+
+{{ end }}
+
+
+<div id="wocontainer">
+<div  class="d-flex align-items-center flex-column justify-content-center h-100">
+<div class="card" style="width: 100%;">
+<div id="card_header" class="card-header">
+  <div class="row">
+    <div class="col">
+      Ordenes de trabajo
+    </div>
+    <div class="col">
+      <input type="date" name="date" id="date" class="form-control" required>
+    </div>
+
+    <div class="col">
+      <button class="btn-primary btn-block" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+    </div>
+    <div class="col">
+      <button class="btn-dark btn-block" onclick="represent()">Obtener</button>
+    </div>
+  </div>
+
+ </div>
+   <div class="card-body">
+       <form method="POST" action="insertWork_order" id="wo">
+
+      <br>
+
+          <div style="width: 100%;">
+          <div class="timetable"></div>
+          </div>
+      <br><br>
+      <div class="container">
+        <div class="table-responsive-xl">
+          <table
+          class="table table-dark table-striped"
+          style="font-size: small"
+          id="data_table"
+          >
+          <thead>
+            <tr>
+              <td>#Trabajo</td>
+              <td>Tipo</td>
+              <td>Mecanico</td>
+              <td>Linea</td>
+              <td>Descripcion</td>
+              <td>Inicio</td>
+              <td>Fin</td>
+              <td>Accion</td>
+            </tr>
+          </thead>
+          <tbody id="job_data"></tbody>
+          </table>
+        </div>
+      </div>
+          <br>
+
+       <div class="row">
+       <div class="col">    
+        <label for="">Trabajo</label>
+        <select name="job" id="job" class="form-control" onchange="setHeaderColor()" required></select>
+       </div>
+
+
+       <div class="col">    
+        <label for="">Hora inicio planeada</label>
+        <input type="datetime-local" name="init" id="init" class="form-control" required>
+       </div>
+
+       <div class="col">
+       <label for="">Hora final planeada</label>
+       <input type="datetime-local" name="end" id="end" class="form-control" required>
+      </div>
+    </div>
+
+<div class="row">
+      <div class="col">    
+        <label for="">Mecanico asignado</label>
+        <select name="mech" id="mech" class="form-control" required></select>
+       </div>
+
+
+       <div class="col">    
+        <label for="">Area</label>
+        <select name="area" id="area" class="form-control" required></select>
+       </div>
+
+
+       <div class="col">    
+        <label for="">Line asignada</label>
+        <select name="line" id="line" class="form-control" required></select>
+       </div>
+</div>
+       <div class="form-group">    
+        <label for="">Descripcion de la tarea</label>
+        <textarea
+          id="description"
+          name="descripcion"
+          class="form-control"
+          form="wo"
+          cols="30"
+          rows="5"
+        ></textarea>
+       </div>
+
+
+       <input class="btn-primary btn-block" type="submit" value="Guardar" />
+       <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+       </form>
+   </div>
+</div>
+</div>
+</div>   
+<br />    
+<hr>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/tutorial00.mp4" type="video/mp4">
+        <source src="/public/videos/tutorial00.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/tutorial00.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script src="/public/scripts/timetable.js"></script>
+
+<script>
+  Date.prototype.addHours= function(h){
+    this.setHours(this.getHours()+h);
+    return this;
+  }
+
+    data = $("#username").val();
+
+       if (data > 1) {
+        $.getJSON("/getJob_catalog", function(data) {
+                $("#job").empty();
+                $.each(data, function(index, row) {
+                $("#job").append(
+                    "<option value='" + row.Id +"' onclick='setHeaderColor("+row.Id+")'>" + row.Name + "</option>"
+                );
+            });
+        });
+
+       }else{
+
+        $("#job").empty();
+    
+        $("#job").append(
+            "<option value='" + 4 +"' onclick='setHeaderColor("+4+")'>" + "EWO" + "</option>"
+        );
+
+       }
+    
+    $.getJSON("/getMecanics", function(data) {
+            $("#mech").empty();
+            $.each(data, function(index, row) {
+            $("#mech").append(
+                "<option value='" + row.Id +"' >" + row.Fname +" "+row.Lname + "</option>"
+            );
+        });
+    });
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+    $("#area").change(() => {
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+
+    function setHeaderColor(){
+      id = document.getElementById("job").value;
+
+      $.getJSON("/getJob_catalogE?id="+id, function(data) {
+            document.getElementById('card_header').style.color = "white";
+            
+            document.getElementById('card_header').style.backgroundColor = data.Color;
+            
+        });
+
+
+    }
+    /**
+     * 
+     * 
+     * 
+     * 
+     * 
+     * 
+    */
+
+    $( "#wo" ).submit(function( event ) {
+  
+    // Stop form from submitting normally
+    event.preventDefault();
+    
+    // Get some values from elements on the page:
+
+    var $form = $( this ),
+
+      pjob = $("#job").val();
+      pinit = $form.find( "input[name='init']" ).val();
+      pend = $form.find( "input[name='end']" ).val();
+      pmech =$("#mech").val();
+      pline =$("#line").val();
+      pdescription = document.getElementById("description").value;
+
+
+      url = $form.attr( "action" );
+
+
+      //Check if Work order date range is correct
+      let dateInit = Date.parse(pinit)
+      let dateEnd = Date.parse(pend)
+
+      if (dateInit >= dateEnd) {
+          let container  = document.getElementById("wocontainer");
+
+          container.insertAdjacentHTML('beforebegin', `
+          <div id="successAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Rango de fechas invalido!</strong> la hora de inicio no puede ser mayor a la hora final
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>  
+          `);
+
+          represent();
+          $("html, body").animate({ scrollTop: 0 }, "slow");
+          return false;
+    }
+    
+    // Send the data using post
+    var posting = $.post( url,
+     { 
+      job: pjob,  init:pinit, end:pend,
+      mech:pmech, line:pline, description:pdescription
+    });
+    
+    // Put the results in a div
+    posting.done(function( data, status ) {
+
+      console.log("Data: "+data+"\tStatus: "+status);
+
+      if(status == "success") {
+        let container  = document.getElementById("wocontainer");
+
+        container.insertAdjacentHTML('beforebegin', `
+        <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+          <strong>Se guardo exitosamente!</strong> la nueva ordern de trabajo
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>  
+        `);
+
+        represent();
+        $("html, body").animate({ scrollTop: 0 }, "slow");
+      }
+      
+
+    });
+  });
+
+
+      function setTask(timetable, pinit, pfinal, mecanic, task, color, jobId){
+
+        let init = (new Date(pinit).addHours(-18));
+        let final = (new Date(pfinal).addHours(-18));
+        let res = task.split(" ");
+
+        let taskClass = res[0] + res[1];
+
+          var style = document.createElement('style');
+          style.type = 'text/css';
+          style.innerHTML = '.time-entry.'+taskClass+' { background-color: '+color+'; border:1px solid #0f021b }';
+          document.getElementsByTagName('head')[0].appendChild(style);
+
+          timetable.addEvent(task, mecanic, init, final, {class:taskClass, onClick: function(event){currentJob(jobId);}});
+      }
+
+
+      function represent(){
+
+        let timetable = new Timetable().setScope(6, 5);
+        let Mecanics = [];
+        // let timetable = new Timetable().setScope(6, 5);
+
+        console.log("Represent");
+
+        $.getJSON("/getMecanics", function(data) {
+          
+                $.each(data, function(index, row) {
+                  Mecanics.push(row.Fname+" "+row.Lname);
+                });
+
+          console.log("date="+$("#date").val());
+          $.getJSON("/getMetaWork_order?date="+$("#date").val(), function(data) {
+            timetable.addLocations(Mecanics);
+            $.each(data, function(index, row) {
+                setTask(timetable, row.Init, row.End, row.Fname+" "+row.Lname, row.Job+" - "+row.Line, row.Color, row.Id);
+            });
+            render(timetable);
+          });
+           
+        });
+
+      }
+
+
+      function render(timetable){
+          var renderer = new Timetable.Renderer(timetable);
+          renderer.draw('.timetable');
+      }
+
+
+      function currentJob(jobId){
+        console.log("jobId: "+ jobId);
+       let phase = 0;
+
+        $.getJSON("/getMetaWork_orderE?id="+jobId, data => {
+        
+
+        $("#job_data").empty();
+
+            $("#job_data").append("<tr>");
+            $("#job_data").append(
+                
+                "<td style='background-color:"+data.Color+"'>" + data.Id + "</td>" +
+                "<td style='background-color:"+data.Color+"'>" + data.Job + "</td>" +
+                "<td style='background-color:"+data.Color+"'>" + data.Fname +" "+data.Lname + "</td>"+
+                "<td style='background-color:"+data.Color+"'>" + data.Line + "</td>" +
+                "<td style='background-color:"+data.Color+"'>" + data.Description + "</td>" +
+                "<td style='background-color:"+data.Color+"'>" + data.Init + "</td>" +
+                "<td style='background-color:"+data.Color+"'>" + data.End + "</td>" +
+                "<td >"+
+                   "<a onclick='deleteWorkOrder(this, "+data.Id+")'><button  type='button' class='btn btn-danger'>Borrar</button></a>"
+              +"</td>" 
+            );
+
+            $("#job_data").append("</tr>");
+        });
+      }
+
+
+
+ 
+      function deleteStatus(btn){
+          
+          let container  = document.getElementById("wocontainer");
+
+          container.insertAdjacentHTML('beforebegin', `
+            <div id="successAlert" class="alert alert-warning alert-dismissible fade show" role="alert">
+              <strong>Se elimino!</strong> la order de trabajo
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>  
+            `);
+          
+            $("html, body").animate({ scrollTop: 0 }, "slow");
+
+      }
+      function deleteWorkOrder(btn, pid){
+
+        $.get("/deleteWorkOrder?id="+pid, (data)=> {});
+          deleteStatus(btn, pid);
+
+          setTimeout(() => {  
+
+            $("#job_data").empty();
+            represent();
+
+           }, 1000);
+
+      }
+
+</script>
+
+
+{{ template "Footer" }}
+
+
+{{end}}

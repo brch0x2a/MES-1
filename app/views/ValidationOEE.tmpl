@@ -1,0 +1,954 @@
+{{define "ValidationOEE"}}
+
+
+{{template "Header"}}
+{{if .User.HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+{{template "Nav_validation"}}
+<div class="card">
+    <div class="card-body">
+        <form class="form-row align-items-center">
+            <div class="form-group col-md-2">
+                <label for="area">Area</label>
+                <select name="area" id="area" class="form-control"></select>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="line">Linea</label>
+                <select name="line" id="line" class="form-control"></select>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="">Año</label>
+                <input
+                  type="number"
+                  id="year"
+                  placeholder="2019"
+                  class="form-control"
+                  step="1"
+                />
+              </div>
+              <div class="form-group col-md-2">
+                <label for="">Semana</label>
+                <input
+                  type="number"
+                  placeholder="1"
+                  class="form-control"
+                  id="wk"
+                  step="1"
+                  max="52"
+                />
+              </div>
+             
+                <button type="button" id="btnOEE" class="btn btn-primary" onclick="beginWeek()">Obtener</button>
+              
+
+        </form>
+    </div>
+</div>
+
+
+<hr id="statusNotification">
+
+<div class="row">
+    <div class="col-4">
+        <div id="gauge"></div>
+    </div>
+    <div class="col-4">
+      <div class="container">
+          <div class="table-responsive-sm">
+            <table
+              class="table table-dark"
+              style="font-size: small"
+              id="data_table"
+            >
+              <thead>
+                <tr>
+                  <td>Turno</td>
+                  <td>OEE</td>
+                  <td>Tiempo no reportado</td>
+                  <td>Tiempo de paro</td>
+                </tr>
+              </thead>
+              <tbody id="data_relative"></tbody>
+            </table>
+          </div>
+        </div>
+  </div>
+</div>
+<div class="row">
+
+<div class="col">
+
+  <div class="container">
+    <table  style="font-size: small" class="table table-responsive-sm table-dark">
+
+        <thead>
+            <tr>
+                <td>Turno</td>
+                <td>Producto</td>
+                <td>Precentacion</td>
+                <td>Velocidad nominal</td>
+                <td>Planeado</td>
+                <td>Producido</td>
+            </tr>
+        </thead>
+        <tbody id="data_plan"></tbody>
+    </table>
+</div>
+
+
+</div>
+</div>
+<br>
+<div class="">
+    <div class="">
+        <form class="form-row align-items-center">
+            <div class="form-group col-md-4">
+                <button type="button" id="prev" onclick="previousRelativeDay()" class="btn btn-dark btn-block">Anterior</button>
+            </div>
+            <div class="form-group col-md-4">
+                <div class="container">
+                    <div class="table-responsive-xl">
+                      <table
+                        class="table table-bordered table-dark" 
+                        style="font-size: small"
+                        id="data_table"
+                      >
+                        <thead>
+                          <tr>
+                            <th scope="col" colspan="7">Dia</th>
+                            <th scope="col">Fecha</th>
+                          </tr>
+                        </thead>
+                        <tbody id="data_day"></tbody>
+                      </table>
+                    </div>
+                  </div>
+            </div>
+            <div class="form-group col-md-4">
+                <button type="button" id="next" onclick="nextRelativeDay()" class="btn btn-dark btn-block">Siguiente</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="container" style="d-flex align-items-center flex-column justify-content-center">
+
+        <table id="myTable" class="table table-responsive-xl table-dark">
+            <thead>
+                <tr>
+                    <th>Perfil</th>
+                    <th>Fecha | Hora</th>
+                    <th>#Empleado</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Sub clasificacion</th>
+                    <th>Rama</th>
+                    <th>Evento</th>
+                    <th>Turno</th>
+                    <th>Minutos</th>
+                    <th>Nota</th>
+                    <th> Accion |
+                      
+                        <button
+                        type="button"
+                        class="btn btn-success"
+                        style="margin-left: 20px"
+                        data-toggle="modal" data-target="#newEvent"
+                        >
+                        Agregar
+                        </button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="data_p"></tbody>
+        </table>
+  
+</div>
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="newEvent"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="closeFormLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content card">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Crear evento</h5>
+        <button
+          type="button"
+          class="close"
+          id="doneEventCreate"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      
+      <form method="POST" style="text-align: center;" action="insertLTCLine" id="eventReport">
+        <h3 id="lostTitle">Paro</h3>
+        <br />
+
+        <div class="form-group row" style="padding-left: 10px;">
+          <input
+            id="searchbox"
+            class="form-control form-control-sm ml-3 w-75"
+            type="search"
+            placeholder="Buscar"
+            aria-label="Buscar"
+            style="font-size: 24px;"
+          />
+          <i
+            class="fa fa-search fa-2x"
+            aria-hidden="true"
+            onclick="searchEvent()"
+          ></i>
+        </div>
+
+        <div id="table-wrapper">
+          <div id="table-scroll">
+            <table
+              id="tableData"
+              class="table table-responsive-sm table-bordered text-light table-striped"
+            >
+              <thead>
+                <tr style="color: black;">
+                  <td>Codigo</td>
+                  <td>Sub clasificacion</td>
+                  <td>Rama</td>
+                  <td>Evento</td>
+                </tr>
+              </thead>
+              <tbody>
+                {{ range.Event }}
+                <tr onclick="currentEvent({{ .Id}})">
+                  <td style="background-color:{{ .Color}}">{{ .Id}}</td>
+                  <td style="background-color:{{ .Color}}">{{ .Sub}}</td>
+                  <td style="background-color:{{ .Color}}">{{ .Branch}}</td>
+                  <td style="background-color:{{ .Color}}">
+                    {{ .Description }}
+                  </td>
+                </tr>
+                {{  end  }}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br />
+        <h4 id="currentStop">Paro seleccionado</h4>
+        <p style="outline: 5px dotted blue;" id="paroActual"></p>
+        <input type="number" name="Event" hidden />
+        <br />
+        <h3>Instante</h3>
+        <label> Fecha | Hora </label>
+        <input
+          type="datetime-local"
+          name="vdate"
+          class="form-control"
+          required
+        />
+        <br />
+        <br /><br />
+        <label>Minutos</label>
+        <input type="number" name="minutes" class="form-control" required />
+        <br /><br />
+        <label>Nota</label>
+        <textarea
+          name="note"
+          class="form-control"
+          form="eventReport"
+          id=""
+          cols="30"
+          rows="5"
+        ></textarea>
+
+        <br /><br />
+        <input
+          class="btn btn-primary btn-block"
+          type="submit"
+          value="Guardar"
+        />
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="minutesSet"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="closeFormLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Ajuste Minutos</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="closeFormSet">
+        <div class="modal-body">
+          <label>Minutos</label>
+          <input
+            name="pminutes"
+            class="form-control"
+            form="closeFormSet"
+            id="pminutes"
+            type="number"
+            step="1"
+          ></input>
+          <br />    
+          <input type="number" name="pid" id="pid" hidden>     
+        </div>
+        <div class="modal-footer">
+          <button id="cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="updateSequence()"
+          >
+            Actualizar
+          </button>
+        </div>
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+<script src="/public/scripts/Chart.bundle.js"></script>
+<script src="/public/scripts/d3.v5.min.js"></script>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<!-- <script defer src="/public/scripts/datatables.min.js"></script> -->
+<script>
+
+    Chart.defaults.global.defaultFontColor = 'white';
+    let globalCount = 0;
+
+    function addData(chart, label, data) {
+        chart.data.labels.push(label);
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data.push(data);
+        });
+        chart.update();
+    }
+
+    function removeData(chart) {
+        chart.data.labels.pop();
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data.pop();
+        });
+        chart.update();
+    }
+
+    $(document).ready(() => {
+        $.getJSON("/getArea", function (data) {
+            $("#area").empty();
+            $.each(data, function (index, row) {
+                $("#area").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+            });
+            $.getJSON("/getLineBy?id=" + $("#area").val(), function (data) {
+                $("#line").empty();
+                $.each(data, function (index, row) {
+                    $("#line").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+                });
+            });
+        });
+
+
+        $("#area").change(() => {
+            $.getJSON("/getLineBy?id=" + $("#area").val(), function (data) {
+                $("#line").empty();
+                $.each(data, function (index, row) {
+                    $("#line").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+                });
+            });
+        });
+
+        // $('#myTable').DataTable();
+
+    });
+
+      // Attach a submit handler to the form
+  $( "#eventReport" ).submit(function( event ) {
+   
+   // Stop form from submitting normally
+   event.preventDefault();
+  
+   // Get some values from elements on the page:
+   var $form = $( this ),
+     
+     event = $form.find( "input[name='Event']" ).val();
+     line = $("#line").val();
+     vdate = $form.find( "input[name='vdate']" ).val();
+     minutes = $form.find( "input[name='minutes']" ).val();
+    note = $form.find( "input[name='note']" ).val();
+
+
+     url = $form.attr( "action" );
+  
+   // Send the data using post
+   var posting = $.post( url, { Event: event, line:line, vdate:vdate, minutes:minutes,  note:note} );
+  
+   // Put the results in a div
+   posting.done(function( data, status ) {
+
+     console.log("Data: "+data+"\tStatus: "+status);
+
+     if(status == "success") {
+       let container  = document.getElementById("statusNotification");
+
+       container.insertAdjacentHTML('beforebegin', `
+       <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+         <strong>Se guardo exitosamente!</strong> El nuevo paro
+         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+           <span aria-hidden="true">&times;</span>
+         </button>
+       </div>  
+       `);
+
+       $("#doneEventCreate").click();
+       loadRelativeDay(globalCount);
+       $("html, body").animate({ scrollTop: 0 }, "slow");
+     }
+     
+
+   });
+ });
+
+
+ 
+ function deleteStatus(btn){
+    
+    let container  = document.getElementById("statusNotification");
+
+    container.insertAdjacentHTML('beforebegin', `
+      <div id="successAlert" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>Se elimino!</strong> Un paro
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>  
+      `);
+    
+    loadRelativeDay(globalCount);
+    $("html, body").animate({ scrollTop: 0 }, "slow");
+
+ }
+
+
+
+
+    var $rows = $("#tableData tr");
+
+$("#searchbox").on("keypress", "input", function (e) {
+  if (e.which == 13) {
+    searchEvent();
+  }
+});
+
+function searchEvent() {
+  var val = $.trim($("#searchbox").val()).replace(/ +/g, " ").toLowerCase();
+
+  $rows
+    .show()
+    .filter(function () {
+      var text = $(this).text().replace(/\s+/g, " ").toLowerCase();
+
+      return !~text.indexOf(val);
+    })
+    .hide();
+}
+
+//$("#searchbox").keyup();//function search
+
+function currentEvent(i) {
+  console.log(i);
+
+  $.getJSON("/getEventBy?id=" + i, function (data) {
+    $.each(data, function (index, row) {
+      document.getElementById("paroActual").innerHTML = row.Description;
+      $("#paroActual").css("outline-style", "dotted");
+      $('input[name="Event"]').val(row.Id);
+      $("#lostTitle").css("background-color", row.Color);
+      $("#lostTitle").css("color", "white");
+
+      $("#currentStop").css("background-color", row.Color);
+      $("#currentStop").css("color", "white");
+    });
+  });
+}
+
+
+    Date.prototype.addDays = function(days) {
+        var date = new Date(this.valueOf());
+        date.setDate(date.getDate() + days);
+        return date;
+    }
+
+    function beginWeek(){
+        $("#data_relative").empty();
+        $("#data_day").empty();
+
+        loadRelativeDay(0);
+    }
+
+    function nextRelativeDay(){
+      
+        globalCount = globalCount + 1;
+        if(globalCount == 7){
+            globalCount = 0;
+        }
+
+        //console.log("globalCount:\t"+globalCount);
+        loadRelativeDay(globalCount);
+    }
+
+    function previousRelativeDay(){
+        globalCount = globalCount - 1 % 7;
+        if(globalCount == -1){
+            globalCount = 0;
+        }
+        //console.log("globalCount:\t"+globalCount);
+        loadRelativeDay(globalCount);
+    }
+
+
+    function loadRealativePlanning(line, date){
+
+        $.getJSON("/getHistoricPlanning?date=" + date + "&line=" + line, data => {
+
+            $("#data_plan").empty();
+            $.each(data, function (index, row) {
+                $("#data_plan").append("<tr>");
+                $("#data_plan").append(
+                    
+                    "<td>" + row.Turn + "</td>" +
+                    "<td><img style='object-fit: scale-down;' src='/"+row.Photo+"' width='120' height='120'></td>"+
+
+                    "<td>" + row.Presentation + "</td>" +
+                    "<td>" + row.Nominal_speed + "</td>" +
+                    "<td>" + row.Planned + "</td>" +
+                    "<td>" + row.Produced + "</td>"
+                );
+
+                $("#data_plan").append("</tr>");
+            });
+
+        });
+
+
+    }
+
+
+    function loadRelativeDay(n){
+
+        globalCount =n;
+
+        let dayNames = ["L", "K", "M", "J", "V", "S", "D"];
+        year = $("#year").val()
+        day = new Date(year, 0);
+        day = day.addDays(-day.getDay()+1);
+        wk = $("#wk").val();
+        a = n;
+        var r = "";
+        var res;
+        line = $("#line").val();
+
+        currentDay = day.addDays((wk-1)*7+a);
+        //console.log("\ncurrent day: "+currentDay);
+
+        res = currentDay.toString().split(" "); 
+
+        //for(i=0; i<4; i++){r += res[i] + " ";}
+        r = currentDay.getFullYear().toString()+"-"+(currentDay.getMonth()+1).toString()+"-"+currentDay.getDate().toString();
+
+        n = n * 3;
+
+        //console.log("Line\t|Day");
+        //console.log(line+"\t\t|"+r);
+
+        $("#data_relative").empty();
+        $("#data_day").empty();
+
+        //Day table 
+
+        $("#data_day").append("<tr>");
+
+          for (let i = 0; i < dayNames.length; i++) {
+            if(i ==a ){
+              $("#data_day").append(
+                "<th scope='col' style='color:gold' onclick='loadRelativeDay("+i+")'>"+dayNames[i]+"</th>"
+               );
+            }else{
+              $("#data_day").append(
+                "<th scope='col' onclick='loadRelativeDay("+i+")'>"+dayNames[i]+"</th>"
+               );
+            }
+
+            
+          }
+
+            $("#data_day").append(
+                "<th scope='col' style='color:gold;'>" +r+ "</th>"
+            );
+        $("#data_day").append("</tr>");
+
+        //Relative Data
+
+      
+        Lt = ["1", "2", "3", "Dia"]
+
+        $.getJSON("/getRealtiveOEE?line="+line+"&day="+r, data => {
+
+            $("#data_relative").empty();
+
+            $.each(data, (index, row)=>{
+                $("#data_relative").append("<tr>");
+                $("#data_relative").append(
+                    "<td>" + Lt[index] + "</td>" +
+                    "<td>" + row.OEE + "</td>" +
+                    "<td>" + row.Dtime + "</td>" +
+                    "<td>" + row.StopTime+ "</td>" 
+                );
+                $("#data_relative").append("</tr>");
+
+            });
+          });
+
+          loadEvents(line, r);
+          loadOEEGauge(line, wk, year);
+          loadRealativePlanning(line, r);
+    }
+
+
+    function loadOEEGauge(pline, pweek, pyear){
+
+
+        $.getJSON("/getOEEWeekLineTotal?line=" +pline + "&week=" +pweek + "&year=" + pyear, function (data) {
+                var data_oee = [];
+                if (data == NaN) console.log("NUll data");
+                render(data_oee = [{ "unit": "seconds", "numeric": data }]);
+            });
+    }
+
+
+
+    function loadEvents(pline, pdate){
+        $("#data_p").empty();
+
+        for (let pturn = 1; pturn < 4; pturn++) {
+
+          $.getJSON(
+          "/getEventFilterV00?line=" +
+            pline+
+            "&turn=" +
+            pturn +
+            "&date=" +
+            pdate,
+          data => {
+
+            $.each(data, function(index, row) {
+              $("#data_p").append("<tr>");
+              $("#data_p").append(
+                "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  "<img style='border-radius: 50%;' src='"+row.Profile_picture+"' width='75' height='75'>"+
+                  "</td>"+
+                "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Date_event +
+                  "</td>" +
+
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Nick_name +
+                  "</td>" +
+
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Fname +
+                  "</td>" +
+
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Lname +
+                  "</td>" + 
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Sub +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Branch +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Event +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Turn +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Minutes +
+                  "</td>" +
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>" +
+                  row.Note +
+                  "</td>"+
+                  "<td style='background-color:" +
+                  row.Color +
+                  "'>"+
+                  "<a onclick='presetMinutesForm("+row.Id+")'>"+
+                  '<button type="button"' +
+                  'class="btn btn-primary" data-toggle="modal" data-target="#minutesSet">Editar</button>'+
+                  '</a>'+
+                  "<a onclick='deleteExL(this, "+row.Id+")'><button  type='button' class='btn btn-danger'>Borrar</button></a>"+
+                  "</td>"
+              );
+              $("#data_p").append("</tr>");
+            });
+          }
+        );
+      }
+
+    }
+
+
+    var fields;
+
+    fields = function () {
+
+        $.getJSON("/getOEE?line=" + $("#line").val() + "&turn=" + $("#turn").val() + "&date=" + $("#date").val(), function (data) {
+            var oee = -1;
+
+            if (data != NaN) {
+                oee = data;
+            }
+
+            oee += Math.floor(5 * Math.random());
+            console.log("my oee: " + oee);
+
+            return data = [
+                {
+                    "unit": "seconds",
+                    "numeric": oee
+                }
+            ];
+
+        });
+    };
+
+
+
+    var width, height, offSetX, offSetY, pi, scaleSecs, scaleHours;
+    width = 400;
+    height = 200;
+    offSetX = 150;
+    offSetY = 100;
+
+    pi = Math.PI;
+    scaleSecs = d3.scaleLinear().domain([0, 100]).range([pi + pi / 2, 2 * pi + pi / 2]);
+
+
+
+    var vis, clockGroup;
+
+    vis = d3.select("#gauge")
+        .append("svg:svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    clockGroup = vis.append("svg:g")
+        .attr("transform", "translate(" + offSetX + "," + offSetY + ")");
+
+    clockGroup.append("svg:circle")
+        .attr("r", 80)
+        .attr("fill", "white")
+        .attr("fill-opacity", 0.4)
+        .attr("class", "clock outercircle")
+        .attr("stroke", "white")
+        .attr("stroke-width", 2);
+
+    clockGroup.append("svg:circle")
+        .attr("r", 4)
+        .attr("fill", "white")
+        .attr("class", "clock innercircle");
+
+
+
+    var render;
+
+    render = function (data) {
+
+        var hourArc, minuteArc, secondArc;
+
+        clockGroup.selectAll(".clockhand").remove();
+        clockGroup.selectAll("text").remove();
+
+        secondArc = d3.arc()
+            .innerRadius(0)
+            .outerRadius(70)
+            .startAngle(function (d) {
+                return scaleSecs(d.numeric);
+            })
+            .endAngle(function (d) {
+                return scaleSecs(d.numeric);
+            });
+
+
+
+        clockGroup.selectAll(".clockhand")
+            .data(data)
+            .enter()
+            .append("svg:path")
+            .attr("d", function (d) {
+                if (d.unit === "seconds") {
+                    return secondArc(d);
+                }
+            })
+            .attr("class", "clockhand")
+            .attr("stroke", "white")
+            .attr("stroke-width", function (d) {
+                if (d.unit === "seconds") {
+
+                    clockGroup.append("text")
+                        .style("fill", "white")
+                        .style("font-size", "26px")
+                        .attr("x", -12)
+                        .attr("dy", ".35em")
+                        .attr("y", 35)
+                        .text(d.numeric);
+
+                    if (d.numeric < 50) {
+                        clockGroup.selectAll("text")
+                            .style("fill", "red");
+
+                        clockGroup.selectAll(".clockhand")
+                            .attr("stroke", "red")
+
+                    } else if (49 < d.numeric && d.numeric < 75) {
+                        clockGroup.selectAll("text")
+                            .style("fill", "#d25403");
+
+                        clockGroup.selectAll(".clockhand")
+                            .attr("stroke", "#d25403")
+
+                    } else if (74 < d.numeric && d.numeric < 101) {
+                        clockGroup.selectAll("text")
+                            .style("fill", "#045206");
+
+                        clockGroup.selectAll(".clockhand")
+                            .attr("stroke", "#045206")
+                    } else if (100 < d.numeric) {
+                        clockGroup.selectAll("text")
+                            .style("fill", "blue");
+
+                        clockGroup.selectAll(".clockhand")
+                            .attr("stroke", "blue")
+                    }
+
+                    clockGroup.append("text")
+                        .style("fill", "gold")
+                        .style("font-size", "14px")
+                        .attr("x", -28)
+                        .attr("dy", ".35em")
+                        .attr("y", 95)
+                        .text("OEE Semanal");
+
+                    return 4;
+                }
+            })
+            .attr("fill", "none");
+    };
+
+
+    function presetMinutesForm(pid){
+        $.getJSON("/getExLby?id="+pid, row =>{
+            $('input[name="pid"]').val(row.Id);
+            $('input[name="pminutes"]').val(row.Minutes);
+        });
+    }
+    
+    function updateSequence(){
+        updateEventXLine();
+        loadRelativeDay(globalCount);
+
+
+        setTimeout(()=>{
+          $("#cancel").click();
+          beginWeek();
+        }, 500)
+
+    }
+
+
+    function updateEventXLine(){
+        let pid         = $("#pid").val();
+        let pminutes    = $("#pminutes").val();
+
+        console.log("-pid: "+pid+"\tpminutes: "+pminutes);
+        $.post("/updateExLPartial", {
+        uid: pid,
+        uminutes: pminutes
+      });
+
+    }
+
+    function deleteExL(btn, pid){
+
+        $.get("/deleteExL?id="+pid, (data)=> {});
+        deleteStatus(btn, pid);
+    }
+
+
+
+</script>
+{{ template "Footer" }}
+
+{{end}}

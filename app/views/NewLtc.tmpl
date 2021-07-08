@@ -1,0 +1,30 @@
+{{define "NewLtc"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{ template "Nav_ltc"}}
+ <div class="d-flex align-items-center flex-column justify-content-center h-100">
+<div class="card w-50">
+    <div class="card">
+        <div class="card-body">
+        <h3 class="card_title">nuevo LTC</h3>
+
+        <form method="POST" action="InsertLTC">
+              <label> LTC </label>
+              <input name="description" type="text" class="form-control" placeholder="Line time classifaction" required>
+              <br>
+              <input class="btn-block" type="submit" value="Guardar" onsubmit="loading()" />
+              <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+
+        </form>
+      </div>
+    </div>
+</div>
+</div>   
+<br />    
+<hr>
+
+
+{{ template "Footer" }}
+
+
+{{end}}

@@ -1,0 +1,219 @@
+{{define "Work_orderLog"}}
+{{template "Header"}}
+
+{{ template "Menu" }}
+{{ template "Nav_workOrders"}}
+<br />
+<center>
+  <h2 style="color: gold;">Historico ordenes de trabajo detalle</h2>
+</center>
+<div class="card">
+  <div class="card-body">
+    <form action="#">
+      <div class="form-row align-items-center">
+
+        <div class="col-md-2 col-md-offset-3">
+          <label> Fecha inicio </label>
+          <input
+            type="date"
+            id="dinit"
+            name="dinit"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-4 col-md-offset-3">
+          <label> Fecha final </label>
+          <input
+            type="date"
+            id="dfinal"
+            name="dfinal"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <input
+            type="button"
+            class="btn btn-primary"
+            value="Filtrar"
+            onclick="filter()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<br /><br /><br />
+<center><h2 style="color: gold;">Ordenes</h2></center>
+<a id="dlink" style="display: none;"></a>
+
+<input
+  id="exportButton"
+  class="btn btn-block btn-success"
+  type="button"
+  onclick="tableToExcel('data_table', 'name', 'historicoOrdenes.xls')"
+  value="Exportar a Excel"
+  hidden="true"
+/>
+<br />
+
+    <table
+    class="table table-responsive table-dark table-striped"
+    style="font-size: small"
+    id="data_table"
+    >
+      <thead>
+        <tr>
+          <td>Perfil</td>
+          <td>#Trabajo</td>
+          <td>Tipo</td>
+          <td>Nombre</td>
+          <td>Apellido</td>
+          <td>Linea</td>
+          <td>Descripcion</td>
+          <td>Inicio planeado</td>
+          <td>Fin planeado</td>
+          <td>Hora notificacion</td>
+
+          <td>Foto antes del trabajo </td>
+
+          <td>Tiempo de espera</td>
+          <td>Tiempo diagnostico</td>
+          <td>Tiempo repuesto</td>
+          <td>Tiempo reparacion</td>
+          <td>Tiempo prueba&arranque</td>
+          <td>Tiempo entrega</td>
+
+          <td>Hora final de trabajo</td>
+
+          <td>Foto despues del trabajo</td>
+          <td>Fase actual</td>
+          <td>Nota mecanico</td>
+          <td>Estado</td>
+          <td>Accion</td>
+
+        </tr>
+      </thead>
+      <tbody id="data_p"></tbody>
+    </table>
+
+<br />
+<center>
+  <p id="noResult" style="color: white; font-size: 36px;" hidden>
+    No hay resultados!
+  </p>
+  <img
+    id="desert"
+    src="/public/images/desertIconWhite.png"
+    alt="noResultados"
+    hidden
+  />
+</center>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+
+  function filter() {
+    $.getJSON(
+      "/getMetaLogWork_order?"+
+        "idate=" +
+        $("#dinit").val() +
+        "&fdate=" +
+        $("#dfinal").val(),
+      (data) => {
+        if (data.length == 0) {
+          hiddeE("desert", false);
+          hiddeE("noResult", false);
+        } else {
+          hiddeE("desert", true);
+          hiddeE("noResult", true);
+        }
+        $("#data_p").empty();
+        $.each(data, function (index, row) {
+
+            let before = row.Photo_before.replace("\\", "/");
+            before = before.replace('\\', "/");
+            before = before.replace('\\', "/");
+
+            let after = row.Photo_after.replace("\\", "/");
+            after = after.replace('\\', "/");
+            after = after.replace('\\', "/");
+
+
+            $("#data_p").append("<tr>");
+            $("#data_p").append(
+             "<td style='background-color:" +row.Color+"'><img style='border-radius: 50%;' src='"+row.Profile+"' width='75' height='75'></td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Id+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Job+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Fname+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Lname+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Line+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Description+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Init+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.End+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.ActualBegin+"</td>"+
+             "<td style='background-color:" +row.Color+"'><img src='/"+before+"' width='200' height='180'></td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Wait_time+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Diagnostic_time+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Stock_time+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Repair_time+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Test_time+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Delivery_time+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.ActualEnd+"</td>"+
+             "<td style='background-color:" +row.Color+"'><img src='/"+after+"' width='200' height='180'></td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Phase+"</td>"+
+             "<td style='background-color:" +row.Color+"'>"+row.Note+"</td>"+
+             "<td style='background-color:" +row.SColor+"'>"+row.State+"</td>"+
+             "<td >"+
+              "<a onclick='deleteWorkOrder(this, "+row.Id+")'><button  type='button' class='btn btn-danger'>Borrar</button></a>"+
+              +"</td>"
+             
+            );   
+
+            $("#data_p").append("</tr>");
+        });
+      }
+    );
+    hiddeE("exportButton", false);
+  }
+
+
+  function deleteWorkOrder(btn, pid){
+
+    $.get("/deleteWorkOrder?id="+pid, (data)=> {});
+    setTimeout(() => {  
+
+      filter();
+
+      }, 1000);
+  }
+
+  var tableToExcel = (function () {
+    var uri = "data:application/vnd.ms-excel;base64,",
+      template =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+      base64 = function (s) {
+        return window.btoa(unescape(encodeURIComponent(s)));
+      },
+      format = function (s, c) {
+        return s.replace(/{(\w+)}/g, function (m, p) {
+          return c[p];
+        });
+      };
+    return function (table, name, filename) {
+      if (!table.nodeType) table = document.getElementById(table);
+      var ctx = { worksheet: name || "Worksheet", table: table.innerHTML };
+
+      document.getElementById("dlink").href =
+        uri + base64(format(template, ctx));
+      document.getElementById("dlink").download = filename;
+      document.getElementById("dlink").click();
+    };
+  })();
+</script>
+
+{{template "Footer"}}
+{{ end }}

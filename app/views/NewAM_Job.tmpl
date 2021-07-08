@@ -1,0 +1,239 @@
+{{define "NewAM_Job"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{template "NavAM"}}
+
+ 
+<br><br><br>
+<div class="d-flex align-items-center flex-column justify-content-center h-100">
+<div class="card">
+<div id="card_header" class="card-header">Nuevo Trabajo AM</div>
+   <div class="card-body">
+       <form  id="amForm" enctype="multipart/form-data"  method="POST" action="insertAM_Job">
+        
+        <br />
+        <h3 id="lostTitle">Componente</h3>
+        <div class="form-group row" style="padding-left: 10px">
+          <input
+            id="searchbox"
+            class="form-control form-control-sm ml-3 w-75"
+            type="text"
+            placeholder="Buscar"
+            aria-label="Buscar"
+            style="font-size: 24px"
+          />
+          <i class="fa fa-search" aria-hidden="true"></i>
+        </div>
+
+        <div id="table-wrapper">
+          <div id="table-scroll">
+            <table class="table table-responsive table-bordered table-striped">
+              <thead>
+                <tr style="color: black">
+                    <td>Numero</td>
+                    <td>Maquina</td>
+                    <td>Componente</td>
+                    <td>Descripcion</td>
+                    <td>Imagen</td>
+                </tr>
+              </thead>
+              <tbody id="tableData">
+                {{   range.Component }}
+                <tr onclick="currentEvent({{ .Id}})">
+                    <td>{{ .Id }}</td>
+                    <td>{{ .Machine}}</td>
+                    <td>{{ .Name }}</td>
+                    <td>{{ .Description}}</td>
+                    <td><img style="object-fit: scale-down;"  src="/{{ .Photo}}" width='200' height='180'></td>
+                </tr>
+                {{  end  }}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br />
+        <h4 id="currentStop">Componente seleccionado</h4>
+        <p style="outline: 5px dotted #127cb9;" id="equipoActual"></p>
+        <input type="number" name="component" hidden />
+        
+        <br />
+
+
+        <div class="form-group"> 
+            <label for="">LILA</label>
+            <select name="lila" id="lila" class="form-control" onchange="setHeaderColor()"
+            >LILA</select>
+        </div>
+
+
+        <br />
+        <h3 id="lostTitle">EPP</h3>
+        <div class="form-group row" style="padding-left: 10px">
+          <input
+            id="searchboxEPP"
+            class="form-control form-control-sm ml-3 w-75"
+            type="text"
+            placeholder="Buscar"
+            aria-label="Buscar"
+            style="font-size: 24px"
+          />
+          <i class="fa fa-search" aria-hidden="true"></i>
+        </div>
+
+        <div id="table-wrapper">
+          <div id="table-scroll">
+            <table class="table table-responsive table-bordered table-striped">
+              <thead>
+                <tr style="color: black">
+                    <td>Numero</td>
+                    <td>Nombre</td>
+                    <td>Imagen</td>
+                </tr>
+              </thead>
+              <tbody id="tableDataEPP">
+                {{   range.EPP }}
+                <tr onclick="currentEPP({{ .Id}})">
+                    <td>{{ .Id }}</td>
+                    <td>{{ .Name}}</td>
+                    <td><img style="object-fit: scale-down;" src="/{{ .Photo}}" width='200' height='180'></td>
+                </tr>
+                {{  end  }}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br />
+        <h4 id="currentStop">EPP seleccionado</h4>
+        <p style="outline: 5px dotted #127cb9;" id="eppActual"></p>
+        <input type="number" name="epp" hidden />
+        
+        <br />
+
+       <br />
+       <label>Descripcion</label>
+       <textarea
+         name="description"
+         id="description"
+         class="form-control"
+         form="amForm"
+         cols="30"
+         rows="10"
+         maxlength="450"
+       ></textarea>
+
+
+
+       <input class="btn-primary btn-block" type="submit" value="Guardar" onsubmit="loading()"/>
+       <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+       </form>
+   </div>
+</div>
+</div>
+</div>   
+<br />    
+<hr>
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script>
+
+
+
+var $rows = $("#tableData tr");
+
+$("#searchbox").keyup(function() {
+  var val = $.trim($(this).val())
+    .replace(/ +/g, " ")
+    .toLowerCase();
+
+  $rows
+    .show()
+    .filter(function() {
+      var text = $(this)
+        .text()
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+
+      return !~text.indexOf(val);
+    })
+    .hide();
+});
+
+
+
+var $rowsEPP = $("#tableDataEPP tr");
+
+$("#searchboxEPP").keyup(function() {
+  var val = $.trim($(this).val())
+    .replace(/ +/g, " ")
+    .toLowerCase();
+
+  $rowsEPP
+    .show()
+    .filter(function() {
+      var text = $(this)
+        .text()
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+
+      return !~text.indexOf(val);
+    })
+    .hide();
+});
+
+
+
+
+function currentEvent(i) {
+    $.getJSON("/getComponent?id=" + i, function(data) {
+     
+        document.getElementById("equipoActual").innerHTML = data.Name;
+        $("#equipoActual").css("outline-style", "dotted");
+        $('input[name="component"]').val(data.Id);
+    
+    });
+  }
+
+  function currentEPP(i) {
+    $.getJSON("/getEPPBy?id=" + i, function(data) {
+     
+        document.getElementById("eppActual").innerHTML = data.Name;
+        $("#eppActual").css("outline-style", "dotted");
+        $('input[name="epp"]').val(data.Id);
+    
+    });
+  }
+
+
+
+  $.getJSON("/getLILACatalog", function(data) {
+            $("#lila").empty();
+            $.each(data, function(index, row) {
+            $("#lila").append(
+                "<option value='" + row.Id +"' onclick='setHeaderColor("+row.Id+")'>" + row.Name + "</option>"
+            );
+        });
+    });
+
+    function setHeaderColor(){
+      id = document.getElementById("lila").value;
+
+        $.getJSON("/getLILABy?id="+id, function(data) {
+                   
+            document.getElementById('card_header').style.backgroundColor = data.Color;
+            
+        });
+
+
+    }
+
+</script>
+
+
+
+
+{{ template "Footer" }}
+
+
+{{end}}

@@ -1,0 +1,206 @@
+{{ define "NewProduct" }}
+  {{ template "Header" }}
+    {{ template "Menu" }}
+     {{ template "Nav_products"}}
+     <div class="d-flex align-items-center flex-column justify-content-center h-100">
+    <div class="card w-50">
+    <div class="card-header">New Product</div>
+        <div class="card-body">
+            <form  enctype="multipart/form-data"  method="POST" action="InsertProduct">
+            <div class="form-group">
+            <label>Sku</label>
+            <input value="0" type="number" name="sku"  class="form-control" placeholder="#Sku" hidden/><br />
+            <div>
+            <div class="form-group">    
+            <label>Nombre</label>
+            <input type="text" name="name"  class="form-control" placeholder="Nombre"/><br />
+            </div>
+
+            <div class="custom-file">
+                <input  type="file" class="custom-file-input" name="photo"  id="photo" onchange="loadImage_frontal();">
+                <label class="custom-file-label" style="outline: 5px double #CCCCCC;" for="customFile">
+                <img src="/public/images/photo-camera.png" width="32px" height="32px"> 
+                Imagen
+                </label>
+            </div>
+    
+
+                <canvas id="canvas_frontal" width="500" height="500"></canvas>
+    
+                <br>
+                <hr>
+                <div style="d-flex align-items-center flex-column justify-content-center">
+                  <h1>Especificaciones de proceso</h1>
+                </div>
+    
+    
+    
+                <ul class="list-group list-group-flush">
+                      <li class="list-group-item">
+                        <h3>Precion tolva</h3>
+                        <div class="form-group row">
+                          <div  class="form-group col">
+                            <label for="">PSI Inferior<label>
+                            <input name="psi_bottom" id="psi_bottom"  type="number" class="form-control" step="0.01"  required>
+                          </div>
+                          <div  class="form-group col">
+                            <label for="">PSI Superior<label>
+                            <input name="psi_top" id="psi_top"  type="number" class="form-control" step="0.01"  required>
+                          </div>
+                        </div>
+                    </li>
+    
+                      <li class="list-group-item">
+                        <h3>Precion tolva</h3>
+                        <div class="form-group row">
+                          <div  class="form-group col">
+                            <label for="">Bares Inferior<label>
+                            <input name="bares_bottom" id="bares_bottom" type="number" class="form-control" step="0.01"  required>
+                          </div>
+                          <div  class="form-group col">
+                            <label for="">Bares Superior<label>
+                            <input name="bares_top" id="bares_top"  type="number" class="form-control" step="0.01"  required>
+                          </div>
+                        </div>
+                    </li>
+    
+                      <li class="list-group-item">
+                        <h3>Temperatura Pulmon</h3>
+                        <div class="form-group row">
+                          <div  class="form-group col">
+                            <label for="">Inferior&nbsp;<label>
+                            <input name="lung_bottom" id="lung_bottom" type="number" class="form-control" step="0.01"  required>
+                          </div>
+                          <div  class="form-group col">
+                            <label for="">Superior<label>
+                            <input name="lung_top" id="lung_top" type="number" class="form-control" step="0.01"  required>
+                          </div>
+                        </div>
+                    </li>
+              
+    
+    
+                      <li class="list-group-item">
+                        <h3>Temperatura Intercambiador</h3>
+                        <div class="form-group row">
+                          <div  class="form-group col">
+                            <label for="">Inferior&nbsp;<label>
+                            <input name="interchange_bottom"  id="interchange_bottom" type="number" class="form-control" step="0.01"  required>
+                          </div>
+                          <div  class="form-group col">
+                            <label for="">Superior<label>
+                            <input name="interchange_top"  id="interchange_top" type="number" class="form-control" step="0.01"  required>
+                          </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                      <h3>Temperatura Tolva</h3>
+                      <div class="form-group row">
+                        <div  class="form-group col">
+                          <label for="">Inferior&nbsp;<label>
+                          <input name="hopper_bottom"  id="hopper_bottom" type="number" class="form-control" step="0.01"  required>
+                        </div>
+                        <div  class="form-group col">
+                          <label for="">Superior<label>
+                          <input name="hopper_top"   id="hopper_top" type="number" class="form-control" step="0.01"  required>
+                        </div>
+                      </div>
+                  </li>
+    
+                  <li class="list-group-item">
+                    <h3>Temperatura Llenado PCC</h3>
+                    <div class="form-group row">
+                      <div  class="form-group col">
+                        <label for="">Inferior&nbsp;<label>
+                        <input name="fill_bottom" id="fill_bottom" type="number" class="form-control" step="0.01"  required>
+                      </div>
+                      <div  class="form-group col">
+                        <label for="">Superior<label>
+                        <input name="fill_top"  id="fill_top" type="number" class="form-control" step="0.01"  required>
+                      </div>
+                    </div>
+                </li>
+              </ul>
+    
+    
+    
+    
+                <br>
+
+            <input class="btn-primary btn-block" type="submit" value="Guardar" onsubmit="loading()"/>
+            <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+            </form>
+        </div>
+    </div>
+    </div>
+ </div>   
+<br />    
+<hr>
+
+    <script src="/public/scripts/jquery-3.3.1.min.js"></script>
+    <script>
+
+        $("#products").removeClass("nav-item active");
+        $("#presentations").removeClass("nav-item active");
+
+        $("#products").addClass("nav-item active");
+
+
+        function loadImage_frontal() {
+          var input, file, fr, img;
+
+  
+          if (typeof window.FileReader !== 'function') {
+              write("The file API isn't supported on this browser yet.");
+              return;
+          }
+  
+          input = document.getElementById('photo');
+          if (!input) {
+              write("Um, couldn't find the imgfile element.");
+          }
+          else if (!input.files) {
+              write("This browser doesn't seem to support the `files` property of file inputs.");
+          }
+          else if (!input.files[0]) {
+              write("Please select a file before clicking 'Load'");
+          }
+          else {
+              file = input.files[0];
+              fr = new FileReader();
+              fr.onload = createImage;
+              fr.readAsDataURL(file);
+          }
+  
+          function createImage() {
+              img = new Image();
+              img.onload = imageLoaded;
+              img.src = fr.result;
+          }
+  
+          function imageLoaded() {
+              var canvas = document.getElementById("canvas_frontal");
+              var ctx = canvas.getContext("2d");
+  
+              canvas.width = 500;
+              canvas.height = 500;
+  
+              var scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+              // get the top left position of the image
+              var x = (canvas.width / 2) - (img.width / 2) * scale;
+              var y = (canvas.height / 2) - (img.height / 2) * scale;
+              ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+          }
+  
+          function write(msg) {
+              var p = document.createElement('p');
+              p.innerHTML = msg;
+              document.body.appendChild(p);
+          }
+      }
+
+
+
+    </script>
+{{ template "Footer" }}
+{{ end }}

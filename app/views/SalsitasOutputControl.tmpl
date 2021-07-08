@@ -1,0 +1,192 @@
+{{ define "SalsitasOutputControl"}}
+
+{{template "Header"}}
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{end}}
+
+
+  {{ template "Nav_report"}}
+
+  
+  <div class="card">
+    <table class="table table-responsive table-bordered">
+      <tbody id="HeaderBody" style="font-size: medium">
+      </tbody>
+    </table>
+  </div>
+
+<br>
+
+<br>  
+<div id="muestreo" class="card">
+    <div class="card-header"><center>Registro de control de salida de grupos  de ingredientes menores del cuarto de pesado salsitas Naturas </center></div>
+    <div class="card-body">
+
+
+        <form action="insertSalsitasOutputControl" method="POST" id="outputForm">
+            <div class="form-group row">
+                <label id="lbbatch" for="batch" class="col col-form-label">Area</label>
+                <div  class="col">
+                    <select name="area" id="area" class="form-control"></select>
+                </div>
+
+                <label id="lbbatch" for="batch" class="col col-form-label">Linea</label>
+                <div  class="col">
+                    <select name="line" id="line" class="form-control" required></select>
+                </div>
+            </div>
+            <br>
+            <hr>
+            <br>
+            <div class="form-group row">
+                <label id="lbbatch" for="batch" class="col col-form-label">Producto</label>
+                <div  class="col">
+                    <select name="product" id="product" class="form-control"></select>
+                </div>
+
+                <label id="lbbatch" for="batch" class="col col-form-label">Presentacion</label>
+                <div  class="col">
+                    <select name="presentation" id="presentation" class="form-control"></select>
+                </div>
+
+            </div>
+            <br>
+            <hr>
+            <br>
+            <div class="form-group row">
+                <label id="lbbatch" for="batch" class="col col-form-label">Hora de salida</label>
+                <div  class="col">
+                  <input type="datetime-local" name="output_date" id="output_date" class="form-control">
+                </div>
+
+                <label id="lbbatch" for="batch" class="col col-form-label">N° de batche Inicio</label>
+                <div  class="col">
+                    <input type="text" class="form-control" name="batch_init" id="batch_init">
+                </div>
+
+                <label id="lbbatch" for="batch" class="col col-form-label">N° de batche Final</label>
+                <div  class="col">
+                    <input type="text" class="form-control" name="batch_end" id="batch_end">
+                </div>
+            </div>
+            <br>
+            <hr>
+            <br>
+            <div class="form-group row">
+                <label id="lbbatch" for="batch" class="col col-form-label">Responsable Ingredientes menores</label>
+                <div  class="col">
+                    <input type="text" class="form-control" name="minor" id="minor" placeholder="#Empleado">
+                </div>
+
+                <label id="lbbatch" for="batch" class="col col-form-label">Responsable Ingredientes mayores</label>
+                <div  class="col">
+                    <input type="text" class="form-control" name="major" id="major" placeholder="#Empleado">
+                </div>
+
+            </div>
+            <br>
+            <hr>
+            <br>
+            <label>Observaciones</label>
+            <textarea
+              name="observation"
+              class="form-control"
+              form="outputForm"
+              cols="30"
+              rows="5"
+            ></textarea>
+
+            <br><br>
+            <input type="submit" class="btn btn-primary btn-block" value="Listo" onsubmit="loading()">
+            <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+    
+        </form>
+    </div>
+</div>     
+
+
+<script  src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script  type="text/javascript"> 
+$(document).ready(function () {
+       
+        $.getJSON("/getHeaderBy?id="+$("#idHeader").val(), function (data) {
+        $("#HeaderBody").empty();
+            $("#HeaderBody").append("<tr>");
+            $("#HeaderBody").append(
+                "<td> <img src='/public/images/logo00.jpg' height='59' width='53'>  Unilever Planta Belen Costa Rica</td>"+
+                "<td>Codigo del Documento: ACJ-MANUREG-008</td>"+
+                "<td>Revision N° 01</td>"
+            );
+            $("#HeaderBody").append("</tr>");
+            $("#HeaderBody").append("<tr>");
+            $("#HeaderBody").append(
+                "<td>Registro de control de salida de grupos  de ingredientes menores del cuarto de pesado salsitas Naturas</td>"+
+                "<td>Fecha de Ultima Revision: 25/05/2019</td>"+
+                "<td>Fecha de Proxima Revision:  25/05/2021</td>"
+            );
+            $("#HeaderBody").append("</tr>");
+        });
+
+
+        $.getJSON("/getArea", function(data) {
+            $("#area").empty();
+            $.each(data, function(index, row) {
+            $("#area").append(
+                "<option value='" + row.Id + "' >" + row.Name + "</option>"
+            );
+            });
+            $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+            $("#line").empty();
+            $.each(data, function(index, row) {
+                $("#line").append(
+                "<option value='" + row.Id + "' >" + row.Name + "</option>"
+                );
+            });
+            });
+        });
+        $("#area").change(() => {
+            $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+            $("#line").empty();
+            $.each(data, function(index, row) {
+                $("#line").append(
+                "<option value='" + row.Id + "' >" + row.Name + "</option>"
+                );
+            });
+            });
+        });
+    
+        $.getJSON("/getProducts", function(data){
+            $("#product").empty();
+            $.each(data, function(index, row){
+                $("#product").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+            });
+            $.getJSON("/getPresentations?id="+$("#product").val(), function(data){
+            $("#presentation").empty();
+            $.each(data, function(index, row){
+                    $("#presentation").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+                });
+            });
+
+        });        
+
+
+        $("#product").change(()=>{
+            $.getJSON("/getPresentations?id="+$("#product").val(), function(data){
+            $("#presentation").empty();
+            $.each(data, function(index, row){
+                    $("#presentation").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+                });
+            });
+        });
+
+
+    });
+
+
+</script>
+  
+{{ template "Footer" }}
+{{end}}

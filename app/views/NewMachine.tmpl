@@ -1,0 +1,30 @@
+{{define "NewMachine"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{template "NavAM"}}
+
+ 
+<br><br><br>
+<div class="d-flex align-items-center flex-column justify-content-center h-100">
+<div class="card w-50">
+<div class="card-header">Nueva Maquina</div>
+   <div class="card-body">
+       <form method="POST" action="insertMachine">
+
+       <div class="form-group">    
+       <label>Nombre</label>
+       <input type="text" name="name"  class="form-control" placeholder="Nombre"/><br />
+       </div>
+       <input class="btn-block" type="submit" value="Guardar" onsubmit="loading()"/>
+       <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+       </form>
+   </div>
+</div>
+</div>
+</div>   
+<br />    
+<hr>
+{{ template "Footer" }}
+
+
+{{end}}

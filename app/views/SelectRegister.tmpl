@@ -1,0 +1,419 @@
+{{define "SelectRegister"}}
+{{ template "Header" }}
+
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+
+<div class="row">
+  <div class="col-md-4">
+    <a href="/fillSubHeaderPChemical" onclick="loading()" style="color: black;">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">Fisico-Quimico</h5>
+          <p class="card-text">
+            REGISTRO DE RESULTADOS DE ANALISIS FISICO-QUIMICOS Y SENSORIALES DE
+            PRODUCTO TERMINADO
+          </p>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-130</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-4">
+    <a href="/weightSubControlStep" onclick="loading()" style="color: black;">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">Control de Pesos</h5>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              Control Estadístico de variables de proceso
+            </li>
+            <li class="list-group-item">
+              Se debe tomar cada 10 minutos 5 muestras
+            </li>
+            <li class="list-group-item">ACJ-CALREG-022/##</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-4">
+    <a
+      href="/processTemperatureControlStep"
+      onclick="loading()"
+      style="color: black;"
+    >
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">
+            Control de temperaturas (intercambiador, tolva de llenado y
+            boquillas)
+          </h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              Control Estadístico de Variables de Proceso
+            </li>
+            <li class="list-group-item">Se debe tomar cada 30 minutos</li>
+          </ul>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-022/069</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-4">
+    <a
+      href="jaw_teflon_ultrasonic_StateStep"
+      onclick="loading()"
+      style="color: black;"
+    >
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">
+            Temperatura de mordazas, estado de mordazas y teflon, parametros
+            ultrasonicos
+          </h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              Control Estadístico de Variables de Proceso
+            </li>
+            <li class="list-group-item">Una vez cada hora</li>
+          </ul>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-022</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="fillSealStep" onclick="loading()" style="color: black;">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">
+            Verificacion de sellos por prensa neumatica
+          </h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              Control Estadístico de Variables de Proceso
+            </li>
+            <li class="list-group-item">
+              Tomar muestra de dos sobres cada 20 minutos
+            </li>
+          </ul>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-022/024</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-4">
+    <a href="CRQSStep" onclick="loading()" style="color: black;">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">
+            Coficacion de cada muestra CRQS
+          </h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              Registro de estandares de calidad relevantes para el
+              consomidor(CRQS) y Verificacion de alergenos
+            </li>
+            <li class="list-group-item">
+              6 muestras cada 30 minutos
+            </li>
+          </ul>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-192</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-4">
+    <a href="reportBatch" onclick="loading()" style="color: black;">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">
+            Cambio de Batche
+          </h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              Registro de Trazabilidad por cambio de Batche
+            </li>
+            <li class="list-group-item">
+              Cada ves que se haga cambio de batche
+            </li>
+          </ul>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-192</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-4">
+    <a
+      href="allergenVerificationStep"
+      onclick="loading()"
+      style="color: black;"
+    >
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">
+            Trazabilidad por bache / Material de Empaque
+          </h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              Registro de estandares de calidad relevantes para el
+              consomidor(CRQS) y Verificacion de alergenos
+            </li>
+            <li class="list-group-item">
+              Cada ves que se haga cambio de bache o material de empaque
+            </li>
+          </ul>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-192</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-4">
+    <a href="cleanDisinfection" onclick="loading()" style="color: black;">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">
+            Registro Genérico de Limpieza y Desinfección 
+          </h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              
+            </li>
+            <li class="list-group-item">
+              Cada ves que se haga un lavado
+            </li>
+          </ul>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-RC-028</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+
+
+</div>
+
+
+<div class="row">
+  <div class="col-md-4">
+    <a href="/codingVerification" onclick="loading()" style="color: black;">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">
+            Doy Pack y Corrugado
+          </h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              Registro de verificación de codificación del Doy Pack y Corrugado
+            </li>
+            <li class="list-group-item">
+              Cada ves que se haga cambio de batche
+            </li>
+          </ul>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-185</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-4">
+    <a href="/packingControl" onclick="loading()" style="color: black;">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">
+            Control de empaque
+          </h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <b>Producto terminado</b>
+            </li>
+            <li class="list-group-item">
+              ~
+            </li>
+          </ul>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-169</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="/temporalStorageProduct" onclick="loading()" style="color: black;">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">
+           Almacenamiento Temporal
+          </h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <b>Producto proceso</b>
+            </li>
+            <li class="list-group-item">
+              ~
+            </li>
+          </ul>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-174</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+
+<div class="row">
+  <div class="col-md-4">
+    <a href="/TomateCubeBins" onclick="loading()" style="color: black;">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/qa.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">
+            Registro de Control de Bines de Tomate en Cubo
+          </h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              ~
+            </li>
+            <li class="list-group-item">
+             ~
+            </li>
+          </ul>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-182</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+
+
+
+{{ template "Footer" }}
+{{ end }}

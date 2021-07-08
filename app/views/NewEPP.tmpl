@@ -1,0 +1,111 @@
+{{define "NewEPP"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{template "NavAM"}}
+
+ 
+<br><br><br>
+<div class="d-flex align-items-center flex-column justify-content-center h-100">
+<div class="card w-50">
+<div class="card-header">Nuevo EPP</div>
+   <div class="card-body">
+       <form   enctype="multipart/form-data"  method="POST" action="insertEPP">
+
+  
+       <div class="form-group"> 
+
+       <label>Nombre</label>
+       <input type="text" name="name" id="name" class="form-control" placeholder="Nombre"/><br />
+       </div>
+
+       <br />
+
+       <div class="custom-file">
+        <input  type="file" class="custom-file-input" name="photo"  id="photo" onchange="loadImage_frontal();">
+        <label class="custom-file-label" style="outline: 5px double #CCCCCC;" for="customFile">
+        <img src="/public/images/photo-camera.png" width="32px" height="32px"> 
+        Imagen del EPP
+        </label>
+        </div>
+       
+        <canvas id="canvas_frontal"></canvas>
+        </div>
+
+       <input class="btn-primary btn-block" type="submit" value="Guardar" onsubmit="loading()"/>
+       <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+       </form>
+   </div>
+</div>
+</div>
+</div>   
+<br />    
+<hr>
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script>
+
+    function loadImage_frontal() {
+          var input, file, fr, img;
+  
+          if (typeof window.FileReader !== 'function') {
+              write("The file API isn't supported on this browser yet.");
+              return;
+          }
+  
+          input = document.getElementById('photo');
+          if (!input) {
+              write("Um, couldn't find the imgfile element.");
+          }
+          else if (!input.files) {
+              write("This browser doesn't seem to support the `files` property of file inputs.");
+          }
+          else if (!input.files[0]) {
+              write("Please select a file before clicking 'Load'");
+          }
+          else {
+              file = input.files[0];
+              fr = new FileReader();
+              fr.onload = createImage;
+              fr.readAsDataURL(file);
+          }
+  
+          function createImage() {
+              img = new Image();
+              img.onload = imageLoaded;
+              img.src = fr.result;
+          }
+  
+          function imageLoaded() {
+              var canvas = document.getElementById("canvas_frontal");
+              var ctx = canvas.getContext("2d");
+  
+              canvas.width = 500;
+              canvas.height = 500;
+  
+              var scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+              // get the top left position of the image
+              var x = (canvas.width / 2) - (img.width / 2) * scale;
+              var y = (canvas.height / 2) - (img.height / 2) * scale;
+              ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+          }
+  
+          function write(msg) {
+              var p = document.createElement('p');
+              p.innerHTML = msg;
+              document.body.appendChild(p);
+          }
+      }
+
+
+
+</script>
+
+
+
+
+{{ template "Footer" }}
+
+
+{{end}}

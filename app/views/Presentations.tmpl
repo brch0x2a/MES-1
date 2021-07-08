@@ -1,0 +1,52 @@
+{{define "Presentations"}}
+    {{template "Header"}}
+        {{template "Menu"}}
+        {{ template "Nav_products"}}
+
+        <table class="table table-responsive table-dark table-striped" style="font-size:small">
+        <thead >
+            <tr>
+                
+                <td>Producto</td>
+                <td>Presentacion</td>
+                <td>Peso teorico</td>
+                <td>Unidad</td>
+                <td>Porcentaje de error</td>
+                <td>Cajas</td>
+                <td>
+                    Accion | 
+                    <a href="/NewPresentation">
+                        <button type="button" class="btn btn-success" style="margin-left: 20px">Agregar</button>
+                    </a>
+                </td>
+
+            </tr>
+        </thead>
+        <tbody>
+            {{ range .}}
+            <tr>
+                <td><img style="object-fit: scale-down;"  src="{{ .Photo}}" width='210' height='210'></td>
+
+                <td> {{.Product}} </td>
+                <td> {{.Name}} </td>
+                <td> {{.Weight_value}} </td>
+                <td> {{.Weight_unit}} </td>
+                <td> {{.Error_rate}} </td>
+                <td> {{.Box_amount}} </td>
+
+                <td>
+                    <a href="/editPresentation?id={{.Id}}">  
+                        <button  type="button" class="btn btn-primary">Editar</button>
+                    </a>
+                    <a href="/deletePresentation?id={{.Id}}">
+                        <button  type="button" class="btn btn-danger">Borrar</button>
+                    </a>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+        </table>
+  
+
+  {{ template "Footer" }}
+{{end}}

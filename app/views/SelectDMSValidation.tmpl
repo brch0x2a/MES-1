@@ -1,0 +1,36 @@
+{{define "SelectDMSValidation"}}
+{{ template "Header" }}
+  {{ template "Menu" }}
+  {{ template "Nav_validation_dms"}}
+
+  <div class="card-columns">
+      <a href="/validationPChemical" style="color: black">
+    <div class="card" style="width: 18rem;">
+      <img class="card-img-top" src="/public/images/grayCard.jpg" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title">Verificacion Fisico Quimico</h5>
+        <p class="card-text">Analisis Fisico Quimico, nivel de pH, densidad...</p>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">ACJ-CALREG-130</li>
+        </ul>
+      </div>
+    </div>
+      </a>
+
+      <a href="/weightVerification" style="color: black">
+    <div class="card" style="width: 18rem;">
+      <img class="card-img-top" src="/public/images/grayCard.jpg" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title"> Varificacion Control de Pesos</h5>
+        <p class="card-text">Registro de control de pesos</p>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">ACJ-CALREG-115</li>
+        </ul>
+      </div>
+    </div>
+      </a>
+  </div>
+
+
+  {{ template "Footer" }}
+{{end}}

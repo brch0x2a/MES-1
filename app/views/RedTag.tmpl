@@ -1,0 +1,320 @@
+{{define "RedTag"}}
+{{ template "Header" }}
+
+{{if .User.HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+<center>
+  <div class="card" style="max-width:675px; color: #880016;">
+    <img
+      class="card-img-top"
+      src="/public/images/redTag.jpg"
+      alt="Card image cap"
+    />
+    <div class="card-header">Etiqueta anomalia | Roja</div>
+    <div class="card-body">
+      <form method="POST" action="insertRedTag" id="redTagForm">
+        <br />
+
+        {{if .User.HasPermissionTo "Tag"}}
+          <label for="">Area</label>
+          <select name="area" id="area" class="form-control"
+            >Area</select
+          >
+
+          <div class="col-md-5 col-md-offset-6">
+            <label for="">Linea</label>
+            <select
+              name="line"
+              id="line"
+              class="form-control"
+              required
+            ></select>
+          </div>
+
+        {{end}}
+        <br />
+        <h3 id="lostTitle">Equipo</h3>
+        <br />
+
+        <div class="form-group row" style="padding-left: 10px">
+          <input
+            id="searchbox"
+            class="form-control form-control-sm ml-3 w-75"
+            type="text"
+            placeholder="Buscar"
+            aria-label="Buscar"
+            style="font-size: 24px"
+          />
+          <i class="fa fa-search" aria-hidden="true"></i>
+        </div>
+
+        <div id="table-wrapper">
+          <div id="table-scroll">
+            <table class="table table-responsive table-bordered table-striped">
+              <thead>
+                <tr style="color: black">
+                  <td>ID</td>
+                  <td>Nombre</td>
+                </tr>
+              </thead>
+              <tbody id="tableData">
+                {{   range.Equipo  }}
+                <tr onclick="currentEvent({{ .Id}})">
+                  <td>{{ .Id}}</td>
+                  <td>{{ .Name}}</td>
+                </tr>
+                {{  end  }}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br />
+        <h4 id="currentStop">Equipo seleccionado</h4>
+        <p style="outline: 5px dotted #880016;" id="equipoActual"></p>
+        <input type="number" name="equipo" hidden />
+        
+        <br />
+        <br />
+        <label>Descripcion de la anomalia</label>
+        <textarea
+          name="anomalia"
+          class="form-control"
+          form="redTagForm"
+          cols="30"
+          rows="5"
+        ></textarea>
+        <br />
+        <br />
+        <h4>
+          Seleccione el beneficio aporta al PQCESM la resolucion de esta boleta
+        </h4>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" name="qa" value="1" />
+          <label class="form-check-label" for="inlineCheckbox1">QA</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            value="1"
+            name="costo"
+          />
+          <label class="form-check-label" for="inlineCheckbox2">Costo</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            value="1"
+            name="productividad"
+          />
+          <label class="form-check-label" for="inlineCheckbox3"
+            >Productividad</label
+          >
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            value="1"
+            name="mortal"
+          />
+          <label class="form-check-label" for="inlineCheckbox1">Mortal</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            value="1"
+            name="entrega"
+          />
+          <label class="form-check-label" for="inlineCheckbox2">Entrega</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            value="1"
+            name="seguridad"
+          />
+          <label class="form-check-label" for="inlineCheckbox3"
+            >Seguridad</label
+          >
+        </div>
+        <br /><br />
+        <h4>Me afecta directamente la linea?</h4>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="affect"
+            value="1"
+            required
+          />
+          <label class="form-check-label" for="inlineCheckbox1">Si</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            id="inlineCheckbox2"
+            name="affect"
+            value="0"
+            required
+          />
+          <label class="form-check-label" for="inlineCheckbox2">No</label>
+        </div>
+        <br /><br />
+        <h4>Boleta se genero</h4>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="before"
+            value="1"
+          />
+          <label class="form-check-label" for="inlineCheckbox1">Antes</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            value="0"
+            name="before"
+          />
+          <label class="form-check-label" for="inlineCheckbox2">Despues</label>
+        </div>
+        <br />
+        <br />
+
+          <select name="autor" id="autor" class="form-control" hidden></select>
+      
+        <br /><br />
+        <input class="btn btn-primary btn-block" type="submit" value="Enviar" />
+        <br />
+        <img
+          class="card-img-bottom"
+          src="/public/images/visual_ul02.jpg"
+          height="184"
+          width="100%"
+        />
+      </form>
+    </div>
+  </div>
+</center>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script>
+  var $rows = $("#tableData tr");
+
+  $("#searchbox").keyup(function() {
+    var val = $.trim($(this).val())
+      .replace(/ +/g, " ")
+      .toLowerCase();
+
+    $rows
+      .show()
+      .filter(function() {
+        var text = $(this)
+          .text()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+
+        return !~text.indexOf(val);
+      })
+      .hide();
+  });
+
+  function currentPriority(j) {
+    for (let index = 1; index <= 4; index++) {
+      const e = document.getElementById("p" + index);
+      e.style.backgroundColor = "white";
+      e.style.color = "black";
+      e.style.borderColor = "gray";
+    }
+
+    const e = document.getElementById("p" + j);
+    const a = document.getElementById("pDescripcion");
+
+    e.style.backgroundColor = "#880016";
+    a.style.backgroundColor = "#880016";
+
+    e.style.color = "white";
+    a.style.color = "white";
+
+    e.style.borderColor = "gray";
+    a.style.borderColor = "gray";
+
+    $.getJSON("/getPriorityBy?id=" + j, data => {
+      $.each(data, (index, row) => {
+        a.innerHTML = row.Description;
+      });
+    });
+
+    $('input[name="priority"]').val(j);
+  }
+
+  function currentEvent(i) {
+    $.getJSON("/getEquipmentBy?id=" + i, function(data) {
+     
+        document.getElementById("equipoActual").innerHTML = data.Name;
+        $("#equipoActual").css("outline-style", "dotted");
+        $('input[name="equipo"]').val(data.Id);
+    
+    });
+  }
+
+  $(document).ready(() => {
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+    $("#area").change(() => {
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+    $.getJSON("/getUsers", function(data) {
+      $("#autor").empty();
+      $.each(data, function(index, row) {
+        $("#autor").append(
+          "<option value='" +
+            row.Id +
+            "' >" +
+            row.Fname +
+            " " +
+            row.Lname +
+            "</option>"
+        );
+      });
+    });
+  });
+</script>
+
+{{ template "Footer" }}
+{{ end }}

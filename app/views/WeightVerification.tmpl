@@ -1,0 +1,365 @@
+{{define "WeightVerification"}}
+{{template "Header"}}
+
+{{if .User.HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+<div class="container">
+  <div class="alert alert-success alert-dismissible fade show">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <strong>Success!</strong> This alert box could indicate a successful or
+    positive action.
+  </div>
+</div>
+
+<div class="card">
+  <table class="table table-bordered">
+    <tbody style="font-size: medium">
+      <tr>
+        <td>
+          <img src="/public/images/logo00.jpg" height="59" width="53" />
+          Unilever Planta Belen Costa Rica
+        </td>
+        <td>Codigo del Documento: {{.Header.Cod_doc}}</td>
+        <td>Revision No {{.Header.Revision_no}}</td>
+      </tr>
+      <tr>
+        <td>{{.Header.Name}}</td>
+        <td>Fecha de Ultima Revision: {{.Header.Revision_date}}</td>
+        <td>Fecha de Proxima Revision: {{.Header.Next_revision_date}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<br /><br />
+
+<div class="card">
+  <div class="card-body">
+    <form action="#">
+      <div class="form-row  align-items-center">
+        <div class="col-md-4 col-md-offset-3">
+          <label> Fecha</label>
+          <input
+            type="date"
+            id="date"
+            name="dfinal"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <input
+            type="button"
+            class="btn btn-primary"
+            value="Obtener"
+            onclick="filterWeight()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br /><br /><br />
+
+<div class="container">
+  <table
+    class="table table-responsive table-bordered text-light table-striped"
+    style="font-size: small"
+  >
+    <thead>
+      <tr>
+        <td>Fecha</td>
+        <td>Turno</td>
+        <td>Linea</td>
+        <td>Presentacion</td>
+        <td>Peso Teorico</td>
+        <td>Unidad</td>
+        <td>Porcentaje de error</td>
+        <td>Coordinador</td>
+        <td>Operador</td>
+        <td>V1</td>
+        <td>V2</td>
+        <td>V3</td>
+        <td>V4</td>
+        <td>V5</td>
+        <!--td>Promedio</td!-->
+      </tr>
+    </thead>
+    <tbody id="data_p"></tbody>
+  </table>
+</div>
+
+<br /><br />
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <h2 style="color: antiquewhite;">Crear Firma</h2>
+      <div class="wrapper">
+        <canvas
+          id="signature-pad"
+          class="signature-pad"
+          width="400"
+          height="200"
+        ></canvas>
+      </div>
+
+      <button id="save">Guardar</button>
+      <button id="clear">Limpiar</button>
+    </div>
+    <div class="col-sm">
+      <h2 style="color: antiquewhite;">Mi Firma</h2>
+      <form
+        style="color: antiquewhite;"
+        enctype="multipart/form-data"
+        action="/weightSigner"
+        method="POST"
+        id="signForm"
+        onsubmit="return prepareForm()"
+      >
+        <img id="mysign" src="#" alt="mi firma" />
+        <input
+          type="file"
+          id="signImg"
+          name="sign"
+          value="Subir Firma"
+          required
+        />
+        <br />
+        <input class="" type="text" id="dateField" name="vdate" hidden />
+        <input type="submit" class="btn" class="form-control" value="Generar" />
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script src="/public/scripts/signature_pad.min.js"></script>
+<script>
+  function prepareForm() {
+    var signal;
+    let date = document.getElementById("date").value;
+
+    document.getElementById("dateField").value = date;
+
+    signal = $.getJSON(
+      "/signProceedVerification?date=" + date + "&idDoc=2",
+      data => {
+        return !data;
+      }
+    );
+    console.log("Is sign " + signal);
+    return signal;
+  }
+
+  function readURL(input) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+
+      reader.onload = function(e) {
+        $("#mysign").attr("src", e.target.result);
+      };
+
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  $("#signImg").change(function() {
+    readURL(this);
+  });
+
+  function dataURLToBlob(dataURL) {
+    // Code taken from https://github.com/ebidel/filer.js
+    var parts = dataURL.split(";base64,");
+    var contentType = parts[0].split(":")[1];
+    var raw = window.atob(parts[1]);
+    var rawLength = raw.length;
+    var uInt8Array = new Uint8Array(rawLength);
+
+    for (var i = 0; i < rawLength; ++i) {
+      uInt8Array[i] = raw.charCodeAt(i);
+    }
+
+    return new Blob([uInt8Array], { type: contentType });
+  }
+
+  function download(dataURL, filename) {
+    if (
+      navigator.userAgent.indexOf("Safari") > -1 &&
+      navigator.userAgent.indexOf("Chrome") === -1
+    ) {
+      window.open(dataURL);
+    } else {
+      var blob = dataURLToBlob(dataURL);
+      var url = window.URL.createObjectURL(blob);
+
+      var a = document.createElement("a");
+      a.style = "display: none";
+      a.href = url;
+      a.download = filename;
+
+      document.body.appendChild(a);
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+    }
+  }
+
+  var signaturePad = new SignaturePad(
+    document.getElementById("signature-pad"),
+    {
+      backgroundColor: "rgba(255, 255, 255, 0)",
+      penColor: "rgb(0, 0, 0)"
+    }
+  );
+  var saveButton = document.getElementById("save");
+  var cancelButton = document.getElementById("clear");
+
+  saveButton.addEventListener("click", function(event) {
+    if (signaturePad.isEmpty()) {
+      alert("Please provide a signature first.");
+    } else {
+      var dataURL = signaturePad.toDataURL();
+      download(dataURL, "signature.png");
+    }
+  });
+
+  cancelButton.addEventListener("click", function(event) {
+    signaturePad.clear();
+  });
+
+  $(document).ready(function() {
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+    $("#area").change(() => {
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+  });
+
+  function filterWeight() {
+    loading();
+
+    $.getJSON("/getWeightAll?date=" + $("#date").val(), data => {
+      //$.getJSON("/getWeightSalsitas?line=3&dinit=20190827&dfinal=20190828", data=>{
+
+      $("#data_p").empty();
+      $.each(data, function(index, row) {
+        $("#data_p").append("<tr>");
+        $("#data_p").append(
+          "<td>" +
+            row.Date +
+            "</td>" +
+            "<td>" +
+            row.Turn +
+            "</td>" +
+            "<td>" +
+            row.Line +
+            "</td>" +
+            "<td>" +
+            row.Pname +
+            "</td>" +
+            "<td>" +
+            row.Pvalue +
+            "</td>" +
+            "<td>" +
+            row.Punit +
+            "</td>" +
+            "<td>" +
+            row.Prate +
+            "</td>" +
+            "<td>" +
+            row.Coordinator +
+            " " +
+            row.Clname +
+            "</td>" +
+            "<td>" +
+            row.Operator +
+            " " +
+            row.Olname +
+            "</td>"
+        );
+
+        evalCase(row.V1, row.Prate, row.Pvalue);
+        evalCase(row.V2, row.Prate, row.Pvalue);
+        evalCase(row.V3, row.Prate, row.Pvalue);
+        evalCase(row.V4, row.Prate, row.Pvalue);
+        evalCase(row.V5, row.Prate, row.Pvalue);
+
+        $("#data_p").append("</tr>");
+      });
+    });
+    doneCharge();
+  }
+
+  function hasDeviation(pv, prate, pgoal) {
+    let goal = parseFloat(pgoal);
+    let rate = parseFloat(prate);
+    let v = parseFloat(pv);
+
+    let lv = goal - goal * rate; //left value rate
+    let rv = goal + goal * rate;
+
+    if (v > rv) {
+      return 2;
+    }
+    if (v < lv) {
+      return 3;
+    } else {
+      return 1;
+    }
+  }
+
+  function evalCase(pv, prate, pgoal) {
+    let op = hasDeviation(pv, prate, pgoal);
+
+    switch (op) {
+      case 1:
+        $("#data_p").append(
+          "<td style='background-color: green'>" + pv + "</td>"
+        );
+        break;
+
+      case 2:
+        $("#data_p").append(
+          "<td style='background-color: orange'>" + pv + "</td>"
+        );
+        break;
+
+      case 3:
+        $("#data_p").append(
+          "<td style='background-color: red'>" + pv + "</td>"
+        );
+        break;
+    }
+  }
+</script>
+{{template "Footer"}}
+{{ end }}

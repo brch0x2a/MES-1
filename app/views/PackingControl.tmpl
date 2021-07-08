@@ -1,0 +1,117 @@
+{{ define "PackingControl"}}
+
+{{template "Header"}}
+
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{end}}
+
+
+  {{ template "Nav_report"}}
+
+  
+  <div class="card">
+    <table class="table table-responsive table-bordered">
+      <tbody id="HeaderBody" style="font-size: medium">
+      </tbody>
+    </table>
+  </div>
+
+<br>
+
+<br>  
+<div id="muestreo" class="card">
+    <div class="card-header"><center> Registro de control de empaque de producto terminado</center></div>
+    <div class="card-body">
+
+        <form  enctype="multipart/form-data" action="insertPackingControl" method="POST" id="cleanForm">
+
+          <div class="form-group row">
+            <label id="lbbatch" for="batch" class="col col-form-label">#LOTE </label>
+            <div  class="col">
+              <input name="lote" id="lote" type="number" class="form-control"   required>
+            </div>
+
+            <label id="lbbatch" for="batch" class="col col-form-label">#Autoclave</label>
+            <div  class="col">
+              <input name="autoclave" id="autoclave" type="number" class="form-control"   required>
+            </div>
+
+          </div>
+
+
+          <br>
+          <hr>
+          <br>
+
+
+          <div class="form-group row">
+            <label id="lbbatch" for="batch" class="col col-form-label">#Tarima </label>
+            <div  class="col">
+              <input name="pallet" id="pallet" type="number" class="form-control"   required>
+            </div>
+
+            <label id="lbbatch" for="batch" class="col col-form-label">Cajas Producidas</label>
+            <div  class="col">
+              <input name="box" id="box" type="number" class="form-control"   required>
+            </div>
+
+          </div>
+            <br>
+            <hr>
+            <br>
+            <label> Observaciones</label>
+            <textarea
+              name="comment"
+              class="form-control"
+              form="cleanForm"
+              cols="30"
+              rows="5"
+            ></textarea>
+
+            <input type="text" id="verification_type" name="verification_type" hidden>
+          <br><br>
+          <input type="submit" class="btn btn-primary btn-block" value="Listo" onsubmit="loading()">
+          <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="92" width="100%">
+  
+        </form>
+    </div>
+</div>     
+
+
+
+
+
+  <script  src="/public/scripts/jquery-3.3.1.min.js"></script>
+  <script  type="text/javascript"> 
+
+$(document).ready(function () {
+       
+       $.getJSON("/getHeaderBy?id="+$("#idHeader").val(), function (data) {
+       $("#HeaderBody").empty();
+           $("#HeaderBody").append("<tr>");
+           $("#HeaderBody").append(
+             "<td> <img src='/public/images/logo00.jpg' height='59' width='53'>  Unilever Planta Belen Costa Rica</td>"+
+             "<td>Codigo del Documento: ACJ-CALREG-RC-169</td>"+
+             "<td>Revision No 2</td>"
+           );
+           $("#HeaderBody").append("</tr>");
+           $("#HeaderBody").append("<tr>");
+           $("#HeaderBody").append(
+             "<td>Registro de control de empaque de producto terminado frijoles</td>"+
+             "<td>Fecha de Ultima Revision: 09/10/2020</td>"+
+             "<td>Fecha de Proxima Revision: 09/10/2022</td>"
+           );
+           $("#HeaderBody").append("</tr>");
+       });
+
+    });
+
+
+
+</script>
+
+  {{ template "Footer" }}
+{{end}}

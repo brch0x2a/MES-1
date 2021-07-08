@@ -1,0 +1,72 @@
+{{define "ValidationPChemical"}}
+{{ template "Header" }}
+  {{ template "Menu" }}
+  {{ template "Nav_validation_dms"}}
+
+  <div class="card">
+    <table class="table table-bordered">
+      <tbody style="font-size: medium">
+        <tr>
+       
+          <td> <img src='/public/images/logo00.jpg' height='59' width="53">  Unilever Planta Belen Costa Rica</td>
+          <td>Codigo del Documento: {{.Cod_doc}}</td>
+          <td>Revision No {{.Revision_no}}</td>
+        </tr>
+        <tr>
+          <td> {{.Name}} </td>
+          <td> Fecha de Ultima Revision: {{.Revision_date}} </td>
+          <td> Fecha de Proxima Revision: {{.Next_revision_date}} </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <br><br>
+
+  
+  <div class="wrapper">
+
+    <canvas id="signature-pad" class="signature-pad" width=400 height=200></canvas>
+  </div>
+  <div>
+    <button id="save">Save</button>
+    <button id="clear">Clear</button>
+  </div>
+
+  <br>
+  <form action="/weightSigner">
+    <input type="text" placeholder="test">
+    <br>
+    <input type="image" id="signImg" name="sign">
+  </form>
+
+
+<script src="/public/scripts/signature_pad.min.js"></script>
+<script>
+    var signaturePad = new SignaturePad(document.getElementById('signature-pad'), {
+      backgroundColor: 'rgba(255, 255, 255, 0)',
+      penColor: 'rgb(0, 0, 0)'
+    });
+    var saveButton = document.getElementById('save');
+    var cancelButton = document.getElementById('clear');
+    
+    saveButton.addEventListener('click', function (event) {
+      var data = signaturePad.toDataURL('image/png');
+
+      var signImg = document.getElementById("signImg");
+
+      signImg.src = data;
+
+    // Send data to server instead...
+   //   window.open(data);
+    });
+    
+    cancelButton.addEventListener('click', function (event) {
+      signaturePad.clear();
+    });
+
+  </script>
+  
+  {{ template "Footer" }}
+{{end}}

@@ -1,0 +1,160 @@
+{{define "ReportPlanning"}}
+  {{ template "Header" }}
+
+  {{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{end}}
+
+
+
+    {{ template "Nav_report"}}
+    
+    <center>
+    <div class="container-fluid" style="background-color:#FFFFFF; max-width:625px">
+
+      <div class="card">
+        <div class="card-body">
+        <form method="POST" action="InsertReportPlanning" id="eventPlanning">
+            
+            <div class="form-row  align-items-center">
+                <div class="col-md-4 col-md-offset-4">
+                    <label  for="">Area</label>
+                    <select name="area" id="area" class="form-control">Area</select>
+                </div>
+                <div class="col-md-4 col-md-offset-4">
+                    <label for="">Linea</label>
+                    <select name="line" id="line" class="form-control"></select>
+                </div>
+            </div>
+
+
+            <div class="form-row  align-items-center">
+                <div class="col-md-4 mb-4">
+                        <label for="">Fecha</label>
+                        <input type="date" name="date_planning" class="form-control">
+                </div>
+                <div class="col-md-4 mb-4">
+                    <label for="turn">Turno</label>
+                    <select name="turn" id="turn" class="form-control">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="form-row  align-items-center">
+                    <div class="col-md-4 mb-4">
+                            <label for="">Producto</label>
+                            <select name="product" id="product" class="form-control"></select>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                            <label for="">Presentation</label>
+                            <select name="presentation" id="presentation" class="form-control"></select>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                            <label for="">Version</label>
+                            <input type="number" name="version" class="form-control" required>                   
+                    </div>
+                </div>
+
+                
+                <div class="form-row  align-items-center">
+                        <div class="col-md-4 mb-4">
+                                <label for="">Veolocidad nominal</label>
+                                <input type="number" name="nominal_speed" class="form-control" required> 
+                        </div>
+                        <div class="col-md-4 mb-4">
+                
+                            <Label>Planeado</Label>
+                            <input type="number"  name="planned" class="form-control" required>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                                <label for="">Producido</label>
+                                <input type="number" name="produced" class="form-control" required>
+                        </div>
+                </div>
+    
+                <br><br>
+            <input class="btn btn-primary btn-block" type="submit" value="Guardar" onsubmit="loading()"/>
+            <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+
+        </form>
+      </div>
+     </div>
+    </div>
+</center>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+
+
+
+    $("#reportEvent").removeClass("nav-item active");
+    $("#reportPlanning").removeClass("nav-item active");
+
+    $("#reportPlanning").addClass("nav-item active");
+
+
+
+
+    $(document).ready(()=>{
+        $.getJSON("/getArea", function(data){
+            $("#area").empty();
+            $.each(data, function(index, row){
+                $("#area").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+            });
+            $.getJSON("/getLineBy?id="+$("#area").val(), function(data){
+            $("#line").empty();
+            $.each(data, function(index, row){
+                    $("#line").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+                });
+            });
+        });
+        $.getJSON("/getLineBy?id="+$("#area").val(), function(data){
+            $("#line").empty();
+            $.each(data, function(index, row){
+                    $("#line").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+                });
+            });
+
+        $.getJSON("/getProducts", function(data){
+            $("#product").empty();
+            $.each(data, function(index, row){
+                $("#product").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+            });
+        });        
+        $.getJSON("/getPresentations?id="+$("#product").val(), function(data){
+            $("#presentation").empty();
+            $.each(data, function(index, row){
+                    $("#presentation").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+                });
+            });
+
+        $("#area").change(()=>{
+            $.getJSON("/getLineBy?id="+$("#area").val(), function(data){
+            $("#line").empty();
+            $.each(data, function(index, row){
+                    $("#line").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+                });
+            });
+        });
+
+        $("#product").change(()=>{
+            $.getJSON("/getPresentations?id="+$("#product").val(), function(data){
+            $("#presentation").empty();
+            $.each(data, function(index, row){
+                    $("#presentation").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+                });
+            });
+        });
+
+    });
+
+
+</script>
+  {{ template "Footer" }}
+{{ end }}

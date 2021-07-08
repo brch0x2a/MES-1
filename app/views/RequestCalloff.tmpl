@@ -1,0 +1,119 @@
+{{define "RequestCalloff"}}
+{{ template "Header" }}
+
+{{if .User.HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+
+<center>
+  <div class="card" style="max-width:675px">
+    <div class="card-header">Solicitud de Material</div>
+    <div class="card-body">
+      <form method="POST" action="insertRequestCalloff" id="eventReport">
+        <h3 id="lostTitle">Material</h3>
+        <br />
+
+        <div class="form-group row" style="padding-left: 10px">
+          <input
+            id="searchbox"
+            class="form-control form-control-sm ml-3 w-75"
+            type="text"
+            placeholder="Buscar"
+            aria-label="Buscar"
+            style="font-size: 24px"
+          />
+          <i class="fa fa-search fa-2x" aria-hidden="true"></i>
+        </div>
+
+        <div id="table-wrapper">
+          <div id="table-scroll">
+            <table class="table table-responsive table-bordered table-striped">
+              <thead>
+                <tr style="color: black">
+                  <td>Codigo</td>
+                  <td>Nombre</td>
+                </tr>
+              </thead>
+              <tbody id="tableData">
+                {{   range.Material }}
+                <tr onclick="currentEvent({{ .Id}})">
+                  <td>{{ .Cod_material}}</td>
+                  <td>{{ .Material_name}}</td>
+                </tr>
+                {{ end }}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br />
+        <h4 id="currentStop">Material seleccionado</h4>
+        <p style="outline: 5px dotted blue;" id="materialActual"></p>
+        <input type="number" name="material" hidden />
+        <br />
+        <br /><br />
+        <label>Cantidad</label>
+        <input type="number" name="amount" class="form-control" required />
+        <br /><br />
+        <label>Comentario</label>
+        <textarea
+          name="comment"
+          class="form-control"
+          form="eventReport"
+          id=""
+          cols="30"
+          rows="5"
+        ></textarea>
+
+        <br /><br />
+        <input class="btn btn-primary btn-block" type="submit" value="Enviar" />
+        <img
+          class="card-img-bottom"
+          src="/public/images/visual_ul02.jpg"
+          height="184"
+          width="100%"
+        />
+      </form>
+    </div>
+  </div>
+</center>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+
+<script>
+  var $rows = $("#tableData tr");
+
+  $("#searchbox").keyup(function() {
+    var val = $.trim($(this).val())
+      .replace(/ +/g, " ")
+      .toLowerCase();
+
+    $rows
+      .show()
+      .filter(function() {
+        var text = $(this)
+          .text()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+
+        return !~text.indexOf(val);
+      })
+      .hide();
+  });
+
+  function currentEvent(i) {
+    console.log(i);
+
+    $.getJSON("/getMaterialBy?id=" + i, function(data) {
+      $.each(data, function(index, row) {
+        document.getElementById("materialActual").innerHTML = row.Material_name;
+        $("#materialActual").css("outline-style", "dotted");
+        $('input[name="material"]').val(row.Id);
+      });
+    });
+  }
+</script>
+{{ template "Footer" }}
+{{ end }}

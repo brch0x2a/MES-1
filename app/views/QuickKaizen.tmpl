@@ -1,0 +1,84 @@
+{{define "QuickKaizen"}}
+{{ template "Header" }}
+
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+
+<center>
+    <h1 style="color: gold;">Quick Kaizen</h1>
+</center>
+
+<div class="container">
+    <canvas id="qkaizen" width="1122" height="672"></canvas>
+</div>
+
+<script>
+
+    function getMousePos(canvas, event) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        };
+    }
+    function isInside(pos, rect){
+        return pos.x > rect.x && pos.x < rect.x+rect.width && pos.y < rect.y+rect.heigth && pos.y > rect.y
+    }
+
+    var canvas = document.getElementById('qkaizen'),
+    context = canvas.getContext('2d');
+
+    var rect = {
+        x:15,
+        y:15,
+        width:200,
+        heigth:100
+    };
+
+    canvas.addEventListener('click', function(evt) {
+        var mousePos = getMousePos(canvas, evt);
+        debugger;
+        if (isInside(mousePos,rect)) {
+            alert('Descriptivo del fenomeno');
+        }else{
+            alert('clicked outside rect');
+        }	
+    }, false);
+
+    context.beginPath();
+    context.rect(15, 15, 200, 100); 
+    context.fillStyle = '#FFFFFF'; 
+    context.fillStyle = 'rgba(225,225,225,0.5)';
+    context.fillRect(25,72,32,32);
+    context.fill(); 
+    context.lineWidth = 2;
+    context.strokeStyle = '#000000'; 
+    context.stroke();
+    context.closePath();
+    context.font = '40pt Kremlin Pro Web';
+    context.fillStyle = '#000000';
+    context.fillText('Plan', 15, 15);
+
+
+    // make_base();
+
+    function make_base()
+    {
+        base_image = new Image();
+        base_image.src = '/public/images/qkaizen.jpg';
+        base_image.onload = function(){
+            context.drawImage(base_image, 0, 0);
+        }
+    }
+
+</script>
+
+
+
+{{ template "Footer" }}
+{{ end }}

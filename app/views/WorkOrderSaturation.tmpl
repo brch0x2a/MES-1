@@ -1,0 +1,362 @@
+{{define "WorkOrderSaturation"}}
+
+
+{{template "Header"}}
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+{{ template "Nav_workOrders"}}
+
+<center>
+    <h1 style="color: gold;">Saturacion de los mecanicos</h1>
+</center>
+
+<div class="card">
+    <div class="card-body">
+        <form class="form-row align-items-center">
+
+            <div class="form-group col-md-2">
+                <label for="">Año</label>
+                <input
+                  type="number"
+                  id="year"
+                  placeholder="2019"
+                  class="form-control"
+                  step="1"
+                />
+              </div>
+              <div class="form-group col-md-2">
+                <label for="">Semana</label>
+                <input
+                  type="number"
+                  placeholder="1"
+                  class="form-control"
+                  id="wk"
+                  step="1"
+                  max="52"
+                />
+              </div>
+             
+            <button type="button" id="btnOEE" class="btn btn-primary" onclick="beginWeek()">Obtener</button>
+              
+
+        </form>
+    </div>
+</div>
+
+<br>
+
+<div class="container">
+
+    <div class="row">
+        <div class="col">
+            <h3 style="color: gold;"> Tiempo Planificado</h3>
+            <div class="container">
+                <div class="table-responsive-sm">
+                <table
+                    class="table table-dark"
+                    style="font-size: small"
+                >
+                    <thead>
+                    <tr>
+                        <th>Perfil</th>
+                        <th>Mecanico</th>
+                        <th>L</th>
+                        <th>K</th>
+                        <th>M</th>
+                        <th>J</th>
+                        <th>V</th>
+                        <th>S</th>
+                        <th>D</th>
+                        <th>Total</th>
+                    </tr>
+                    </thead>
+                    <tbody id="data_planned"></tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+           <h3 style="color: gold;">Tiempo Ejecutado</h3>
+            <div class="container">
+                <div class="table-responsive-sm">
+                <table
+                    class="table table-dark"
+                    style="font-size: small"
+                >
+                    <thead>
+                    <tr>
+                        <th>Perfil</th>
+                        <th>Mecanico</th>
+                        <th>L</th>
+                        <th>K</th>
+                        <th>M</th>
+                        <th>J</th>
+                        <th>V</th>
+                        <th>S</th>
+                        <th>D</th>
+                        <th>Total</th>
+                    </tr>
+                    </thead>
+                    <tbody id="data_actual"></tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="card bg-dark text-light">
+                <div class="card-header">
+                    Planificado vs Ejecutado
+                </div>
+                <div class="card-body">
+                    <div style="display:flex; justify-content:center; text-align:center">
+                        <canvas id="woChart" width="600" height="400"></canvas>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+     
+     
+    </div>
+
+</div>
+
+
+
+
+
+
+<script src="/public/scripts/Chart.bundle.min.js"></script>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+
+
+
+    Chart.defaults.global.defaultFontColor = "white";
+
+
+
+    function addData(chart, label, data, color) {
+        chart.data.labels.push(label);
+        chart.data.datasets.forEach((dataset) => {
+        dataset.data.push(data);
+        dataset.backgroundColor.push(color);
+        });
+        chart.update();
+    }
+
+    function removeData(chart) {
+        chart.data.labels.pop();
+        chart.data.datasets.forEach((dataset) => {
+        dataset.data.pop();
+        dataset.backgroundColor.pop();
+        });
+        chart.update();
+    }
+    function removeDataset(chart) {   
+        chart.data.datasets.shift();
+        chart.update();
+    }
+
+    function addDataset(chart, pdata, pbackgroundColor, plabel) {
+            chart.data.datasets.push({
+                data: pdata,
+                backgroundColor: pbackgroundColor,
+                label : plabel,
+            });
+
+            chart.update();
+        }
+
+
+    var ctx = document.getElementById("woChart").getContext("2d");
+    var woChart = new Chart(ctx,{
+        type: "bar",
+        data: {
+            labels : [],
+        datasets: [
+            {
+                label: "",
+                data: [],
+                backgroundColor: [],
+                borderWidth: 1,
+            },
+            ],
+        },
+        options: {
+            scales: {
+            xAxes: [{ 
+                        gridLines: {
+
+                            color: ' rgba(255, 255, 255, 0.5)' ,
+                        },
+                    }],
+            yAxes: [
+                {
+                ticks: {
+                    beginAtZero: true,
+                },
+                
+                        gridLines: {
+                        color: ' rgba(255, 255, 255, 0.5)' ,
+                        },
+                },
+            ],
+            },
+            animation: {
+            duration: 3000,
+            },
+            responsive: false,
+            maintainAspectRatio: false,
+        },
+    });
+
+
+
+
+    function beginWeek(){
+
+        removeDataset(woChart);
+        removeDataset(woChart);
+
+        let year = $("#year").val();
+        let week = $("#wk").val();
+        
+        let Mecanic = [];
+
+        let Planned = [];
+        let Pbg = [];
+
+        let Executed = [];
+        let Ebg = [];
+
+        $.getJSON("/getPlannedWorkSaturarion?year=" + year + "&week=" + week, data => {
+
+            
+
+            $("#data_planned").empty();
+            $.each(data, function (index, row) {
+                let weekSum = 0;
+
+                $("#data_planned").append("<tr>");
+                $("#data_planned").append(
+                    
+                    "<td>" + row.Mecanic.Profile_picture + "</td>" +
+                    "<td>" + row.Mecanic.Fname + row.Mecanic.Lname + "</td>" 
+                );
+                
+                let i = 0;
+
+                row.Times.forEach(t => {
+
+                    s = t / 8 * 100;
+
+                    weekSum += s;
+
+                    if (i==7) {
+
+                        s = t / 48 * 100;
+                        $("#data_planned").append(  "<td>" + (weekSum * 8 / 48) + "%</td>" );
+                    }else{
+                        $("#data_planned").append(  "<td>" + s + "%</td>" );
+                    }
+            
+
+                    i += 1;              
+                 });
+
+                $("#data_planned").append("</tr>");
+
+                let total = row.Times[7];
+
+                console.log("sum: "+weekSum+" vs total: " + total);
+
+                total = total / 48 * 100;
+
+                totalWeek = weekSum * 8 / 48;
+         
+                Mecanic.push(row.Mecanic.Fname);
+                Planned.push(totalWeek);
+                Pbg.push("#99ffcc");
+
+            });
+
+            woChart.data.labels = Mecanic;
+
+
+            addDataset(woChart, Planned, Pbg, "Planeado");
+
+        });
+
+        $.getJSON("/getActualWorkSaturarion?year=" + year + "&week=" + week, data => {
+
+            $("#data_actual").empty();
+            $.each(data, function (index, row) {
+                let weekSum = 0;
+
+                $("#data_actual").append("<tr>");
+                $("#data_actual").append(
+                    
+                    "<td>" + row.Mecanic.Profile_picture + "</td>" +
+                    "<td>" + row.Mecanic.Fname + row.Mecanic.Lname + "</td>" 
+                );
+
+                row.Times.forEach(t => {
+
+                    s = t / 8 * 100;
+                    weekSum += s;
+
+                    if (i==7) {
+
+                        s = t / 48 * 100;
+                        $("#data_actual").append(  "<td>" +(weekSum * 8 / 48)+ "%</td>" );
+                    }else{
+
+                        $("#data_actual").append(  "<td>" + s + "%</td>" );
+                    }
+                });
+
+                $("#data_actual").append("</tr>");
+
+
+                let total = row.Times[7];
+
+
+                total = total / 48 * 100;
+
+                totalWeek = weekSum * 8 / 48;
+
+                Executed.push(totalWeek);
+                Ebg.push("#ff6600");
+
+
+            });
+
+            addDataset(woChart, Executed, Ebg, "Ejecutado");
+        });
+
+
+    }
+
+
+
+
+
+
+
+
+
+</script>
+
+
+{{ template "Footer" }}
+
+{{end}}

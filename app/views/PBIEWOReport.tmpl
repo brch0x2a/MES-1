@@ -1,0 +1,37 @@
+{{define "PBIEWOReport"}}
+{{ template "Header" }}
+
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+
+<iframe width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=69a622d1-76aa-464c-96f3-ffb969a32186&autoAuth=true&ctid=f66fae02-5d36-495b-bfe0-78a6ff9f8e6e&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLW5vcnRoLWV1cm9wZS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldC8ifQ%3D%3D" frameborder="0" allowFullScreen="true"></iframe>
+
+<script>
+
+
+    chrome.webRequest.onHeadersReceived.addListener(
+        function(info) {
+            var headers = info.responseHeaders;
+            for (var i=headers.length-1; i>=0; --i) {
+                var header = headers[i].name.toLowerCase();
+                if (header == 'x-frame-options' || header == 'frame-options') {
+                    headers.splice(i, 1); // Remove header
+                }
+            }
+            return {responseHeaders: headers};
+        },
+        {
+            urls: [ '*://*/*' ], // Pattern to match all http(s) pages
+            types: [ 'sub_frame' ]
+        },
+        ['blocking', 'responseHeaders']
+    );
+</script>
+
+{{ template "Footer" }}
+{{ end }}

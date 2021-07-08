@@ -1,0 +1,268 @@
+{{define "PlanningValidation"}}
+{{template "Header"}}
+
+{{ template "Menu" }}
+
+<div class="card">
+  <div class="card-body">
+    <form action="#">
+      <div class="form-row  align-items-center">
+        <div class="col-md-2 col-md-offset-3">
+          <label for="">Area</label>
+          <select name="area" id="area" class="form-control"></select>
+        </div>
+
+        <div class="col-md-2 col-md-offset-3">
+          <label for="">Linea</label>
+          <select name="line" id="line" class="form-control" required></select>
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <label> Fecha inicio </label>
+          <input
+            type="date"
+            id="dinit"
+            name="dinit"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-4 col-md-offset-3">
+          <label> Fecha final </label>
+          <input
+            type="date"
+            id="dfinal"
+            name="dfinal"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+          <input
+            type="button"
+            class="btn btn-primary"
+            value="Filtrar"
+            onclick="filter()"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br>
+<center><h1 style="color: gold;">Plan de produccion</h1></center>
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <iframe src="http://192.168.1.191:5000/get_planning_template" frameborder="1" width="100%" height="250px"></iframe>
+    </div>
+    <div class="col-sm">
+      <iframe src="http://192.168.1.191:5000/" frameborder="1" width="100%" height="250px"></iframe>
+    </div>
+  </div>
+</div>
+<button class="btn-primary btn-block" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+
+<br />
+<a id="dlink" style="display:none;"></a>
+
+
+<input
+  id="exportButton"
+  class="btn btn-block btn-success"
+  type="button"
+  onclick="tableToExcel('data_table', 'name', 'reportePlanning.xls')"
+  value="Exportar a Excel"
+  hidden="true"
+/>
+<br />
+
+<div class="container">
+  <table
+    id="data_table"
+    class="table table-dark table-responsive table-bordered text-light table-striped"
+  >
+    <thead>
+      <tr>
+        <td>Fecha</td>
+        <td>Turno</td>
+        <td>Linea</td>
+        <td>Presentacion</td>
+        <td>Version</td>
+        <td>Planeado</td>
+        <td>Producido</td>
+        <td>Velocidad nominal</td>
+        <td>
+          <a href="/reportPlanning" onclick="loading()">
+            <button
+              type="button"
+              class="btn btn-success"
+              style="margin-left: 0px"
+            >
+              +Turno
+            </button>
+          </a>
+          <a href="/reportPlanningbyWeek" onclick="loading()">
+            <button
+              type="button"
+              class="btn btn-info"
+              style="margin-left: 85px"
+            >
+              +Semana
+            </button>
+          </a>
+        </td>
+      </tr>
+    </thead>
+    <tbody id="data_p"></tbody>
+  </table>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/subirPlanProduccion.mp4" type="video/mp4">
+        <source src="/public/videos/subirPlanProduccion.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/subirPlanProduccion.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+    $("#area").change(() => {
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+  });
+
+  function filter() {
+    $.getJSON(
+      "/getPlanningV02?line=" +
+        $("#line").val() +
+        "&dinit=" +
+        $("#dinit").val() +
+        "&dfinal=" +
+        $("#dfinal").val(),
+      data => {
+        $("#data_p").empty();
+        $.each(data, function(index, row) {
+          $("#data_p").append("<tr>");
+          $("#data_p").append(
+            "<td>" +
+              row.Date_planning +
+              "</td>" +
+              "<td>" +
+              row.Turn +
+              "</td>" +
+              "<td>" +
+              row.Line +
+              "</td>" +
+              "<td>" +
+              row.Presentation +
+              "</td>" +
+              "<td>" +
+              row.Version +
+              "</td>" +
+              "<td>" +
+              row.Planned +
+              "</td>" +
+              "<td>" +
+              row.Produced +
+              "</td>" +
+              "<td>" +
+              row.Nominal_speed +
+              "</td>" +
+              "<td>" +
+              "<a  href='/editPlanning?id=" +
+              row.Id +
+              "' class='btn btn-primary'>Editar</a>" +
+              "<a  href='/deletePlanning?id=" +
+              row.Id +
+              "' class='btn btn-danger'>Borrar</a>" +
+              "</td>"
+          );
+
+          $("#data_p").append("</tr>");
+        });
+      }
+    );
+    hiddeE("exportButton", false);
+  }
+
+  var tableToExcel = (function() {
+    var uri = "data:application/vnd.ms-excel;base64,",
+      template =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+      base64 = function(s) {
+        return window.btoa(unescape(encodeURIComponent(s)));
+      },
+      format = function(s, c) {
+        return s.replace(/{(\w+)}/g, function(m, p) {
+          return c[p];
+        });
+      };
+    return function(table, name, filename) {
+      if (!table.nodeType) table = document.getElementById(table);
+      var ctx = { worksheet: name || "Worksheet", table: table.innerHTML };
+
+      document.getElementById("dlink").href =
+        uri + base64(format(template, ctx));
+      document.getElementById("dlink").download = filename;
+      document.getElementById("dlink").click();
+    };
+  })();
+</script>
+{{ template "Footer" }}
+{{ end }}

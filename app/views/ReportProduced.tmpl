@@ -1,0 +1,266 @@
+{{define "ReportProduced"}}
+{{template "Header"}}
+
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{end}}
+  
+{{ template "Nav_report"}}
+<div class="card">
+    <div class="card-body">
+        <form action="#">
+            <div class="form-row  align-items-center">
+                <div class="col-md-2 col-md-offset-3">
+                    <label for="">Area</label>
+                    <select name="area" id="area" class="form-control"></select>
+                </div>
+
+                <div class="col-md-2 col-md-offset-3">
+                    <label for="">Linea</label>
+                    <select name="line" id="line" class="form-control" required></select>
+                </div>
+                <div class="col-md-2 col-md-offset-3">
+                    <label> Fecha </label>
+                    <input type="date" id="dinit" name="dinit" class="form-control" required>
+                </div>
+                <div class="col">
+                  <button class="btn-primary btn-block" data-toggle="modal" data-target="#tutorial">Tutorial<img src="/public/images/tutorial.png" width="40" height="33" alt=""></button>
+                </div>
+
+                <div class="col-md-2 col-md-offset-3">
+                    <input type="button" class="btn btn-primary" id="filertBtn" value="Filtrar" onclick="filterPlanning()">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<br><br><br>
+
+
+<div style="d-flex align-items-center flex-column justify-content-center" >
+  <table class="table table-responsive table-dark table-striped">
+
+        <thead>
+            <tr>
+                <td>Linea</td>
+                <td>Turno</td>
+                <td>Producto</td>
+                <td>Presentacion</td>
+                <td>Version</td>
+                <td>Velocidad nominal</td>
+                <td>Planeado</td>
+                <td>Producido</td>
+                <td>Accion</td>
+            </tr>
+        </thead>
+        <tbody id="data_p"></tbody>
+    </table>
+</div>
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="closeForm"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="closeFormLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Reportar Cajas Producidas </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="closeFormSet">
+        <div class="modal-body">
+        <div class="form-group">
+            <label for=""><b>Corte ultima hora</b></label>
+            <input name="box" id="box" class="form-control" />
+          </div>
+        </div>
+        <input type="number" id="idPlanning" name="idPlanning" hidden>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onclick="updateBox()"
+            class="btn btn-primary"
+          >
+            Guardar cambios
+          </button>
+        </div>
+      </form>
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="138"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="tutorial"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="timeSetForm"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeFormLabel">Tutorial</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <video  poster="/public/images/posterUnilever.png" autoplay="autoplay" controls="controls">
+        <source src="/public/videos/tutorial00.mp4" type="video/mp4">
+        <source src="/public/videos/tutorial00.mp4" type="video/webm">
+        <p>Your browser doesn't support HTML5 video. Here is a <a href="/public/videos/tutorial00.mp4">link to the video</a> instead.</p>
+        </video>
+
+      <img
+        class="card-img-bottom"
+        src="/public/images/visual_ul02.jpg"
+        height="184"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $.getJSON("/getArea", function (data) {
+            $("#area").empty();
+            $.each(data, function (index, row) {
+                $("#area").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+            });
+            $.getJSON("/getLineBy?id=" + $("#area").val(), function (data) {
+                $("#line").empty();
+                $.each(data, function (index, row) {
+                    $("#line").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+                });
+            });
+        });
+        $("#area").change(() => {
+            $.getJSON("/getLineBy?id=" + $("#area").val(), function (data) {
+                $("#line").empty();
+                $.each(data, function (index, row) {
+                    $("#line").append("<option value='" + row.Id + "' >" + row.Name + "</option>")
+                });
+            });
+        });
+
+
+    });
+
+    function filterPlanning() {
+        $.getJSON("/getHistoricPlanning?date=" + $("#dinit").val() + "&line=" + $("#line").val(), data => {
+
+            $("#data_p").empty();
+            $.each(data, function (index, row) {
+                $("#data_p").append("<tr>");
+                $("#data_p").append(
+                    "<td>" + row.Line + "</td>" +
+                    "<td>" + row.Turn + "</td>" +
+                    "<td><img style='object-fit: scale-down;' src='/"+row.Photo+"' width='160' height='160'></td>"+
+
+                    "<td>" + row.Presentation + "</td>" +
+                    "<td>" + row.Version + "</td>" +
+                    "<td>" + row.Nominal_speed + "</td>" +
+                    "<td>" + row.Planned + "</td>" +
+                    "<td>" + row.Produced + "</td>"+
+                    "<td>" +
+                         "<button "+      
+                            "type='button' "+
+                            "id='cerrar' "+
+                            "class='btn btn-secondary btn-block' "+
+                            "data-toggle='modal' "+
+                            "data-target='#closeForm' "+
+                            "onclick='reportBox("+row.Id+")'>"+
+                            "Reportar</button></td>"
+                );
+
+                $("#data_p").append("</tr>");
+            });
+
+        });
+    }
+
+
+
+
+
+
+    function reportBox(id){
+        console.log(id);
+        $('input[name="idPlanning"]').val(id);
+    }
+
+    function updateBox() {
+
+
+      let pbox = $("#box").val();
+      let pid = $("#idPlanning").val();
+
+      $.post("/updateProducedBox", {
+        box: pbox,
+        id: pid,
+      });
+
+      document.getElementById("cerrar").click();
+      document.getElementById("filertBtn").click();
+
+      // setTimeout(updateBoxLog(), 200);
+      // await updateBoxLog()
+
+      setTimeout(filterPlanning(), 400);
+    } 
+
+    function updateBoxLog(){
+      let pbox = $("#box").val();
+
+      console.log("LOG")
+      $.post("/updateProducedBoxLog", {
+        box: pbox,
+      });
+    }
+  
+
+
+</script>
+{{ template "Footer" }}
+{{end}}

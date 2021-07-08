@@ -1,0 +1,43 @@
+{{define "SubClassification"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{ template "Nav_ltc"}}
+
+<div class="container">
+    <table class="table table-responsive table-dark table-striped">
+
+        <thead>
+            <tr>
+                <td>Line Time Classification</td>
+                <td>Sub Clasificacion</td>
+                <td>
+                    Accion |
+                    <a href="/newSubClassification">
+                        <button type="button" class="btn btn-success" style="margin-left: 20px"
+                            onclick="loading()">Agregar</button>
+                    </a>
+                </td>
+
+            </tr>
+        </thead>
+        <tbody>
+            {{ range . }}
+            <tr>
+                <td>{{ .LTC }} </td>
+                <td style="background-color:{{ .Color}}">{{ .Description }} </td>
+                <td>
+                    <a href="/editSubClassification?id={{.Id}}">
+                        <button type="button" class="btn btn-primary" onclick="loading()">Editar</button>
+                    </a>
+                    <a href="/deleteSubClassification?id={{.Id}}">
+                        <button type="button" class="btn btn-danger">Borrar</button>
+                    </a>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
+
+{{ template "Footer" }}
+{{ end }}

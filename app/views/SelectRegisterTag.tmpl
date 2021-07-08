@@ -1,0 +1,94 @@
+{{define "SelectRegisterTag"}}
+{{ template "Header" }}
+
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+
+<div class="row">
+  <div class="col-md-4">
+    <a href="/blueTag" onclick="loading()" style="color: black">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/blueTag.jpg"
+          alt="Card image cap"
+        />
+        <div class="card-body" style="color: #1d1838">
+          <h5 class="card-title">Etiquetas de anomalias | Azul</h5>
+          <p class="card-text">Etiquetas de uso autonomo</p>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Belen</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="/redTag" onclick="loading()" style="color: black">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/redTag.jpg"
+          alt="Card image cap"
+        />
+        <div class="card-body" style="color: #880016">
+          <h5 class="card-title">Etiquetas de anomalias | Roja</h5>
+          <p class="card-text">Etiquetas de uso coperativo con mantenimiento</p>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Belen</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="/greenTag" onclick="loading()" style="color: black">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/greenTag.jpg"
+          alt="Card image cap"
+        />
+        <div class="card-body" style="color: #185313">
+          <h5 class="card-title">Tarjeta de riesgo | Verde</h5>
+          <p class="card-text">Etiquetas de uso autonomo</p>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Belen</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+<br />
+<div class="row">
+  <div class="col-md-4">
+    <a href="/orangeTag" onclick="loading()" style="color: black">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/orangeTag.jpg"
+          alt="Card image cap"
+        />
+        <div class="card-body" style="color: #d96421">
+          <h5 class="card-title">Etiquetas de calidad | Naranja</h5>
+          <p class="card-text">Etiquetas de uso autonomo</p>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Belen</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+{{ template "Footer" }}
+{{ end }}

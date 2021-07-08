@@ -1,0 +1,45 @@
+{{define "NewArea"}}
+{{ template "Header" }}
+{{ template "Menu" }}
+{{ template "Nav_sectors"}}
+ <div class="d-flex align-items-center flex-column justify-content-center h-100">
+<div class="card w-50">
+<div class="card-header">Nueva Area</div>
+    <div class="card-body">
+        <form method="POST" action="insertArea">
+        <div class="form-group">
+            <label for="">Fabrica</label>
+            <select class="form-control" name="factory" id="pfactory"></select>
+        </div>
+        <div class="form-group">    
+        <label>Nombre</label>
+        <input type="text" name="name"  class="form-control" placeholder="Nombre" required/><br />
+        </div>
+        <br><br>
+        <input class="btn-block" type="submit" value="Guardar" onsubmit="loading()"/>
+        <img  class="card-img-bottom" src="/public/images/visual_ul02.jpg"  height="184" width="100%">
+        </form>
+    </div>
+</div>
+</div>
+</div>   
+<br />    
+<hr>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+$(document).ready(()=>{
+    $.getJSON("/getFactory", data=>{
+        $("#pfactory").empty();
+        $.each(data, (index, row)=>{
+            $("#pfactory").append("<option value='"+row.Id+"' >"+row.Name+"</option>")
+        });
+    });
+});
+
+
+</script>
+{{ template "Footer" }}
+
+
+{{end}}

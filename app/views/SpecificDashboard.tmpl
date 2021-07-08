@@ -1,0 +1,475 @@
+{{define "SpecificDashboard"}}
+{{ template "Header" }}
+
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+
+<div class="container">
+  <div  class="d-flex align-items-center flex-column justify-content-center h-100">
+
+    <div >
+      <div >
+            <div class="row">
+                <div class="col">
+                    <div class="card bg-dark text-light" style="width: 30rem;">
+                        <div class="media">
+                            <img style="object-fit: scale-down;" class="mr-3" width='200' height='200' id="user_profile" src="/public/images/ul_white.png" alt="user">
+                            <div class="media-body">
+                            <h1 id="user_line"></h1>
+                            <h5 class="mt-0" id="user_nickname"></h5>
+                                <p id="user_name"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col">
+                    <div class="card bg-dark text-light" style="width: 30rem;">
+                        <div class="media">
+                            <img style="object-fit: scale-down;" class="mr-3" width='200' height='200' id="presentation_profile" src="/public/images/doypack.png" alt="user">
+                            <div class="media-body">
+                            <h5 class="mt-0" id="presentation_name"></h5>
+                                <p id="presentation_meta"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <br>
+
+ 
+
+      <div class="row">
+        <div class="col">
+          <div class="card bg-dark text-light">
+            <div class="card-header">
+              Uso Documentos de Calidad X Turno
+            </div>
+              <div class="card-body">
+                <canvas id="qaChart" width="300" height="304"></canvas>
+              </div>
+          </div>
+        </div>
+
+
+          <div class="col">
+
+            <div class="card bg-dark text-light">
+              <div class="card-header">
+                Boletas Abiertas
+              </div>
+                <div class="card-body">
+                  <canvas id="tags" width="300" height="304"></canvas>
+                </div>
+            </div>
+        </div>
+
+        </div>
+   
+
+<br><br>
+      <div class="col">
+
+
+          <div class="row">
+          <table
+            class="table table-responsive table-dark table-striped"
+            style="font-size: small"
+            id="data_table"
+            >
+          <thead>
+            <tr>
+              
+              <th>Imagen</th>
+              <th>Categoria</th>
+              <th>Documento</th>
+              <th>Frecuencia</th>
+              <th>#Registros Meta</th>
+              <th>#Registros actual</th>
+            </tr>
+          </thead>
+
+            <tbody id="data_p">
+              <tr>
+                <td>
+                  <img style="object-fit: scale-down;" src="/public/images/qa.png" width="100" height="100">
+                </td>
+                <td>
+                  Calidad
+                </td>
+                <td>
+                  Control de Pesos
+                </td>
+                <td>
+                  cada 5 minutos
+                </td>
+                <td>
+                  96
+                </td>
+                <td id="weightActual">
+                  0
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <img style="object-fit: scale-down;" src="/public/images/qa.png" width="100" height="100">
+                </td>
+                <td>
+                   <p> Calidad</p>
+                </td>
+                <td>
+                <p> Control de temperaturas</p> 
+                 <p>(intercambiador, tolva de llenado y</p> 
+                 <p>boquillas)</p> 
+                </td>
+                <td>
+                  p cada 30 minutos
+                </td>
+                <td>
+                  16
+                </td>
+                <td id="temperatureActual">
+                  0
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <img style="object-fit: scale-down;" src="/public/images/qa.png" width="100" height="100">
+                </td>
+                <td>
+                  Calidad
+                </td>
+                <td>
+                  <p> Temperatura de mordazas, estado de mordazas y</p>
+                  <p> teflon, parametros ultrasonicos</p>
+                </td>
+                <td>
+                  Una vez cada hora
+                </td>
+                <td>
+                  8
+                </td>
+                <td id="temperaturJawActual">
+                  0
+                </td>
+              </tr>
+
+
+              <tr>
+                <td>
+                  <img style="object-fit: scale-down;" src="/public/images/qa.png" width="100" height="100">
+                </td>
+                <td>
+                  Calidad
+                </td>
+                <td>
+                  Verificacion de sellos por prensa neumatica
+                </td>
+                <td>
+                  cada 20 minutos
+                </td>
+                <td>
+                  24
+                </td>
+                <td id="stampActual">
+                  0
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <img style="object-fit: scale-down;" src="/public/images/qa.png" width="100" height="100">
+                </td>
+                <td>
+                  Calidad
+                </td>
+                <td>
+                  <p> Registro de estandares de calidad relevantes</p>
+                <p>  para el consomidor(CRQS) y Verificacion de alergenos</p>
+                </td>
+                <td>
+                  cada 30 minutos
+                </td>
+                <td>
+                  16
+                </td>
+                <td id="crqsActual">
+                  0
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <img style="object-fit: scale-down;" src="/public/images/qa.png" width="100" height="100">
+                </td>
+                <td>
+                  Calidad
+                </td>
+                <td>
+                  Registro de Trazabilidad por cambio de Batche
+
+                </td>
+                <td>
+                  cambio de batch
+                </td>
+                <td>
+                  N/A
+                </td>
+                <td id="batchCounter">
+                  0
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <img style="object-fit: scale-down;" src="/public/images/qa.png" width="100" height="100">
+                </td>
+                <td>
+                  Calidad
+                </td>
+                <td>
+                 <p> Registro de estandares de calidad relevantes para el</p>
+                 <p> consomidor(CRQS) y Verificacion de alergenos</p>
+
+                </td>
+                <td>
+                  cambio de batch
+                </td>
+                <td>
+                  N/A
+                </td>
+                <td id="allergenCounter">
+                  0
+                </td>
+              </tr>
+
+
+            </tbody>
+          
+          </table>
+
+
+        </div>
+
+      </div>
+    </div>
+
+    <br><br>
+
+
+
+  </div>
+    
+</div>
+
+<br>
+
+<br>
+
+<script src="/public/scripts/Chart.bundle.min.js"></script>
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+
+
+$(document).ready(() => {
+
+
+  beginCharge()
+
+
+
+});
+
+
+
+
+Chart.defaults.global.defaultFontColor = "white";
+
+var qaChartCtx = document.getElementById("qaChart").getContext("2d");
+var qaChart = new Chart(qaChartCtx, {
+  type: "bar",
+  data: {
+    labels: ["Pesos", "Temperaturas", "Mordazas", "Sellos", "CRQS", "Batches", "Allergenos"],
+    datasets: [
+      {
+        label: "Meta",
+        data: [24, 16, 8, 24, 16, 1, 1],
+        backgroundColor: ["#ff3399", "#ff3399", "#ff3399", "#ff3399", "#ff3399", "#ff3399", "#ff3399"],
+        // borderColor: ["rgba(0, 0, 255, 1)"],
+
+        borderWidth: 1,
+      },
+    ],
+  },
+  options: {
+    scales: {
+      xAxes: [{ 
+                gridLines: {
+
+                    color: ' rgba(255, 255, 255, 0.5)' ,
+                },
+            }],
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+         
+                gridLines: {
+                  color: ' rgba(255, 255, 255, 0.5)' ,
+                },
+        },
+      ],
+    },
+    animation: {
+      duration: 3000,
+    },
+    responsive: false,
+    maintainAspectRatio: false,
+  },
+});
+
+
+
+var tagsCtx = document.getElementById("tags").getContext("2d");
+var tags = new Chart(tagsCtx, {
+  type: "bar",
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: "Boletas",
+        data: [],
+        backgroundColor: [],
+        // borderColor: ["rgba(0, 0, 255, 1)"],
+        borderWidth: 1,
+      },
+    ],
+  },
+  options: {
+    scales: {
+      xAxes: [{ 
+                gridLines: {
+
+                    color: ' rgba(255, 255, 255, 0.5)' ,
+                },
+            }],
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+         
+                gridLines: {
+                  color: ' rgba(255, 255, 255, 0.5)' ,
+                },
+        },
+      ],
+    },
+    animation: {
+      duration: 3000,
+    },
+    responsive: false,
+    maintainAspectRatio: false,
+  },
+});
+
+
+function addData(chart, label, data, color) {
+  chart.data.labels.push(label);
+  chart.data.datasets.forEach((dataset) => {
+    dataset.data.push(data);
+    dataset.backgroundColor.push(color);
+  });
+  chart.update();
+}
+
+function removeData(chart) {
+  chart.data.labels.pop();
+  chart.data.datasets.forEach((dataset) => {
+    dataset.data.pop();
+    dataset.backgroundColor.pop();
+  });
+  chart.update();
+}
+
+function addDataset(chart, pdata, pbackgroundColor, plabel) {
+			chart.data.datasets.push({
+        data: pdata,
+        backgroundColor: pbackgroundColor,
+        label : plabel,
+			});
+			chart.update();
+		}
+
+
+    function beginCharge(){
+
+let line = 0 
+
+$.getJSON("/getMetaUser", function(data) {
+          document.getElementById("user_nickname").innerHTML = data.Nick_name;
+          document.getElementById("user_name").innerHTML = data.Fname +" "+data.Lname;
+          document.getElementById("presentation_name").innerHTML = data.Presentation;
+          document.getElementById("user_line").innerHTML = data.Line;
+
+          line = data.LineID;
+
+          if(data.Profile_picture != "public/images/ul_white.png"){
+              console.log("dataProfile, "+data.Profile_picture);
+              console.log("flag");
+              document.getElementById("user_profile").src = data.Profile_picture;
+              document.getElementById("presentation_profile").src = data.ProductPhoto;
+              console.log(data.ProductPhoto);
+          }
+
+          $.getJSON("/countOpenTagsBy?line="+line, function(data) {
+            addData(tags, "Rojas", data.Red, "#fc051d");
+            addData(tags, "Azules", data.Blue, "#2a05fc");
+            addData(tags, "Verdes", data.Green, "#08c921");
+            addData(tags, "Naranjas", data.Orange, "#fc8405");
+          });
+
+
+          $.getJSON("/getQACurrentMonitor?line="+line, function(data) {
+              document.getElementById("weightActual").innerHTML = data.WeightCounter;
+              document.getElementById("temperatureActual").innerHTML = data.ProcessTemperature;
+              document.getElementById("temperaturJawActual").innerHTML = data.JawTeflonState;
+              document.getElementById("stampActual").innerHTML = data.SealVerification;
+              document.getElementById("crqsActual").innerHTML = data.CRQS;
+              document.getElementById("batchCounter").innerHTML = data.BatchCounter;
+              document.getElementById("allergenCounter").innerHTML = data.AllergenCounter;
+
+              let currentData = [ data.WeightCounter, data.ProcessTemperature, data.JawTeflonState,
+                                  data.SealVerification, data.CRQS, data.BatchCounter, data.AllergenCounter
+                                ];
+                          
+              let pbackgroundColor = ["#00ffff", "#00ffff", "#00ffff", "#00ffff", "#00ffff", "#00ffff", "#00ffff"];
+            
+              addDataset(qaChart, currentData, pbackgroundColor, "Actual");
+
+          });
+
+    });
+
+
+
+
+
+}
+
+
+
+</script>
+
+
+{{template "Footer"}}
+{{ end }}

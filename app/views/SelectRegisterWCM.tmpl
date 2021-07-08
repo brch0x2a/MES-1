@@ -1,0 +1,174 @@
+{{define "SelectRegisterWCM"}}
+{{ template "Header" }}
+
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+
+<div class="row">
+
+  <div class="col-md-4">
+    <a href="/reportEvent" onclick="loading()" style="color: black">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/wcm.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">Registro Paros</h5>
+          <p class="card-text">
+            Reportar paros para OEE
+          </p>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-WCMREG-#</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-4">
+    <a href="/ExecuteAM_instance" onclick="loading()" style="color: black">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/wcm.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">Calendario AM</h5>
+          <p class="card-text">
+            Ejecutar orden de mantenimiento autonomo
+          </p>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-WCMREG-#</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+
+  <div class="col-md-4">
+    <a href="salsitasOutputControl" onclick="loading()" style="color: black">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/wcm.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">Registro de control de salida </h5>
+          <p class="card-text">
+            Grupos  de ingredientes menores del cuarto de pesado salsitas Naturas
+          </p>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-MANUREG-008</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+</div>  
+
+
+<div class="row">
+  <div class="col-md-4">
+    <a href="/reportProduced" onclick="loading()" style="color: black">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/wcm.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">Reportar Cajas</h5>
+          <p class="card-text">
+            Reporte de cajas producidas por turno
+          </p>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-WCMREG-#</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+<div class="row">
+
+  <div class="col-md-4">
+    <a href="/dfos" onclick="loading()" style="color: black">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/dfos.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">DFOS</h5>
+          <p class="card-text">
+            Herramienta DFOS
+          </p>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-WCMREG-#</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+
+  <div class="col-md-4">
+    <a href="/pbiOEEReport" onclick="loading()" style="color: black">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/logo-buildapp-horizontal.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">Build App</h5>
+          <p class="card-text">
+            Sistema Integrado
+          </p>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-WCMREG-#</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-4">
+    <a href="/pbiEWOReport" onclick="loading()" style="color: black">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/pbi.jpg"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">EWOS</h5>
+          <p class="card-text">
+            Reporte OEE
+          </p>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-WCMREG-#</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+{{ template "Footer" }}
+{{ end }}

@@ -1,0 +1,42 @@
+{{define "SelectRegisterBodega"}}
+{{ template "Header" }}
+
+{{if .HasPermission "Menu"}}
+  {{ template "Menu" }}
+{{else}}
+  {{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+
+<div class="row">
+  <div class="col-md-4">
+    <a href="/requestCalloff" onclick="loading()" style="color: black">
+      <div class="card" style="width: 18rem;">
+        <img
+          class="card-img-top"
+          src="/public/images/wcm.png"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">Call Off</h5>
+          <p class="card-text">Formulario de solicitud</p>
+          <p class="card-text">de materiales</p>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">ACJ-CALREG-#</li>
+          </ul>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+{{if .HasPermission "Warehouse"}}
+  {{ template "WareHouseOption" }}
+
+{{ end }}
+
+
+
+{{ template "Footer" }}
+{{ end }}

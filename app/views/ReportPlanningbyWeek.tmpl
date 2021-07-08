@@ -1,0 +1,241 @@
+{{define "ReportPlanningbyWeek"}}
+{{ template "Header" }}
+
+{{if .HasPermission "Menu"}}
+{{ template "Menu" }}
+{{else}}
+{{ template "Menu_lv1"}}
+{{ end }}
+
+{{ template "Nav_report"}}
+
+<center>
+
+    <div class="card">
+      <div class="card-body">
+        <form method="POST" action="insertReportPlanningByWeek" id="eventPlanning">
+          <div class="form-row  align-items-center">
+            <div class="col-md-5 col-md-offset-4">
+              <label for="">Area</label>
+              <select name="area" id="area" class="form-control"
+                >Area</select
+              >
+            </div>
+            <div class="col-md-5 col-md-offset-4">
+              <label for="">Linea</label>
+              <select name="line" id="line" class="form-control"></select>
+            </div>
+          </div>
+
+          <div class="form-row  align-items-center">
+            <div class="col-md-4 mb-4">
+              <label for="">Año</label>
+              <input
+                type="number"
+                id="year"
+                placeholder="2019"
+                class="form-control"
+                step="1"
+              />
+            </div>
+            <div class="col-md-4 mb-4">
+              <label for="">Semana</label>
+              <input
+                type="number"
+                placeholder="1"
+                class="form-control"
+                id="wk"
+                step="1"
+                max="52"
+              />
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="btn btn-info" onclick="genTable()">Generar</div>
+              </div>
+          </div>
+
+          <div>
+            <table
+              id="tableData"
+              class="table table-bordered table-striped table-responsive table-sm"
+            >
+              <thead>
+                <tr>
+                  <td>Dia</td>
+                  <td>Fecha</td>
+                  <td>Turno</td>
+                  <td>Producto</td>
+                  <td>Presentacion</td>
+                  <td>Version</td>
+                  <td>Velocidad Nominal</td>
+                  <td>Planeado</td>
+                  <td>Producido</td>
+                </tr>
+              </thead>
+              <tbody id="data"></tbody>
+            </table>
+          </div>
+
+          <br /><br />
+          <input
+            class="btn btn-primary btn-block"
+            type="submit"
+            value="Guardar"
+            onsubmit="loading()"
+          />
+          <img
+            class="card-img-bottom"
+            src="/public/images/visual_ul02.jpg"
+            height="184"
+            width="100%"
+          />
+        </form>
+      </div>
+    </div>
+
+</center>
+
+<script src="/public/scripts/jquery-3.3.1.min.js"></script>
+<script>
+  $("#reportEvent").removeClass("nav-item active");
+  $("#reportPlanning").removeClass("nav-item active");
+
+  $("#reportPlanning").addClass("nav-item active");
+
+
+  Date.prototype.addDays = function(days) {
+        var date = new Date(this.valueOf());
+        date.setDate(date.getDate() + days);
+        return date;
+    }
+
+  function createRowForm(n){
+    let dayNames = ["L", "K", "M", "J", "V", "S", "D"];
+    day = new Date($("#year").val(), 0);
+    day = day.addDays(-day.getDay()+1);
+    wk = $("#wk").val();
+    a = n;
+    var r = "";
+    var res;
+
+    currentDay = day.addDays((wk-1)*7+a);
+    //console.log("\ncurrent day: "+currentDay);
+
+    res = currentDay.toString().split(" "); 
+
+    //for(i=0; i<4; i++){r += res[i] + " ";}
+    r = currentDay.getFullYear().toString()+"-"+(currentDay.getMonth()+1).toString()+"-"+currentDay.getDate().toString();
+
+    n = n * 3;
+
+    for (let j = 0; j < 3; j++) {//por cantidad de turnos
+        n++;
+   
+        $("#data").append("<tr>");
+        $("#data").append(
+            "<td>"+dayNames[a]+"</td>"+
+            "<td id=f"+n+"><input type='text' name=f"+n+" value="+r+" readonly style='width: 90px;'/></td>"+//date
+            "<td id=t"+n+">" + (j+1) + "<input type='number' name=t"+(j+1)+" value="+(j+1)+" hidden ></td>"+//turn
+            "<td >"+"<select id=p"+n+"></select>"+"</td>"+//product
+            "<td >"+"<select id=pt"+n+"               name=pt"+n+" required ></select>"+"</td>"+//presentation
+            "<td >"+"<input type='text'   id=v"+n+"   name=v"+n+"  required style='width: 90px;'>"+"</td>"+//version
+            "<td >"+"<input type='number' id=vs"+n+"  name=vs"+n+" required style='width: 90px;'>"+"</td>"+//nominal speed
+            "<td >"+"<input type='number' id=pl"+n+"  name=pl"+n+" required style='width: 90px;'>"+"</td>"+//planned
+            "<td >"+"<input type='number' id=pr"+n+"  name=pr"+n+" required style='width: 90px;'>"+"</td>"//produced
+        );
+        $("#data").append("</tr>");
+    }
+
+  }
+
+  function chargeData(i){
+
+    $.getJSON("/getProducts", function(data) {
+      $("#p"+i).empty();
+      $.each(data, function(index, row) {
+        $("#p"+i).append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+    });
+    $.getJSON("/getPresentations?id=" + $("#p"+i).val(), function(data) {
+      $("#pt"+i).empty();
+      $.each(data, function(index, row) {
+        $("#pt"+i).append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+    });
+
+    $("#p"+i).change(() => {
+      $.getJSON("/getPresentations?id=" + $("#p"+i).val(), function(data) {
+        $("#pt"+i).empty();
+        $.each(data, function(index, row) {
+          $("#pt"+i).append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+  }
+
+
+  function genTable(){
+    $("#data").empty();
+
+ 
+
+    for (let index = 0; index < 6; index++) {//por cantidad de dias
+        createRowForm(index);
+    }
+
+    for (let index = 1; index <= 7*3; index++) {//por cantidad de turnos
+         chargeData(index);     
+    }
+
+  }
+
+
+  $(document).ready(() => {
+    $.getJSON("/getArea", function(data) {
+      $("#area").empty();
+      $.each(data, function(index, row) {
+        $("#area").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+    $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+      $("#line").empty();
+      $.each(data, function(index, row) {
+        $("#line").append(
+          "<option value='" + row.Id + "' >" + row.Name + "</option>"
+        );
+      });
+    });
+
+    $("#area").change(() => {
+      $.getJSON("/getLineBy?id=" + $("#area").val(), function(data) {
+        $("#line").empty();
+        $.each(data, function(index, row) {
+          $("#line").append(
+            "<option value='" + row.Id + "' >" + row.Name + "</option>"
+          );
+        });
+      });
+    });
+
+
+  });
+</script>
+{{ template "Footer" }}
+{{ end }}
