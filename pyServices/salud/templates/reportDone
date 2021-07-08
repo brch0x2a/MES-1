@@ -1,0 +1,101 @@
+
+<!doctype html>
+<div style="color:white;">
+<title>Accesos</title>
+
+<link rel=stylesheet href="{{ url_for('static', filename='css/bulma.min.css') }}" />
+<!-- <link rel=stylesheet href="{{ url_for('static', filename='css/setup.css') }}" /> -->
+
+
+
+<div class="card">
+
+  <header class="card-header">
+    <div class="card-image">
+      <figure class="image is-128x128">
+          <img
+          src="{{ url_for('static', filename='images/unilever.jpg') }}"
+
+          alt="icon"
+          >
+      </figure>
+    </div>
+    <p class="card-header-title">
+      Reporte accesos COVID
+    </p>
+
+  </header>
+
+
+    <div class="card-content">
+      <!-- <a style="" href="/report">
+        <button class="button is-link is-light">Volver</button>
+      </a> -->
+
+      <br>
+
+        <table style="font-size: xx-small" class="table is-striped">
+            <tr>
+                <th>Fecha</th>
+                <th>Encargado</th>
+                <th>TipoAcceso</th>
+                <th>Persona</th>
+                <th>Temperatura EPP</th>
+                <th>Area</th>
+                <th>Temperatura</th>
+                <th>Alerta</th>
+            </tr>
+                {% for e in result %}
+                    <tr>
+                        <td>{{ e.date_reg }}</td>
+                        <td>{{ e.in_charge }}</td>
+                        <td>{{ e.acces_type }}</td>
+                        <td>{{ e.person }}</td>
+
+                        <td>
+                          <figure class="image is-128x128">
+                            <img
+                              style="object-fit: scale-down;"
+
+                              src="{{ url_for('static', filename= e.temperature_epp) }}"
+                              alt="Foto tmperatea epp"
+
+                            />
+                          </td>
+                        </figure>
+
+                        <td>
+                          <figure class="image is-128x128">
+                            <img
+                              style="object-fit: scale-down;"
+
+                              src="{{ url_for('static', filename= e.area) }}"
+                              alt="Foto area"
+
+                            />
+                          </figure>
+                        </td>
+
+                        <td>{{ e.temperature }}</td>
+                        <!-- <td>
+                          <img
+                            style="object-fit: scale-down;"
+
+                            src="{{ url_for('static', filename='images/house.jpg') }}"
+                            alt="Foto"
+                            width='80'
+                            height='80'
+                          />
+                        <td> -->
+                          {% if e.alert %}
+                            <td style="background-color:#ff5050; color:#800000">Positiva</td>
+                          {%else%}
+                            <td style="background-color:#99ff99; color:#009900">Negativa</td>
+                          {%endif%}
+
+                    </tr>
+                {% endfor %}
+        </table>
+
+    </div>
+</div>
