@@ -223,7 +223,7 @@ func GetCalloffV00(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err.Error())
 		}
-		p.Profile_picture =Profile_picture
+		p.Profile_picture = Profile_picture
 		p.Id = Id
 		p.Linea = Linea
 		p.NickName = NickName
@@ -340,7 +340,7 @@ func GetCalloffV01(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err.Error())
 		}
-		p.Profile_picture =Profile_picture
+		p.Profile_picture = Profile_picture
 		p.Id = Id
 		p.Linea = Linea
 		p.NickName = NickName
@@ -455,7 +455,7 @@ func GetCalloffV02(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err.Error())
 		}
-		p.Profile_picture =Profile_picture
+		p.Profile_picture = Profile_picture
 		p.Id = Id
 		p.Linea = Linea
 		p.NickName = NickName
