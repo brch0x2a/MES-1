@@ -22,7 +22,7 @@ import (
 func dbConn() (db *sql.DB) {
 	dbDriver := "mysql"
 	dbUser := "brch"
-	 dbPass := "tk2718"
+	dbPass := "tk2718"
 	//dbPass := "wrf!C:w(>7:&"
 	dbName := "mes"
 	//dbAdress := "10.0.1.36"

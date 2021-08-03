@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 
 	"../models"
-	"github.com/go-sql-driver/mysql"
 )
 
 func LineTimeClassification(w http.ResponseWriter, r *http.Request) {
