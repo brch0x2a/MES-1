@@ -9,7 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"../models"
+	//"../models"
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 func AM_instance(w http.ResponseWriter, r *http.Request) {

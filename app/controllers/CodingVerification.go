@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"../models"
+	//"../models"
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 func CodingVerification(w http.ResponseWriter, r *http.Request) {

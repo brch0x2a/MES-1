@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"../models"
+	//"../models"
+
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 func SalsitasOutputControl(w http.ResponseWriter, r *http.Request) {

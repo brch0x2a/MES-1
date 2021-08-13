@@ -8,7 +8,10 @@ import (
 	//"image/jpeg"
 	"encoding/json"
 
-	"../models"
+	//"../models"
+
+	"github.com/AdrianRb95/MES/app/models"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 

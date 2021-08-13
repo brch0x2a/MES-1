@@ -1,4 +1,4 @@
-module github.com/AdrianRb95/MES
+module github.com/AdrianRb95/MES/app
 
 go 1.16
 

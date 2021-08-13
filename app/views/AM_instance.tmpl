@@ -130,11 +130,12 @@
                         <td>{{ .Id }}</td>
                         <td>{{ .Machine}}</td>
                         <td>{{ .Component }}</td> 
-                        <td><img style="object-fit: scale-down;"  src="/{{ .ComponentPhoto}}" width='200' height='180'></td>
-                        <td style="background-color: {{ .LILAColor}}; color: black;">{{ .LILA}}</td>
+                        <td><img style= "object-fit: scale-down;"  src="/{{ .ComponentPhoto}}" width='200' height='180'></td>
+                        <td style= "background-color: {{ .LILAColor}} ; color: black,">{{ .LILA}}</td>
                         <td>{{ .EPP}}</td>
-                        <td style="background-color: white;"><img style="object-fit: scale-down;"  src="/{{ .EPPPhoto}}" width='200' height='180'></td>
-                        <td>{{ .Description}}</td>  </tr>
+                        <td style= "background-color: white;"><img style="object-fit: scale-down;"  src="/{{ .EPPPhoto}}" width='200' height='180'></td>
+                        <td>{{ .Description}}</td>  
+                      </tr>
                     {{  end  }}
                   </tbody>
                 </table>

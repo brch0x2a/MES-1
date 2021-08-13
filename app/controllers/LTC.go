@@ -9,7 +9,8 @@ import (
 	//"image/jpeg"
 	"encoding/json"
 
-	"../models"
+	//"../models"
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 func LineTimeClassification(w http.ResponseWriter, r *http.Request) {

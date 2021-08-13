@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"../models"
+	//"../models"
+
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 func GetReason_change(w http.ResponseWriter, r *http.Request) {

@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	"../models"
+	//"../models"
+
+	"github.com/AdrianRb95/MES/app/models"
 	//"image/jpeg"
 	//	_ "github.com/go-sql-driver/mysql"
 )

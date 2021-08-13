@@ -12,7 +12,8 @@ import (
 	//"image/jpeg"
 	"encoding/json"
 
-	"../models"
+	//"../models"
+	"github.com/AdrianRb95/MES/app/models"
 	//	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -183,9 +184,9 @@ func calcAMISbyRange(line, startDate, endDate string) models.AMIS_holder {
 
 	amis_holder.OR = calcORbyRange(line, startDate, endDate)
 
-	lineID, _ := strconv.Atoi(line)
+	//lineID, _ := strconv.Atoi(line)
 
-	oline = GetLineObjectBy(lineID)
+	//oline = GetLineObjectBy(lineID)
 
 	amis_holder.Line = oline.Name
 

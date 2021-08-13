@@ -7,7 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	"../models"
+	//"../models"
+
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 const (

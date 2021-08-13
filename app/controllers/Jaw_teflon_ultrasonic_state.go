@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"../models"
+	//"../models"
+
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 func Jaw_teflon_ultrasonic_StateStep(w http.ResponseWriter, r *http.Request) {
@@ -314,7 +316,7 @@ func GetJawControlV00(w http.ResponseWriter, r *http.Request) {
 	res := []models.Jaw_teflon_ultrasonic_state_holder{}
 
 	for selDB.Next() {
-		var Profile_picture		 string
+		var Profile_picture string
 		var Date string
 		var Turn int
 		var Line string

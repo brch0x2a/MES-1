@@ -8,8 +8,9 @@ import (
 	//"image/jpeg"
 	"encoding/json"
 
-	"../models"
-	_ "github.com/go-sql-driver/mysql"
+	//"../models"
+
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 func GetBranch(w http.ResponseWriter, r *http.Request) {

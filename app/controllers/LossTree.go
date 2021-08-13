@@ -9,7 +9,8 @@ import (
 	"strconv"
 
 	//"image/jpeg"
-	"../models"
+	//"../models"
+	"github.com/AdrianRb95/MES/app/models"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -61,7 +62,7 @@ func GetLossTreeDataGrid(w http.ResponseWriter, r *http.Request) {
 	var area []models.LossTreeArea
 	var lossTreeHolder models.LossTreeArea
 
-	SubClassification = getAllSubClassification()
+	//SubClassification = getAllSubClassification()
 
 	for _, s := range SubClassification {
 		lossTreeHolder.S = s

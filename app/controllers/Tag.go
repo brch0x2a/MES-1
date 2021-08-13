@@ -10,7 +10,10 @@ import (
 	"strconv"
 	"time"
 
-	"../models"
+	//"../models"
+
+	"github.com/AdrianRb95/MES/app/models"
+
 	"github.com/gorilla/websocket"
 )
 

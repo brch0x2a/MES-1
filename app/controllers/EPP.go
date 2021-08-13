@@ -6,7 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"../models"
+	//"../models"
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 func EPP(w http.ResponseWriter, r *http.Request) {

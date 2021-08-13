@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"../models"
+	//"../models"
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 func AllergenVerificationStep(w http.ResponseWriter, r *http.Request) {

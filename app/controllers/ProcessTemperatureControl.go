@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"../models"
+	//"../models"
+
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 func ProcessTemperatureControlStep(w http.ResponseWriter, r *http.Request) {

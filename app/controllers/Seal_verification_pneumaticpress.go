@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"../models"
+	//"../models"
+
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 func FillSealStep(w http.ResponseWriter, r *http.Request) {

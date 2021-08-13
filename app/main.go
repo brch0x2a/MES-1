@@ -10,7 +10,8 @@ import (
 	"github.com/gorilla/mux"
 	//"github.com/gorilla/securecookie"
 	//"github.com/gorilla/sessions"
-	"./controllers"
+	//"./controllers"
+	"github.com/AdrianRb95/MES/app/controllers"
 )
 
 func initRouter() {

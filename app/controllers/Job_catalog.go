@@ -5,7 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"../models"
+	//"../models"
+
+	"github.com/AdrianRb95/MES/app/models"
 )
 
 func Job_catalog(w http.ResponseWriter, r *http.Request) {

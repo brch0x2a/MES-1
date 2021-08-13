@@ -14,7 +14,10 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"../models"
+	//"../models"
+
+	"github.com/AdrianRb95/MES/app/models"
+
 	"github.com/gorilla/websocket"
 	//_ "github.com/go-sql-driver/mysql"
 )

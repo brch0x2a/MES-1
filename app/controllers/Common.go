@@ -8,7 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"../models"
+	//"../models"
+	"github.com/AdrianRb95/MES/app/models"
+
 	//_ "github.com/go-sql-driver/mysql"
 
 	"github.com/jung-kurt/gofpdf"

@@ -12,7 +12,9 @@ import (
 	"text/template"
 	"time"
 
-	"../models"
+	//"../models"
+	"github.com/AdrianRb95/MES/app/models"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
