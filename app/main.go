@@ -18,7 +18,7 @@ func initRouter() {
 	router := mux.NewRouter()
 
 	controllers.Init()
-	port := "3000"
+	port := "3001"
 
 	//log.Println("Eviroment test: ", os.Getenv("MESDBUSER"))
 
@@ -243,7 +243,7 @@ func initRouter() {
 	router.HandleFunc("/deleteUser", controllers.DeleteUser)
 
 	//router.HandleFunc("/fill")
-	/*-----------------------------------------------------*/
+	/*--------------------------Control de Pesos---------------------------*/
 	router.HandleFunc("/insertSalsitasControl", controllers.InsertSalsitasControl)
 	router.HandleFunc("/insertSalsitasWeight_control", controllers.InsertSalsitasWeight_control)
 	router.HandleFunc("/consolidatedWeightSalsitas", controllers.ConsolidatedWeightSalsitas)
