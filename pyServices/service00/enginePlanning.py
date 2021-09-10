@@ -10,7 +10,8 @@ IP = "192.168.1.191"
 PASS = "tk2718"
 
 
-db = pymysql.connect(IP, "brch", PASS, "mes")
+#db = pymysql.connect(IP, "brch", PASS, "mes")
+db = pymysql.connect(host="IP", user="brch", password="tk2718", db="mes")
 
 
 class LineHolder:
@@ -205,7 +206,7 @@ def getPresentationByCode(L, code):
 
 
 def insertPlan(pline, ppresentation, pdate_planning, pversion, pturn, pnominal_speed, pproduced, pplanned):
-    db = pymysql.connect(IP, "brch", PASS, "mes")
+    db = pymysql.connect(host="IP", user="brch", password="tk2718", db="mes")
 
     line = str(pline)
     presentation = str(ppresentation) 
@@ -234,7 +235,7 @@ def insertPlan(pline, ppresentation, pdate_planning, pversion, pturn, pnominal_s
 
 
 def deletePlanRange(begin, end):
-    db = pymysql.connect(IP, "brch", PASS, "mes")
+    db = pymysql.connect(host="IP", user="brch", password="tk2718", db="mes")
 
     format = "%Y%m%d"
 
