@@ -27,22 +27,22 @@ type SalsitasControl_subheader_holder struct {
 
 type Consolidated_weight_salsitas struct {
 	Profile_picture string
-	Date        string
-	Turn        int
-	Line        string
-	Pname       string
-	Pvalue      float32
-	Punit       string
-	Prate       float32
-	Coordinator string
-	Clname      string
-	Operator    string
-	Olname      string
-	V1          float32
-	V2          float32
-	V3          float32
-	V4          float32
-	V5          float32
+	Date            string
+	Turn            int
+	Line            string
+	Pname           string
+	Pvalue          float32
+	Punit           string
+	Prate           float32
+	Coordinator     string
+	Clname          string
+	Operator        string
+	Olname          string
+	V1              float32
+	V2              float32
+	V3              float32
+	V4              float32
+	V5              float32
 }
 
 func (c Consolidated_weight_salsitas) HasDeviation(value float32) bool {
