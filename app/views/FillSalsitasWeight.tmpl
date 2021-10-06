@@ -108,6 +108,7 @@
       <td><strong>Producto:</strong>  {{.SubHeader.Presentation}}  {{.SubHeader.Pvalue}}  {{.SubHeader.Punit}}</td>
       <td><strong>Fecha:</strong>  {{.SubHeader.Date}}</td>
       <td><strong>Turno:</strong>  {{.SubHeader.Turn}}</td>
+      <td>Peso: {{.SubHeader.Pvalue}}</td>
     </tr>
     </tbody>
   </table>
@@ -128,26 +129,15 @@
   </div>
   <div class="card-body">
 
-    <div class="fa fa-align-center" aria-hidden="true"></i>">
-      <div class="column">
-            <img src="/public/images/Captura1.png">
-      </div>
-      <div class= "fa fa-align-center" aria-hidden="true"></i>">
-        <img src="/public/images/Captura2.png">
-        </div>
-      <div class=""fa fa-align-center" aria-hidden="true"></i>">
-    <img src="/public/images/Captura3.png">
-        </div>
-    </div>
 
-    <!--<div  class="d-flex align-items-center flex-column justify-content-center">
-      <img style="object-fit: fill;" width='400' height='400' id="" src= "/public/images/TablaDeLimitesDeControlDePesos.png" alt="user">
-    </div> -->
+    <br><br>
 
     <form id="weight_form"  name="weight_form" action="insertSalsitasWeight_control" method="post" > 
-      <input name="unit" type="text" value={{ .SubHeader.Punit}} hidden>
-      <input name="sub" type="number" value={{ .SubHeader.Id}} hidden>
-      <input id="prate" type="number" value={{ .SubHeader.Perror}} hidden>
+      <input name="unit" type="text" value={{ .SubHeader.Punit}} >
+      <input name="sub" type="number" value={{ .SubHeader.Id}} >
+      <input id="prate" type="number" value={{ .SubHeader.Perror}} >
+      <input id="doypack_weight" type="number" value={{ .SubHeader.Doypack_weight}}  >
+
 
         <div class="container">
           <div class="row">
@@ -155,41 +145,48 @@
               <h3 id="modeTitle">Muestreo manual</h3>
             </div>
             <div class="col-4">
+            <--
               <label class="switch">
                 <input  id='modeSwitch' type="checkbox" onclick="return false">
                 <span class="slider round"></span>
+                -->
             </div>
           </div>
 
 
       </label>
+
         <div class="form-group row">
             <label id="lbv1" for="v1" class="col-form-label">1</label>
+
             <div class="col-4">
               <input name="v1" id="v1" type="number" class="form-control"  onfocusout="evalInput(0)" placeholder="0.00" step="0.01" required>
-              <div id="v1Danger"  class="alert alert-danger" role="alert"  hidden></div>
-              <div id="v1Success" class="alert alert-success" role="alert" hidden></div>
             </div>
+
             <div class="col">
-              <input type="number" id="disabledTextInput" for= "" class="form-control" placeholder="Valor Neto" readonly>
+              <input type="number" id="v1Neto" name="v1Neto" for= "" class="form-control" placeholder="Valor Neto" readonly>
+             
+              <!-- <div id="v1Danger"  class="alert alert-danger" role="alert"  hidden></div>
+              <div id="v1Success" class="alert alert-success" role="alert" hidden></div> -->
             </div>
+<--
             <div class="col">
               <button type="button" id="capture0" class="btn btn-secondary" onclick="handleCapture(0)">Captura</button>
               <button type="button" id="done1" class="btn btn-info" onclick="handleDone(0)" value="Listo" hidden></button>
-
             </div>
+            -->
           </div>
           
           <div class="form-group row">
           <label id="lbv2" for="v2" class="col-form-label">2</label>
           <div  class="col-4">
             <input name="v2" id="v2" type="number" class="form-control"  onfocusout="evalInput(1)" placeholder="0.00" step="0.01" required>
-            <div id="v2Danger"  class="alert alert-danger" role="alert" hidden></div>
-            <div id="v2Success" class="alert alert-success" role="alert" hidden></div>
+
           </div>
           <div class="col">
-            <input type="number" id="disabledTextInput" for= "" class="form-control" placeholder="Valor Neto" readonly>
-
+            <input type="number" id="v2Neto" for= ""  name="v2Neto"  class="form-control" placeholder="Valor Neto"  readonly>
+            <!-- <div id="v2Danger"  class="alert alert-danger" role="alert" hidden></div>
+            <div id="v2Success" class="alert alert-success" role="alert" hidden></div> -->
           </div>
           <div class="col">
             <button type="button" id="capture1" class="btn btn-secondary" onclick="handleCapture(1)">Captura</button>
@@ -202,11 +199,12 @@
             <label id="lbv3" for="v3" class="col-form-label">3</label>
             <div  class="col-4">
               <input name="v3" id="v3" type="number" class="form-control"  onfocusout="evalInput(2)" placeholder="0.00" step="0.01" required>
-              <div id="v3Danger"  class="alert alert-danger" role="alert" hidden></div>
-              <div id="v3Success" class="alert alert-success" role="alert" hidden></div>
+
             </div>
             <div class="col">
-              <input type="number" id="disabledTextInput" for= "" class="form-control" placeholder="Valor Neto" readonly>
+              <input type="number" id="v3Neto" name="v3Neto" for= "" class="form-control" placeholder="Valor Neto"   readonly>
+              <!-- <div id="v3Danger"  class="alert alert-danger" role="alert" hidden></div>
+              <div id="v3Success" class="alert alert-success" role="alert" hidden></div> -->
             </div>
             <div class="col">
               <button type="button" id="capture2" class="btn btn-secondary" onclick="handleCapture(2)">Captura</button>
@@ -219,11 +217,12 @@
           <label id="lbv4"  for="v4" class="col-form-label">4</label>
           <div  class="col-4">
             <input name="v4"  id="v4" type="number" class="form-control"  onfocusout="evalInput(3)" placeholder="0.00" step="0.01" required>
-            <div id="v4Danger"  class="alert alert-danger" role="alert" hidden></div>
-            <div id="v4Success" class="alert alert-success" role="alert" hidden></div>
+
           </div>
           <div class="col">
-            <input type="number" id="disabledTextInput" for= "" class="form-control" placeholder="Valor Neto" readonly>
+            <input type="number" id="v4Neto" for= ""  name="v4Neto"  class="form-control" placeholder="Valor Neto"  readonly>
+            <!-- <div id="v4Danger"  class="alert alert-danger" role="alert" hidden></div>
+            <div id="v4Success" class="alert alert-success" role="alert" hidden></div> -->
           </div>
           <div class="col">
             <button type="button" id="capture3" class="btn btn-secondary" onclick="handleCapture(3)">Captura</button>
@@ -235,11 +234,12 @@
             <label id="lbv5"  for="v5" class="col-form-label">5</label>
             <div class="col-4">
               <input name="v5" id="v5" type="number" class="form-control"   onfocusout="evalInput(4)" placeholder="0.00" step="0.01" required>
-              <div id="v5Danger"  class="alert alert-danger" role="alert" hidden></div>
-              <div id="v5Success" class="alert alert-success" role="alert" hidden></div>
+
             </div>
             <div class="col">
-              <input type="number" id="disabledTextInput" for= "" class="form-control" placeholder="Valor Neto" readonly>
+              <input type="number" id="v5Neto" for= ""  name="v5Neto"  class="form-control" placeholder="Valor Neto" readonly>
+              <!-- <div id="v5Danger"  class="alert alert-danger" role="alert" hidden></div>
+              <div id="v5Success" class="alert alert-success" role="alert" hidden></div> -->
             </div>
             <div class="col">
               <button type="button" id="capture4" class="btn btn-secondary" onclick="handleCapture(4)">Captura</button>
@@ -247,57 +247,11 @@
             </div>
           </div>
 
-      <!-- <div class="form-group row">
-            <label id="lbvalorNeto1" for="valorNeto1" class="col-form-label">Valor Neto 1</label>
-            <div class="col-4">
-              <input name="valorNeto1" id="valorNeto1" type="number" class="form-control"  onfocusout="evalInput(0)" placeholder="0.00" step="0.01" required>
-              <div id="v1Danger"  class="alert alert-danger" role="alert"  hidden></div>
-              <div id="v1Success" class="alert alert-success" role="alert" hidden></div>
-            </div>
-          </div>
-
-        <div class="form-group row">
-            <label id="lbvalorNeto2" for="valorNeto2" class="col-form-label">Valor Neto 2</label>
-            <div class="col-4">
-              <input name="valorNeto2" id="valorNeto2" type="number" class="form-control"  onfocusout="evalInput(1)" placeholder="0.00" step="0.01" required>
-              <div id="v1Danger"  class="alert alert-danger" role="alert"  hidden></div>
-              <div id="v1Success" class="alert alert-success" role="alert" hidden></div>
-            </div>
-        </div>
-
-        <div class="form-group row">
-          <label id="lbvalorNeto3" for="valorNeto3" class="col-form-label">Valor Neto 3</label>
-          <div class="col-4">
-            <input name="valorNeto3" id="valorNeto3" type="number" class="form-control"  onfocusout="evalInput(2)" placeholder="0.00" step="0.01" required>
-            <div id="v1Danger"  class="alert alert-danger" role="alert"  hidden></div>
-            <div id="v1Success" class="alert alert-success" role="alert" hidden></div>
-          </div>
-      </div>
-
-      <div class="form-group row">
-        <label id="lbvalorNeto4" for="valorNeto2" class="col-form-label">Valor Neto 4</label>
-        <div class="col-4">
-          <input name="valorNeto4" id="valorNeto4" type="number" class="form-control"  onfocusout="evalInput(3)" placeholder="0.00" step="0.01" required>
-          <div id="v1Danger"  class="alert alert-danger" role="alert"  hidden></div>
-          <div id="v1Success" class="alert alert-success" role="alert" hidden></div>
-        </div>
-    </div>
-
-    <div class="form-group row">
-      <label id="lbvalorNeto5" for="valorNeto5" class="col-form-label">Valor Neto 5</label>
-      <div class="col-4">
-        <input name="valorNeto5" id="valorNeto5" type="number" class="form-control"  onfocusout="evalInput(4)" placeholder="0.00" step="0.01" required>
-        <div id="v1Danger"  class="alert alert-danger" role="alert"  hidden></div>
-        <div id="v1Success" class="alert alert-success" role="alert" hidden></div>
-      </div>
-  </div>
-
-    -->
 
        <div class="form-group row">
             <label id="lbvpromedio" aria-readonly="true"  for="promedio" class="col-form-label">Promedio</label>
             <div class="col-8">
-              <input name="promedio" id="promedio" type="number" class="form-control"   onfocusout="average(0)" placeholder="0.00" step="0.01" required>
+              <input name="promedio" id="promedio" type="number" class="form-control"    placeholder="0.00" step="0.01" required readonly>
               <div id="promedioDanger"  class="alert alert-danger" role="alert" hidden></div>
               <div id="promedioSuccess" class="alert alert-success" role="alert" hidden></div>
             </div>
@@ -466,12 +420,57 @@ function evalInput(index){
     ];
 
 
-    const a = values[index] ;
-          const current = index + 1  
+
+
+      const a = values[index] ;
+      let doypack_weight = document.forms["weight_form"]["doypack_weight"].value;
+
+
+        let neto = a - doypack_weight;
+        let indexName = "v"+(index+1)+"Neto";
+
+        console.log(indexName+"  neto: "+neto);
+
+
+
+        document.getElementById(indexName).value = neto;
+            
+      var valuesNeto = [ 
+        document.forms["weight_form"]["v1Neto"].value, 
+        document.forms["weight_form"]["v2Neto"].value, 
+        document.forms["weight_form"]["v3Neto"].value, 
+        document.forms["weight_form"]["v4Neto"].value, 
+        document.forms["weight_form"]["v5Neto"].value, 
+      // document.forms["weight_form"]["promedio"].value,
+      ];
+
+
+        var promedio = 0;
+        document.getElementById("promedio").value = "";
+
+        for (let index = 0; index < valuesNeto.length; index++) {
+          let element = valuesNeto[index];
+
+          promedio += +(element);
+          console.log("e "+element);
+          
+        }
+
+        promedio = promedio / 5
+        console.log("Promedio: "+promedio);
+
+        document.getElementById("promedio").value = promedio;
+
+        document.getElementById(indexName).value
+
+        const current = index + 1  
           console.log("index: "+index);
           
           console.log("a: "+a);
+    
           
+          console.log("Doypack Weight: "+doypack_weight);
+
           if (a == "") {
           hiddeE("v"+current+"Success", true);
           hiddeE("v"+current+"Danger", false);
