@@ -337,6 +337,125 @@ func WeightSubControlStep(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "FillSalsitasWeight", data)
 }
 
+// Sistemas IQ
+
+func CalculaPesoNetoSalsitas(w http.ResponseWriter, r *http.Request) {
+	SubHeader := models.SalsitasControl_subheader_holder{}
+
+	//	var SubId int
+	session, err := store.Get(r, "cookie-name")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user := GetUser(session)
+
+	if auth := user.Authenticated; !auth {
+		session.AddFlash("You don't have access!")
+		err = session.Save(r, w)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(w, r, "/forbidden", http.StatusFound)
+		return
+	}
+
+	db := dbConn()
+
+	nLine := r.URL.Query().Get("line")
+	dateInit := r.URL.Query().Get("dinit")
+	dateFinal := r.URL.Query().Get("dfinal")
+
+	selDB, err := db.Query(`
+	SELECT
+		Op.profile_picture,
+		W.date_reg,
+		S.turn,
+		L.name,
+		P.name,
+		P.weight_value,
+		P.weight_unit,
+		P.error_rate,
+		Co.fname,
+		Co.lname,
+		Op.fname,
+		Op.lname,
+		W.value1,
+		W.value2,
+		W.value3,
+		W.value4,
+		W.value5
+	FROM
+		Weight_control W
+	INNER JOIN Salsitas_statistical_process S ON
+		S.id = W.id_sub_header
+	INNER JOIN Line L ON
+		L.id = S.id_line
+	INNER JOIN Presentation P ON
+		P.id = S.id_presentation
+	INNER JOIN User_table Co ON
+		Co.id = S.id_coordinator
+	INNER JOIN User_table Op ON
+		Op.id = S.id_operator
+	WHERE
+		L.id = ? AND
+		W.date_reg >= ? AND 
+		W.date_reg < ?`, nLine, dateInit, dateFinal)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	for selDB.Next() {
+		var Id int
+		var Date string
+		var Turn int
+		var Line string
+		var Presentation string
+		var Pvalue float32
+		var Punit string
+		var Perror float32
+		var Coordinator string
+		var Operator string
+		var Header int
+
+		err = selDB.Scan(&Id, &Date, &Header, &Turn,
+			&Line, &Presentation, &Pvalue, &Punit, &Perror,
+			&Coordinator, &Operator)
+
+		if err != nil {
+			panic(err.Error())
+		}
+
+		SubHeader.Id = Id
+		SubHeader.Date = Date
+		SubHeader.Turn = Turn
+		SubHeader.Line = Line
+		SubHeader.Presentation = Presentation
+		SubHeader.Pvalue = Pvalue
+		SubHeader.Punit = Punit
+		SubHeader.Perror = Perror //rate
+		SubHeader.Coordinator = Coordinator
+		SubHeader.Operator = Operator
+		SubHeader.Header = Header
+
+	}
+
+	data := map[string]interface{}{
+		"SubHeader": SubHeader,
+		"User":      user,
+	}
+
+	defer db.Close()
+	
+	tmpl.ExecuteTemplate(w, "FillSalsitasWeight", data)
+
+} // fin codigo sistemas IQ
+
+
+
 func InsertSalsitasWeight_control(w http.ResponseWriter, r *http.Request) {
 	SubHeader := models.SalsitasControl_subheader_holder{}
 

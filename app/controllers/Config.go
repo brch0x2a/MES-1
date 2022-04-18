@@ -28,8 +28,8 @@ func dbConn() (db *sql.DB) {
 	//dbPass := "wrf!C:w(>7:&"
 	dbName := "mes"
 	//dbAdress := "10.0.1.36"
-	dbAdress := "192.168.1.191"
-	//dbAdress := "localhost"
+	//dbAdress :=  "192.168.1.191"
+	dbAdress := "localhost"
 	// dbAdress := "192.168.1.97"
 
 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@tcp("+dbAdress+")/"+dbName+"?parseTime=true")
